@@ -76,19 +76,19 @@
 				<artifactId>jacoco-maven-plugin</artifactId>
 				<version>0.6.2.201302030002</version>
 				<!--<configuration>-->
-					<!--<destfile>${basedir}/target/coverage-reports/jacoco-unit.exec</destfile>-->
-					<!--<datafile>${basedir}/target/coverage-reports/jacoco-unit.exec</datafile>-->
+				<!--<destfile>${basedir}/target/coverage-reports/jacoco-unit.exec</destfile>-->
+				<!--<datafile>${basedir}/target/coverage-reports/jacoco-unit.exec</datafile>-->
 				<!--</configuration>-->
 				<executions>
 					<execution>
-						<id>jacoco-initialize</id>
+						<id>prepare-agent</id>
 						<goals>
 							<goal>prepare-agent</goal>
 						</goals>
 					</execution>
 					<execution>
-						<id>jacoco-site</id>
-						<phase>package</phase>
+						<id>report</id>
+						<phase>prepare-package</phase>
 						<goals>
 							<goal>report</goal>
 						</goals>
