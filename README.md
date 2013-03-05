@@ -11,29 +11,63 @@ Sending metrics is done by using the MetricBuilder. You simply add a metric, the
 the data points.
 
 
-		MetricBuilder builder = MetricBuilder.getInstance();
-		builder.addMetric("metric1")
-				.addTag("host", "server1")
-				.addTag("customer", "Acme");
-				.addDataPoint(1, 10)
-				.addDataPoint(2, 30L)
+	MetricBuilder builder = MetricBuilder.getInstance();
+	builder.addMetric("metric1")
+			.addTag("host", "server1")
+			.addTag("customer", "Acme");
+			.addDataPoint(1, 10)
+			.addDataPoint(2, 30L)
+    HttpClient client = new HttpClient("myServer", 9000);
+	Response response = client.pushMetrics(builder);
 
-		HttpClient client = new HttpClient("myServer", 9000);
-		Response response = client.pushMetrics(builder);
+## Querying Data Points
 
-## Querying
-
-Querying metrics is similarly done by using the QueryBuilder class. A query requires a date range. The start date is
+Querying data points is similarly done by using the QueryBuilder class. A query requires a date range. The start date is
 required, but the end date defaults to NOW if not specified. The metric(s) that you are querying for is also required.
 Optionally, tags may be added to narrow down the search.
 
-		QueryBuilder builder = QueryBuilder.getInstance();
-        builder.setStart(2, TimeUnit.MONTHS)
-                .setEnd(1, TimeUnit.MONTHS)
-                .addMetric("metric1", "sum");
+	QueryBuilder builder = QueryBuilder.getInstance();
+    builder.setStart(2, TimeUnit.MONTHS)
+           .setEnd(1, TimeUnit.MONTHS)
+           .addMetric("metric1", "sum");
+    HttpClient client = new HttpClient("localhost", 9000);
+    QueryResponse response = client.query(builder);
 
-        HttpClient client = new HttpClient("localhost", 9000);
-        QueryResponse response = client.query(builder);
+## Querying Metric Names
+
+You can get a list of all metric names in KairosDB.
+
+	GetResponse response = client.getTagNames();
+
+	System.out.println("Response Code =" + response.getStatusCode());
+	for (String name : response.getResults())
+    {
+    	System.out.println(name);
+    }
+
+## Querying Tag Names
+Similiarly you can get a list of all tag names in KariosDB.
+
+	HttpClient client = new HttpClient("localhost", 9000);
+	GetResponse response = client.getTagNames();
+
+	System.out.println("response=" + response.getStatusCode());
+	for (String name : response.getResults())
+	{
+		System.out.println(name);
+	}
+
+## Querying Tag Values
+And a list of all tag values.
+
+	HttpClient client = new HttpClient("localhost", 9000);
+	GetResponse response = client.getTagValues();
+
+	System.out.println("response=" + response.getStatusCode());
+	for (String name : response.getResults())
+    {
+    	System.out.println(name);
+    }
 
 ## Copyright and License
 
