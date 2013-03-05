@@ -16,7 +16,7 @@
 package org.kairosdb.client.util;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.sun.istack.internal.Nullable;
+import javax.annotation.Nullable;
 
 public class Preconditions
 {
