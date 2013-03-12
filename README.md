@@ -29,7 +29,8 @@ Optionally, tags may be added to narrow down the search.
 	QueryBuilder builder = QueryBuilder.getInstance();
     builder.setStart(2, TimeUnit.MONTHS)
            .setEnd(1, TimeUnit.MONTHS)
-           .addMetric("metric1", "sum");
+           .addMetric("metric1")
+           .addAggregator(AggregatorFactory.sumAggregator(5, TimeUnit.MINUTES));
     HttpClient client = new HttpClient("localhost", 9000);
     QueryResponse response = client.query(builder);
 

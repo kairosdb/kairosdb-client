@@ -56,7 +56,7 @@ public class AggregatorFactory
 	 */
 	public static SamplingAggregator averageAggregator(int value, TimeUnit unit)
 	{
-		return new SamplingAggregator("sum", value, unit);
+		return new SamplingAggregator("avg", value, unit);
 	}
 
 	/**
@@ -68,6 +68,19 @@ public class AggregatorFactory
 	 * @return average aggregator
 	 */
 	public static SamplingAggregator standardDeviationAggregator(int value, TimeUnit unit)
+	{
+		return new SamplingAggregator("dev", value, unit);
+	}
+
+	/**
+	 * Creates an aggregator that returns the sum of all values over each time period as specified.
+	 * For example, "5 minutes" would returns the sum of data points for each 5 minute period.
+	 *
+	 * @param value value for time period.
+	 * @param unit unit of time
+	 * @return average aggregator
+	 */
+	public static SamplingAggregator sumAggregator(int value, TimeUnit unit)
 	{
 		return new SamplingAggregator("sum", value, unit);
 	}
