@@ -149,18 +149,15 @@ public class QueryBuilder
 	}
 
 	/**
-	 * The metric to query for. The aggregator is the operation that is performed for multiple data points at the
-	 * same timestamp.
+	 * The metric to query for.
 	 * @param name metric name
-	 * @param aggregator aggregator
 	 * @return the builder
 	 */
-	public QueryMetric addMetric(String name, String aggregator)
+	public QueryMetric addMetric(String name)
 	{
-		checkNotNullOrEmpty(name, "Name can&&not be null or empty.");
-		checkNotNullOrEmpty(aggregator, "Aggregator cannot be null or empty.");
+		checkNotNullOrEmpty(name, "Name cannot be null or empty.");
 
-		QueryMetric metric = new QueryMetric(name, aggregator);
+		QueryMetric metric = new QueryMetric(name);
 		metrics.add(metric);
 		return metric;
 	}

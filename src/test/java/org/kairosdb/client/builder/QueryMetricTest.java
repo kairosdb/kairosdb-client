@@ -22,31 +22,19 @@ public class QueryMetricTest
 	@Test(expected = NullPointerException.class)
 	public void test_constructor_NullName_Invalid()
 	{
-		new QueryMetric(null, "sum");
+		new QueryMetric(null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void test_constructor_EmptyName_Invalid()
 	{
-		new QueryMetric("", "sum");
-	}
-
-	@Test(expected = NullPointerException.class)
-	public void test_constructor_NullAggregator_Invalid()
-	{
-		new QueryMetric("metric", null);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void test_constructor_EmptyAggregator_Invalid()
-	{
-		new QueryMetric("metric", "");
+		new QueryMetric("");
 	}
 
 	@Test(expected = NullPointerException.class)
 	public void test_setTags_null_Invalid()
 	{
-		QueryMetric queryMetric = new QueryMetric("metric", "sum");
+		QueryMetric queryMetric = new QueryMetric("metric");
 
 		queryMetric.setTags(null);
 	}
@@ -54,7 +42,7 @@ public class QueryMetricTest
 	@Test(expected = NullPointerException.class)
 	public void test_addTag_nullName_Invalid()
 	{
-		QueryMetric queryMetric = new QueryMetric("metric", "sum");
+		QueryMetric queryMetric = new QueryMetric("metric");
 
 		queryMetric.addTag(null, "value");
 	}
@@ -62,7 +50,7 @@ public class QueryMetricTest
 	@Test(expected = IllegalArgumentException.class)
 	public void test_addTag_emptyName_Invalid()
 	{
-		QueryMetric queryMetric = new QueryMetric("metric", "sum");
+		QueryMetric queryMetric = new QueryMetric("metric");
 
 		queryMetric.addTag("", "value");
 	}
@@ -70,7 +58,7 @@ public class QueryMetricTest
 	@Test(expected = NullPointerException.class)
 	public void test_addTag_nullValue_Invalid()
 	{
-		QueryMetric queryMetric = new QueryMetric("metric", "sum");
+		QueryMetric queryMetric = new QueryMetric("metric");
 
 		queryMetric.addTag("tag", null);
 	}
@@ -78,9 +66,33 @@ public class QueryMetricTest
 	@Test(expected = IllegalArgumentException.class)
 	public void test_addTag_emptyValue_Invalid()
 	{
-		QueryMetric queryMetric = new QueryMetric("metric", "sum");
+		QueryMetric queryMetric = new QueryMetric("metric");
 
 		queryMetric.addTag("tag", "");
+	}
+
+	@Test(expected = NullPointerException.class)
+	public void test_nullAggregatorJson_invalid()
+	{
+		QueryMetric queryMetric = new QueryMetric("metric");
+
+		queryMetric.addAggregator((String) null);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void test_emptyAggregatorJson_invalid()
+	{
+		QueryMetric queryMetric = new QueryMetric("metric");
+
+		queryMetric.addAggregator("");
+	}
+
+	@Test(expected = NullPointerException.class)
+	public void test_nullAggregator_invalid()
+	{
+		QueryMetric queryMetric = new QueryMetric("metric");
+
+		queryMetric.addAggregator((Aggregator) null);
 	}
 
 

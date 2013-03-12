@@ -15,14 +15,21 @@
  */
 package org.kairosdb.client.builder;
 
-public enum TimeUnit
+/**
+ * An aggregator manipulates data points. For example, a sum aggregator would add data point together.
+ */
+public interface Aggregator
 {
-	MILLISECONDS,
-	SECONDS,
-	MINUTES,
-	HOURS,
-	DAYS,
-	WEEKS,
-	MONTHS,
-	YEARS
+	/**
+	 * Returns the aggregator's name.
+	 * @return aggregator name
+	 */
+	String getName();
+
+	/**
+	 * Returns the aggregator serialized to JSON.
+	 *
+	 * @return JSON serialization of the aggregator
+	 */
+	public String toJson();
 }

@@ -31,25 +31,13 @@ public class QueryBuilderTest
 	@Test(expected = NullPointerException.class)
 	public void test_MetricNameNull_Invalid()
 	{
-		QueryBuilder.getInstance().addMetric(null, "sum");
+		QueryBuilder.getInstance().addMetric(null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void test_MetricNameEmpty_Invalid()
 	{
-		QueryBuilder.getInstance().addMetric("", "sum");
-	}
-
-	@Test(expected = NullPointerException.class)
-	public void test_AggregatorNull_Invalid()
-	{
-		QueryBuilder.getInstance().addMetric("metric", null);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void test_AggregatorEmpty_Invalid()
-	{
-		QueryBuilder.getInstance().addMetric("metric", "");
+		QueryBuilder.getInstance().addMetric("");
 	}
 
 	@Test(expected = NullPointerException.class)
@@ -151,10 +139,11 @@ public class QueryBuilderTest
 		builder.setCacheTime(2000)
 				.setStart(3, TimeUnit.WEEKS)
 				.setEnd(2, TimeUnit.DAYS);
-		builder.addMetric("metric1", "sum")
+		builder.addMetric("metric1")
 				.addTag("foo", "bar")
-				.addTag("larry", "moe");
-		builder.addMetric("metric2", "none")
+				.addTag("larry", "moe")
+				.addAggregator(AggregatorFactory.maxAggregator(1, TimeUnit.DAYS));
+		builder.addMetric("metric2")
 				.addTag("curly", "joe");
 
 
@@ -173,7 +162,9 @@ public class QueryBuilderTest
 
 		QueryBuilder builder = QueryBuilder.getInstance();
 		builder.setStart(startTime)
-				.addMetric("metric1", "sum");
+				.addMetric("metric1")
+				.addAggregator(AggregatorFactory.maxAggregator(1, TimeUnit.DAYS))
+				.addAggregator(AggregatorFactory.createRateAggregator());
 
 		assertThat(builder.build(), equalTo(json));
 	}

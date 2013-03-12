@@ -1,1 +1,1 @@
-{"cacheTime":2000,"metrics":[{"tags":{"foo":"bar","larry":"moe"},"name":"metric1","aggregate":"sum"},{"tags":{"curly":"joe"},"name":"metric2","aggregate":"none"}],"start_relative":{"value":3,"unit":"WEEKS"},"end_relative":{"value":2,"unit":"DAYS"}}
+{"cacheTime":2000,"metrics":[{"tags":{"foo":"bar","larry":"moe"},"aggregators":[{"name": "max", "sampling":{"value": 1, "unit": "DAYS"}}],"name":"metric1"},{"tags":{"curly":"joe"},"name":"metric2"}],"start_relative":{"value":3,"unit":"WEEKS"},"end_relative":{"value":2,"unit":"DAYS"}}

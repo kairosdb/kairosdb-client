@@ -15,7 +15,12 @@
  */
 package org.kairosdb.client.builder;
 
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+import org.kairosdb.client.serializer.AggregatorSerializer;
+
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -24,21 +29,23 @@ import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
 /**
  * Query request for a metric. If a metric is queried by name only then all data points for all tags are returned.
  * You can narrow down the query by adding tags so only data points associated with those tags are returned.
- *
- * The aggregator defines the operation that is performed on the data points on the server before they are returned.
- * For example, if the "sum" aggregator is specified, multiple data points at the same timestamp are added together and
- * returned as a single data point.
+ * <p/>
+ * Aggregators may be added to the metric. An aggregator performs an operation on the data such as summing or averaging.
+ * If multiple aggregators are added, the output of the first is sent to the input of the next, and so forth until all
+ * aggregators have been processed, These are processed in the order they were added.
  */
 public class QueryMetric
 {
 	private Map<String, String> tags = new LinkedHashMap<String, String>();
-	private String name;
-	private String aggregate;
 
-	QueryMetric(String name, String aggregator)
+	@JsonSerialize(using = AggregatorSerializer.class, include=JsonSerialize.Inclusion.NON_EMPTY)
+	private List<String> aggregators = new ArrayList<String>();
+
+	private String name;
+
+	QueryMetric(String name)
 	{
 		this.name = checkNotNullOrEmpty(name);
-		this.aggregate = checkNotNullOrEmpty(aggregator);
 	}
 
 	/**
@@ -58,7 +65,7 @@ public class QueryMetric
 	/**
 	 * Adds a tag. This narrows the query to only show data points associated with the tag.
 	 *
-	 * @param name tag name
+	 * @param name  tag name
 	 * @param value tag value
 	 * @return the metric
 	 */
@@ -92,12 +99,35 @@ public class QueryMetric
 	}
 
 	/**
-	 * Returns the aggregate.
+	 * Adds an aggregator to the metric.
 	 *
-	 * @return aggregate
+	 * @param json JSON representation of the aggregator.
+	 * @return the metric
 	 */
-	public String getAggregate()
+	public QueryMetric addAggregator(String json)
 	{
-		return aggregate;
+		checkNotNullOrEmpty(json);
+
+		if (aggregators == null)
+			aggregators = new ArrayList<String>();
+		aggregators.add(json);
+
+		return this;
+	}
+
+	/**
+	 * Adds an aggregator to the metric.
+	 *
+	 * @param aggregator aggregator to add
+	 * @return the metric
+	 */
+	public QueryMetric addAggregator(Aggregator aggregator)
+	{
+		return addAggregator(aggregator.toJson());
+	}
+
+	public List<String> getAggregators()
+	{
+		return aggregators;
 	}
 }
