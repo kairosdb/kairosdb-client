@@ -73,6 +73,17 @@ public class Metric
 	}
 
 	/**
+	 * Adds the data point to the metric with a timestamp of now.
+	 *
+	 * @param value the measurement value
+	 * @return the metric
+	 */
+	public Metric addDataPoint(long value)
+	{
+		return addDataPoint(System.currentTimeMillis(), value);
+	}
+
+	/**
 	 * Adds the data point to the metric.
 	 *
 	 * @param timestamp when the measurement occurred
@@ -84,6 +95,17 @@ public class Metric
 		DoubleDataPoint dataPoint = new DoubleDataPoint(timestamp, value);
 		dataPoints.add(dataPoint);
 		return this;
+	}
+
+	/**
+	 * Adds the data point to the metric with a timestamp of now.
+	 *
+	 * @param value the measurement value
+	 * @return the metric
+	 */
+	public Metric addDataPoint(double value)
+	{
+		return addDataPoint(System.currentTimeMillis(), value);
 	}
 
 	public List<DataPoint> getDataPoints()
