@@ -28,7 +28,7 @@ public class AggregatorFactory
 	 * @param unit unit of time
 	 * @return average aggregator
 	 */
-	public static SamplingAggregator minAggregator(int value, TimeUnit unit)
+	public static SamplingAggregator createMinAggregator(int value, TimeUnit unit)
 	{
 		return new SamplingAggregator("min", value, unit);
 	}
@@ -41,7 +41,7 @@ public class AggregatorFactory
 	 * @param unit unit of time
 	 * @return average aggregator
 	 */
-	public static SamplingAggregator maxAggregator(int value, TimeUnit unit)
+	public static SamplingAggregator createMaxAggregator(int value, TimeUnit unit)
 	{
 		return new SamplingAggregator("max", value, unit);
 	}
@@ -54,7 +54,7 @@ public class AggregatorFactory
 	 * @param unit unit of time
 	 * @return average aggregator
 	 */
-	public static SamplingAggregator averageAggregator(int value, TimeUnit unit)
+	public static SamplingAggregator createAverageAggregator(int value, TimeUnit unit)
 	{
 		return new SamplingAggregator("avg", value, unit);
 	}
@@ -67,7 +67,7 @@ public class AggregatorFactory
 	 * @param unit unit of time
 	 * @return average aggregator
 	 */
-	public static SamplingAggregator standardDeviationAggregator(int value, TimeUnit unit)
+	public static SamplingAggregator createStandardDeviationAggregator(int value, TimeUnit unit)
 	{
 		return new SamplingAggregator("dev", value, unit);
 	}
@@ -80,7 +80,7 @@ public class AggregatorFactory
 	 * @param unit unit of time
 	 * @return average aggregator
 	 */
-	public static SamplingAggregator sumAggregator(int value, TimeUnit unit)
+	public static SamplingAggregator createSumAggregator(int value, TimeUnit unit)
 	{
 		return new SamplingAggregator("sum", value, unit);
 	}

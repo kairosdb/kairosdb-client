@@ -142,7 +142,7 @@ public class QueryBuilderTest
 		builder.addMetric("metric1")
 				.addTag("foo", "bar")
 				.addTag("larry", "moe")
-				.addAggregator(AggregatorFactory.maxAggregator(1, TimeUnit.DAYS));
+				.addAggregator(AggregatorFactory.createMaxAggregator(1, TimeUnit.DAYS));
 		builder.addMetric("metric2")
 				.addTag("curly", "joe");
 
@@ -163,7 +163,7 @@ public class QueryBuilderTest
 		QueryBuilder builder = QueryBuilder.getInstance();
 		builder.setStart(startTime)
 				.addMetric("metric1")
-				.addAggregator(AggregatorFactory.maxAggregator(1, TimeUnit.DAYS))
+				.addAggregator(AggregatorFactory.createMaxAggregator(1, TimeUnit.DAYS))
 				.addAggregator(AggregatorFactory.createRateAggregator());
 
 		assertThat(builder.build(), equalTo(json));
