@@ -25,6 +25,7 @@ import org.kairosdb.client.builder.grouper.ValueGrouper;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -149,7 +150,6 @@ public class QueryBuilderTest
 		builder.addMetric("metric2")
 				.addTag("curly", "joe");
 
-
 		assertThat(builder.build(), equalTo(json));
 	}
 
@@ -158,13 +158,8 @@ public class QueryBuilderTest
 	{
 		String json = Resources.toString(Resources.getResource("query_single_metric_absoluteStart_noEndTime_noTags.json"), Charsets.UTF_8);
 
-		Calendar calendar = Calendar.getInstance();
-		calendar.set(2013, Calendar.FEBRUARY, 2, 3, 2, 7);
-		calendar.set(Calendar.MILLISECOND, 0);
-		Date startTime = calendar.getTime();
-
 		QueryBuilder builder = QueryBuilder.getInstance();
-		builder.setStart(startTime)
+		builder.setStart(new Date(1359774127000L))
 				.addMetric("metric1")
 				.addAggregator(AggregatorFactory.createMaxAggregator(1, TimeUnit.DAYS))
 				.addAggregator(AggregatorFactory.createRateAggregator());
