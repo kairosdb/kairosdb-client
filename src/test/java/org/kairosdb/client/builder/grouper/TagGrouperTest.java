@@ -16,7 +16,7 @@ public class TagGrouperTest
 	@Test(expected = NullPointerException.class)
 	public void test_constructor_nullTagNames_invalid()
 	{
-		new TagGrouper(null);
+		new TagGrouper((String[])null);
 	}
 
 	@Test(expected = NullPointerException.class)
