@@ -24,9 +24,9 @@ public class FakeClient extends Client
 	private int responseCode;
 	private String responseJson;
 
-	protected FakeClient(String host, int port)
+	protected FakeClient()
 	{
-		super(host, port);
+		super("fake", 80);
 	}
 
 	public void setResponseCode(int code)

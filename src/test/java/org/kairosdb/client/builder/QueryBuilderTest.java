@@ -18,6 +18,9 @@ package org.kairosdb.client.builder;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import org.junit.Test;
+import org.kairosdb.client.builder.grouper.TagGrouper;
+import org.kairosdb.client.builder.grouper.TimeGrouper;
+import org.kairosdb.client.builder.grouper.ValueGrouper;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -153,18 +156,33 @@ public class QueryBuilderTest
 	@Test
 	public void test_SingleMetricAbsoluteStartNoEndTimeNoTags() throws IOException
 	{
+		String json = Resources.toString(Resources.getResource("query_single_metric_absoluteStart_noEndTime_noTags.json"), Charsets.UTF_8);
+
 		Calendar calendar = Calendar.getInstance();
 		calendar.set(2013, Calendar.FEBRUARY, 2, 3, 2, 7);
 		calendar.set(Calendar.MILLISECOND, 0);
 		Date startTime = calendar.getTime();
-
-		String json = Resources.toString(Resources.getResource("query_single_metric_absoluteStart_noEndTime_noTags.json"), Charsets.UTF_8);
 
 		QueryBuilder builder = QueryBuilder.getInstance();
 		builder.setStart(startTime)
 				.addMetric("metric1")
 				.addAggregator(AggregatorFactory.createMaxAggregator(1, TimeUnit.DAYS))
 				.addAggregator(AggregatorFactory.createRateAggregator());
+
+		assertThat(builder.build(), equalTo(json));
+	}
+
+	@Test
+	public void test_WithGroupBy() throws IOException
+	{
+		String json = Resources.toString(Resources.getResource("query_withGroupBys.json"), Charsets.UTF_8);
+
+		QueryBuilder builder = QueryBuilder.getInstance();
+		builder.setStart(2, TimeUnit.MONTHS);
+		QueryMetric metric = builder.addMetric("metric1");
+		metric.addGrouper(new ValueGrouper(10));
+		metric.addGrouper(new TagGrouper("tag1", "tag2"));
+		metric.addGrouper(new TimeGrouper(new RelativeTime(2, TimeUnit.HOURS), 3));
 
 		assertThat(builder.build(), equalTo(json));
 	}

@@ -1,0 +1,46 @@
+{"queries": [
+	{
+		"results": [
+			{
+				"name": "archive_search",
+				"group_by": [
+					{
+						"name": "value",
+						"range_size": 10,
+						"group": {
+							"group_number": 2
+						}
+					},
+					{
+						"name": "tag",
+						"tags": ["bucket", "customer", "datacenter"],
+						"group": {
+							"bucket": "5-10s",
+							"customer": "Acme"
+						}
+					},
+					{
+						"name": "time",
+						"range_size": {
+							"value": 1,
+							"unit": "HOURS"
+						},
+						"group_count": 168,
+						"group": {
+							"group_number": 3
+						}
+					}
+				],
+				"tags": {
+					"partner_guid": ["messagelabs"],
+					"bucket": ["0-5s", "10-20s", "5-10s", "20s-"]
+				},
+				"values": [
+					[1362034800000, 1],
+					[1362121200000, 2],
+					[1362207600000, 3]
+				]
+			}
+		]
+	}
+]}

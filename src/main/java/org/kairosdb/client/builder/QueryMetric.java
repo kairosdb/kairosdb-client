@@ -15,13 +15,12 @@
  */
 package org.kairosdb.client.builder;
 
+import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.kairosdb.client.serializer.AggregatorSerializer;
+import org.kairosdb.client.serializer.GrouperSerializer;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
@@ -33,6 +32,13 @@ import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
  * Aggregators may be added to the metric. An aggregator performs an operation on the data such as summing or averaging.
  * If multiple aggregators are added, the output of the first is sent to the input of the next, and so forth until all
  * aggregators have been processed, These are processed in the order they were added.
+ * <p/>
+ *
+ * The results of the query can be grouped in various ways using a grouper. For example, if you had a metric with a
+ * customer tag, the resulting data points could be grouped by the different customers. Multiple groupers can be used
+ * so you could, for example, group by tag and value.
+ * <p/>
+ * Note that aggregation is very fast but grouping can slow down the query.
  */
 public class QueryMetric
 {
@@ -40,6 +46,10 @@ public class QueryMetric
 
 	@JsonSerialize(using = AggregatorSerializer.class, include=JsonSerialize.Inclusion.NON_EMPTY)
 	private List<String> aggregators = new ArrayList<String>();
+
+	@JsonProperty("group_by")
+	@JsonSerialize(using = GrouperSerializer.class, include=JsonSerialize.Inclusion.NON_EMPTY)
+	private List<String> groupers = new ArrayList<String>();
 
 	private String name;
 
@@ -108,8 +118,6 @@ public class QueryMetric
 	{
 		checkNotNullOrEmpty(json);
 
-		if (aggregators == null)
-			aggregators = new ArrayList<String>();
 		aggregators.add(json);
 
 		return this;
@@ -126,8 +134,49 @@ public class QueryMetric
 		return addAggregator(aggregator.toJson());
 	}
 
+	/**
+	 * Returns the list of aggregators in their JSON serialized form.
+	 * @return list of serialized aggregators
+	 */
 	public List<String> getAggregators()
 	{
-		return aggregators;
+		return Collections.unmodifiableList(aggregators);
+	}
+
+	/**
+	 * Add a grouper to the metric.
+	 *
+	 * @param grouper grouper to add
+	 * @return the metric
+	 */
+	public QueryMetric addGrouper(Grouper grouper)
+	{
+		checkNotNull(grouper);
+
+		return addGrouper(grouper.toJson());
+	}
+
+	/**
+	 * Adds a grouper to the metric.
+	 *
+	 * @param json JSON representation of the grouper.
+	 * @return the metric
+	 */
+	public QueryMetric addGrouper(String json)
+	{
+		checkNotNullOrEmpty(json);
+
+		groupers.add(json);
+
+		return this;
+	}
+
+	/**
+	 * Returns the list of groupers in their JSON serialized form.
+	 * @return list of serialized groupers
+	 */
+	public List<String> getGroupers()
+	{
+		return Collections.unmodifiableList(groupers);
 	}
 }

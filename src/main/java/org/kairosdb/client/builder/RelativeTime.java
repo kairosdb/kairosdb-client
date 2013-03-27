@@ -15,6 +15,9 @@
  */
 package org.kairosdb.client.builder;
 
+import org.codehaus.jackson.annotate.JsonCreator;
+import org.codehaus.jackson.annotate.JsonProperty;
+
 import java.util.Calendar;
 import java.util.TimeZone;
 
@@ -27,7 +30,8 @@ public class RelativeTime
 	private TimeUnit unit;
 	private Calendar calendar;
 
-	public RelativeTime(int value, TimeUnit unit)
+	@JsonCreator
+	public RelativeTime(@JsonProperty("value") int value, @JsonProperty("unit") TimeUnit unit)
 	{
 		this.value = value;
 		this.unit = unit;

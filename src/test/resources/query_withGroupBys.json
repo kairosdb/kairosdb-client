@@ -1,0 +1,1 @@
+{"metrics":[{"tags":{},"name":"metric1","group_by":[{"name":"value","range_size":10},{"name":"tag","tags":["tag1","tag2"]},{"name":"time","range_size":{"value":2,"unit":"HOURS"},"group_count":3}]}],"start_relative":{"value":2,"unit":"MONTHS"}}
