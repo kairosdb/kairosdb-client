@@ -86,15 +86,6 @@ public class AggregatorFactory
 	}
 
 	/**
-	 * Creates an aggregator that returns the data points sorted by timestamp.
-	 * @return sort aggregator
-	 */
-	public static Aggregator createSortAggregator()
-	{
-		return new AggregatorImpl("sort");
-	}
-
-	/**
 	 * Creates an aggregator that returns the rate of change between each pair of data points
 	 * @return rate aggregator
 	 */
