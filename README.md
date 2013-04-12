@@ -14,7 +14,7 @@ the data points.
 	MetricBuilder builder = MetricBuilder.getInstance();
 	builder.addMetric("metric1")
 			.addTag("host", "server1")
-			.addTag("customer", "Acme");
+			.addTag("customer", "Acme")
 			.addDataPoint(1, 10)
 			.addDataPoint(2, 30L)
     HttpClient client = new HttpClient("myServer", 9000);

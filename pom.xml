@@ -4,7 +4,7 @@
 
 	<groupId>org.kairos</groupId>
 	<artifactId>client</artifactId>
-	<version>1.0-SNAPSHOT</version>
+	<version>1.0-BETA1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>kairosclient</name>
