@@ -41,4 +41,10 @@ public class DoubleDataPoint extends DataPoint
 	{
 		return value;
 	}
+
+	@Override
+	public boolean isInteger()
+	{
+		return false;
+	}
 }

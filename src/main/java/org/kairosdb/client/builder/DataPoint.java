@@ -41,4 +41,6 @@ public abstract class DataPoint
 	{
 		return timestamp;
 	}
+
+	public abstract boolean isInteger();
 }

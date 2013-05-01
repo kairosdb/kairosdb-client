@@ -40,4 +40,10 @@ public class LongDataPoint extends DataPoint
 	{
 		return value;
 	}
+
+	@Override
+	public boolean isInteger()
+	{
+		return true;
+	}
 }
