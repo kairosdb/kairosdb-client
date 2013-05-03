@@ -76,7 +76,7 @@ public abstract class Client
 	 */
 	public GetResponse getTagNames() throws IOException
 	{
-		return get("http://" + host + ":" + port + "/api/v1/tagNames");
+		return get("http://" + host + ":" + port + "/api/v1/tagnames");
 	}
 
 	/**
