@@ -19,6 +19,7 @@ the data points.
 			.addDataPoint(System.currentTimeMillis(), 30L)
     HttpClient client = new HttpClient("myServer", 9000);
 	Response response = client.pushMetrics(builder);
+	client.shutdown();
 
 ## Querying Data Points
 
@@ -33,6 +34,7 @@ Optionally, tags may be added to narrow down the search.
            .addAggregator(AggregatorFactory.sumAggregator(5, TimeUnit.MINUTES));
     HttpClient client = new HttpClient("localhost", 9000);
     QueryResponse response = client.query(builder);
+   	client.shutdown();
 
 ## Querying Metric Names
 
@@ -45,6 +47,7 @@ You can get a list of all metric names in KairosDB.
     {
     	System.out.println(name);
     }
+  	client.shutdown();
 
 ## Querying Tag Names
 Similiarly you can get a list of all tag names in KariosDB.
@@ -57,6 +60,7 @@ Similiarly you can get a list of all tag names in KariosDB.
 	{
 		System.out.println(name);
 	}
+	client.shutdown();
 
 ## Querying Tag Values
 And a list of all tag values.
@@ -69,6 +73,7 @@ And a list of all tag values.
     {
     	System.out.println(name);
     }
+   	client.shutdown();
 
 ## Copyright and License
 
