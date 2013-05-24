@@ -19,50 +19,63 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class FakeClient extends Client
+public class FakeClient extends AbstractClient
 {
 	private int responseCode;
 	private String responseJson;
 
-	protected FakeClient()
+	protected FakeClient(int responseCode, String responseJson)
 	{
 		super("fake", 80);
-	}
-
-	public void setResponseCode(int code)
-	{
-		this.responseCode = code;
-	}
-
-	public void setResponseJson(String json)
-	{
-		this.responseJson = json;
+		this.responseCode = responseCode;
+		this.responseJson = responseJson;
 	}
 
 	@Override
-	protected int postData(String json, String url) throws IOException
+	protected ClientResponse postData(String json, String url) throws IOException
 	{
-		return responseCode;
+		return new FakeClientResponse(responseCode, responseJson);
 	}
 
 	@Override
-	protected int queryData(String url) throws IOException
+	protected ClientResponse queryData(String url) throws IOException
 	{
-		return 0;  //To change body of implemented methods use File | Settings | File Templates.
+		return new FakeClientResponse(responseCode, responseJson);
+	}
+
+	private class FakeClientResponse implements ClientResponse
+	{
+		private int statusCode;
+		private String responseJson;
+
+		private FakeClientResponse(int statusCode)
+		{
+			this.statusCode = statusCode;
+		}
+
+		private FakeClientResponse(int statusCode, String responseJson)
+		{
+			this.statusCode = statusCode;
+			this.responseJson = responseJson;
+		}
+
+		@Override
+		public int getStatusCode()
+		{
+			return statusCode;
+		}
+
+		@Override
+		public InputStream getContentStream() throws IOException
+		{
+			if (responseJson != null)
+				return new ByteArrayInputStream(responseJson.getBytes());
+			return null;
+		}
 	}
 
 	@Override
-	protected InputStream getGetResponseStream() throws IOException
+	public void shutdown()
 	{
-		return null;  //To change body of implemented methods use File | Settings | File Templates.
 	}
-
-	@SuppressWarnings("StringConcatenationInsideStringBufferAppend")
-	@Override
-	protected InputStream getPostResponseStream() throws IOException
-	{
-		return new ByteArrayInputStream(responseJson.getBytes());
-	}
-
-
 }

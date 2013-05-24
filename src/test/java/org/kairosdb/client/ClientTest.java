@@ -40,7 +40,7 @@ public class ClientTest
 	@Test(expected = NullPointerException.class)
 	public void test_nullBuilder_invalid() throws IOException, URISyntaxException
 	{
-		FakeClient client = new FakeClient();
+		FakeClient client = new FakeClient(200, "");
 
 		client.pushMetrics(null);
 	}
@@ -49,15 +49,12 @@ public class ClientTest
 	public void test_ErrorResponse() throws IOException, URISyntaxException
 	{
 		MetricBuilder builder = MetricBuilder.getInstance();
-		FakeClient client = new FakeClient();
-		client.setResponseCode(400);
-		client.setResponseJson("{\"errors\":[\"Error1\", \"Error2\"]}");
+		FakeClient client = new FakeClient(400, "{\"errors\":[\"Error1\", \"Error2\"]}");
 
 		Response response = client.pushMetrics(builder);
 
 		assertThat(response.getStatusCode(), equalTo(400));
 		assertThat(response.getErrors().get(0), equalTo("Error1"));
-		assertThat(response.getErrors().get(1), equalTo("Error2"));
 		assertThat(response.getErrors().get(1), equalTo("Error2"));
 	}
 
@@ -69,8 +66,7 @@ public class ClientTest
 
 		String json = Resources.toString(Resources.getResource("response_valid.json"), Charsets.UTF_8);
 
-		FakeClient client = new FakeClient();
-		client.setResponseJson(json);
+		FakeClient client = new FakeClient(200, json);
 
 		QueryResponse response = client.query(builder);
 

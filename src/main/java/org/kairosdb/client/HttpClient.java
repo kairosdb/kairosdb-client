@@ -15,61 +15,55 @@
  */
 package org.kairosdb.client;
 
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * HTTP implementation of a client.
  */
-public class HttpClient extends Client
+public class HttpClient extends AbstractClient
 {
-	private org.apache.commons.httpclient.HttpClient client;
-	private PostMethod postMethod;
-	private GetMethod getMethod;
+	private org.apache.http.client.HttpClient client;
 
 	/**
 	 * Creates a client to talk to the host on the specified port.
 	 *
-	 * @param host name of the Kairos server
-	 * @param port Kairos server port
+	 * @param host name of the KairosDB server
+	 * @param port KairosDB server port
 	 */
 	public HttpClient(String host, int port)
 	{
 		super(host, port);
-		client = new org.apache.commons.httpclient.HttpClient();
+		client = new DefaultHttpClient();
 	}
 
 	@Override
-	protected int postData(String json, String url) throws IOException
+	protected ClientResponse postData(String json, String url) throws IOException
 	{
-		StringRequestEntity requestEntity = new StringRequestEntity(json, "application/json", "UTF-8");
-		postMethod = new PostMethod(url);
-		postMethod.setRequestEntity(requestEntity);
+		StringEntity requestEntity = new StringEntity(json, ContentType.APPLICATION_JSON);
+		HttpPost postMethod = new HttpPost(url);
+		postMethod.setEntity(requestEntity);
 
-		return client.executeMethod(postMethod);
+		return new HttpClientResponse(client.execute(postMethod));
 	}
 
 	@Override
-	protected int queryData(String url) throws IOException
+	protected ClientResponse queryData(String url) throws IOException
 	{
-		getMethod = new GetMethod(url);
-		getMethod.addRequestHeader("accept", "application/json");
-		return client.executeMethod(getMethod);
+		HttpGet getMethod = new HttpGet(url);
+		getMethod.addHeader("accept", "application/json");
+
+		return new HttpClientResponse(client.execute(getMethod));
 	}
 
 	@Override
-	protected InputStream getGetResponseStream() throws IOException
+	public void shutdown()
 	{
-		return getMethod.getResponseBodyAsStream();
-	}
-
-	@Override
-	protected InputStream getPostResponseStream() throws IOException
-	{
-		return postMethod.getResponseBodyAsStream();
+		client.getConnectionManager().shutdown();
 	}
 }
