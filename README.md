@@ -40,6 +40,7 @@ Optionally, tags may be added to narrow down the search.
 
 You can get a list of all metric names in KairosDB.
 
+	HttpClient client = new HttpClient("localhost", 9000);
 	GetResponse response = client.getTagNames();
 
 	System.out.println("Response Code =" + response.getStatusCode());
