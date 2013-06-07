@@ -61,25 +61,25 @@ public abstract class AbstractClient implements Client
 	@Override
 	public GetResponse getMetricNames() throws IOException
 	{
-		return get("http://" + host + ":" + port + "/api/v1/metricnames");
+		return get(getURLBase() + "/api/v1/metricnames");
 	}
 
 	@Override
 	public GetResponse getTagNames() throws IOException
 	{
-		return get("http://" + host + ":" + port + "/api/v1/tagnames");
+		return get(getURLBase() + "/api/v1/tagnames");
 	}
 
 	@Override
 	public GetResponse getTagValues() throws IOException
 	{
-		return get("http://" + host + ":" + port + "/api/v1/tagvalues");
+		return get(getURLBase() + "/api/v1/tagvalues");
 	}
 
 	@Override
 	public QueryResponse query(QueryBuilder builder) throws URISyntaxException, IOException
 	{
-		ClientResponse clientResponse = postData(builder.build(), "http://" + host + ":" + port + "/api/v1/datapoints/query");
+		ClientResponse clientResponse = postData(builder.build(), getURLBase() + "/api/v1/datapoints/query");
 		int responseCode = clientResponse.getStatusCode();
 
 		InputStream stream = clientResponse.getContentStream();
@@ -122,7 +122,7 @@ public abstract class AbstractClient implements Client
 	public Response pushMetrics(MetricBuilder builder) throws URISyntaxException, IOException
 	{
 		checkNotNull(builder);
-		return post(builder.build(), "http://" + host + ":" + port + "/api/v1/datapoints");  // todo what if we want https?
+		return post(builder.build(), getURLBase() + "/api/v1/datapoints");
 	}
 
 	private Response post(String json, String url) throws URISyntaxException, IOException
@@ -202,5 +202,13 @@ public abstract class AbstractClient implements Client
 	protected abstract ClientResponse postData(String json, String url) throws IOException;
 
 	protected abstract ClientResponse queryData(String url) throws IOException;
+
+	private String getURLBase()
+	{
+		if (isSSLConnection())
+			return "https://" + host + ":" + port;
+		else
+			return "http://" + host + ":" + port;
+	}
 
 }

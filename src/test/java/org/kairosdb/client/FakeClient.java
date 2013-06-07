@@ -75,6 +75,12 @@ public class FakeClient extends AbstractClient
 	}
 
 	@Override
+	public boolean isSSLConnection()
+	{
+		return false;
+	}
+
+	@Override
 	public void shutdown()
 	{
 	}
