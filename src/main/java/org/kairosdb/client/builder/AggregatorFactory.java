@@ -86,6 +86,37 @@ public class AggregatorFactory
 	}
 
 	/**
+	 * Creates an aggregator with a custom json fragment. This method is used for custom aggregators that have been added to
+	 * KairosDB. This does not create an aggregator on the server. The name must match the custom aggregator on the
+	 * server.
+	 *
+	 * <p>
+	 * Example:
+	 * </p>
+	 *
+	 * <pre>
+	 *      Aggregator aggregator = AggregatorFactory.createCustomAggregator("histogram", "\"percentile\": 0.75");
+	 * </pre>
+	 *
+	 * <p>
+	 *      This produces aggregator JSON that looks like this:
+	 * </p>
+	 *
+	 * <pre>
+	 *      "name":"histogram",
+	 *      "percentile": 0.75
+	 * </pre>
+	 *
+	 * @param name name of the aggregator.
+	 * @param json aggregator JSON fragment
+	 * @return customer aggregator
+	 */
+	public static Aggregator createCustomAggregator(String name, String json)
+	{
+		return new CustomAggregator(name, json);
+	}
+
+	/**
 	 * Creates an aggregator that returns the rate of change between each pair of data points
 	 * @return rate aggregator
 	 */
