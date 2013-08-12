@@ -15,6 +15,7 @@
  */
 package org.kairosdb.client;
 
+import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.scheme.Scheme;
@@ -61,7 +62,7 @@ public class HttpClient extends AbstractClient
 		{
 			SSLSocketFactory socketFactory = SSLSocketFactory.getSocketFactory();
 			Scheme sch = new Scheme("https", port, socketFactory);
-		   client.getConnectionManager().getSchemeRegistry().register(sch);
+			client.getConnectionManager().getSchemeRegistry().register(sch);
 		}
 	}
 
@@ -72,7 +73,25 @@ public class HttpClient extends AbstractClient
 		HttpPost postMethod = new HttpPost(url);
 		postMethod.setEntity(requestEntity);
 
-		return new HttpClientResponse(client.execute(postMethod));
+		HttpResponse response;
+
+		int tries = 3;
+		while (true)
+		{
+			tries--;
+			try
+			{
+				response = client.execute(postMethod);
+				break;
+			}
+			catch (IOException e)
+			{
+				if (tries < 1)
+					throw e;
+			}
+		}
+
+		return new HttpClientResponse(response);
 	}
 
 	@Override
