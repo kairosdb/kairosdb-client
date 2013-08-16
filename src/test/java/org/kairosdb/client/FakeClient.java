@@ -48,11 +48,6 @@ public class FakeClient extends AbstractClient
 		private int statusCode;
 		private String responseJson;
 
-		private FakeClientResponse(int statusCode)
-		{
-			this.statusCode = statusCode;
-		}
-
 		private FakeClientResponse(int statusCode, String responseJson)
 		{
 			this.statusCode = statusCode;
@@ -78,6 +73,12 @@ public class FakeClient extends AbstractClient
 	public boolean isSSLConnection()
 	{
 		return false;
+	}
+
+	@Override
+	public int getRetryCount()
+	{
+		return 0;
 	}
 
 	@Override

@@ -26,6 +26,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 import java.io.IOException;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 /**
  * HTTP implementation of a client.
  */
@@ -33,6 +35,7 @@ public class HttpClient extends AbstractClient
 {
 	private org.apache.http.client.HttpClient client;
 	private boolean isSSL;
+	private int retries = 3;
 
 	/**
 	 * Creates a client to talk to the host on the specified port.
@@ -48,8 +51,8 @@ public class HttpClient extends AbstractClient
 	/**
 	 * Creates a client to talk to the host on the specified port.
 	 *
-	 * @param host name of the KairosDB server
-	 * @param port KairosDB server port
+	 * @param host   name of the KairosDB server
+	 * @param port   KairosDB server port
 	 * @param useSSL if true, SSL is used for the connection
 	 */
 	public HttpClient(String host, int port, boolean useSSL)
@@ -60,7 +63,12 @@ public class HttpClient extends AbstractClient
 
 		if (useSSL)
 		{
-			SSLSocketFactory socketFactory = SSLSocketFactory.getSocketFactory();
+			//NOTE: We have seen problems using getSocketFactory() with later versions ofJava 7.
+			// This uses the Javax SSLContextImpl$TLS10Context and we get connection
+			// failures about 2% of the time.
+			//SSLSocketFactory socketFactory = SSLSocketFactory.getSocketFactory();
+
+			SSLSocketFactory socketFactory = SSLSocketFactory.getSystemSocketFactory();
 			Scheme sch = new Scheme("https", port, socketFactory);
 			client.getConnectionManager().getSchemeRegistry().register(sch);
 		}
@@ -75,7 +83,7 @@ public class HttpClient extends AbstractClient
 
 		HttpResponse response;
 
-		int tries = 3;
+		int tries = ++retries;
 		while (true)
 		{
 			tries--;
@@ -100,7 +108,25 @@ public class HttpClient extends AbstractClient
 		HttpGet getMethod = new HttpGet(url);
 		getMethod.addHeader("accept", "application/json");
 
-		return new HttpClientResponse(client.execute(getMethod));
+		HttpResponse response;
+
+		int tries = ++retries;
+		while (true)
+		{
+			tries--;
+			try
+			{
+				response = client.execute(getMethod);
+				break;
+			}
+			catch (IOException e)
+			{
+				if (tries < 1)
+					throw e;
+			}
+		}
+
+		return new HttpClientResponse(response);
 	}
 
 	@Override
@@ -113,5 +139,25 @@ public class HttpClient extends AbstractClient
 	public void shutdown()
 	{
 		client.getConnectionManager().shutdown();
+	}
+
+	@Override
+	public int getRetryCount()
+	{
+		return retries;
+	}
+
+	public void setRetryCount(int retries)
+	{
+		checkArgument(retries >= 0);
+		this.retries = retries;
+	}
+
+	/**
+	 * Used for testing only
+	 */
+	protected void setClient(org.apache.http.client.HttpClient client)
+	{
+		this.client = client;
 	}
 }

@@ -78,6 +78,13 @@ public interface Client
 	public boolean isSSLConnection();
 
 	/**
+	 * Returns the number of retries.
+	 * @return number of retries
+	 */
+	@SuppressWarnings("UnusedDeclaration")
+	public int getRetryCount();
+
+	/**
 	 * Shuts down the client. Should be called when done using the client.
 	 */
 	void shutdown();
