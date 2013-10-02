@@ -1,0 +1,1 @@
+{"metrics":[{"tags":{"foo":"bar","larry":["moe","jack"]},"name":"metric1"},{"tags":{"curly":"joe"},"name":"metric2"}],"start_absolute":1359774127000}
