@@ -19,6 +19,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.kairosdb.client.serializer.AggregatorSerializer;
 import org.kairosdb.client.serializer.GrouperSerializer;
+import org.kairosdb.client.serializer.TagsSerializer;
 
 import java.util.*;
 
@@ -41,8 +42,9 @@ import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
  * Note that aggregation is very fast but grouping can slow down the query.
  */
 public class QueryMetric
-{
-	private Map<String, String> tags = new LinkedHashMap<String, String>();
+{	
+	@JsonSerialize(using = TagsSerializer.class)
+	private Map<String, List<String>> tags = new LinkedHashMap<String, List<String>>();
 
 	@JsonSerialize(using = AggregatorSerializer.class, include=JsonSerialize.Inclusion.NON_EMPTY)
 	private List<String> aggregators = new ArrayList<String>();
@@ -64,10 +66,10 @@ public class QueryMetric
 	 * @param tags tags to add
 	 * @return the metric
 	 */
-	public QueryMetric setTags(Map<String, String> tags)
+	public QueryMetric setTags(Map<String, List<String>> tags)
 	{
 		checkNotNull(tags);
-		this.tags = new LinkedHashMap<String, String>(tags);
+		this.tags = new LinkedHashMap<String, List<String>>(tags);
 
 		return this;
 	}
@@ -83,7 +85,12 @@ public class QueryMetric
 	{
 		checkNotNullOrEmpty(name);
 		checkNotNullOrEmpty(value);
-		tags.put(name, value);
+		List<String> values = tags.get(name);
+		if (values == null) {
+			values = new ArrayList<String>();
+			tags.put(name, values);
+		}
+		values.add(value);
 
 		return (this);
 	}
@@ -93,7 +100,7 @@ public class QueryMetric
 	 *
 	 * @return tags
 	 */
-	public Map<String, String> getTags()
+	public Map<String, List<String>> getTags()
 	{
 		return tags;
 	}
