@@ -16,22 +16,37 @@
 package org.kairosdb.client.response;
 
 import org.codehaus.jackson.annotate.JsonCreator;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Queries
 {
-	List<Results> results;
+	private List<Results> results;
+	private long sampleSize;
 
 	@JsonCreator
-	public Queries(@JsonProperty("results")List<Results> results)
+	public Queries(@JsonProperty("results")List<Results> results, @JsonProperty("sample_size")long sampleSize)
 	{
 		this.results = results;
+		this.sampleSize = sampleSize;
 	}
 
 	public List<Results> getResults()
 	{
 		return results;
+	}
+
+	/**
+	 * Returns the number of data points returned by the query prior to aggregation. Aggregation by reduce the number
+	 * of data points actually returned.
+	 *
+	 * @return number of data points returned by the query
+	 */
+	public long getSampleSize()
+	{
+		return sampleSize;
 	}
 }

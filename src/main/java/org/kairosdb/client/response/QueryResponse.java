@@ -16,6 +16,7 @@
 package org.kairosdb.client.response;
 
 import org.codehaus.jackson.annotate.JsonCreator;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ import java.util.List;
 /**
  * Response returned by KairosDB.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class QueryResponse extends Response
 {
 	private List<Queries> queries = new ArrayList<Queries>();
