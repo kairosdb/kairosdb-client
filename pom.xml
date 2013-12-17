@@ -4,15 +4,10 @@
 
 	<groupId>org.kairos</groupId>
 	<artifactId>client</artifactId>
-	<version>1.0-BETA1-SNAPSHOT</version>
+	<version>1.0</version>
 	<packaging>jar</packaging>
 
 	<name>kairosclient</name>
-
-	<properties>
-		<guava.version>13.0.1</guava.version>
-		<dashboard.version>1.0-SNAPSHOT</dashboard.version>
-	</properties>
 
 	<dependencies>
 		<dependency>
