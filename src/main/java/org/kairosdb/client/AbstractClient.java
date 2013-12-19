@@ -124,6 +124,13 @@ public abstract class AbstractClient implements Client
 		checkNotNull(builder);
 		return post(builder.build(), getURLBase() + "/api/v1/datapoints");
 	}
+	
+	@Override
+	public Response delete(QueryBuilder builder) throws URISyntaxException, IOException
+	{
+		checkNotNull(builder);
+		return post(builder.build(), getURLBase() + "/api/v1/datapoints/delete");
+	}
 
 	private Response post(String json, String url) throws URISyntaxException, IOException
 	{
