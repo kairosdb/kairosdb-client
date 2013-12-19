@@ -61,7 +61,7 @@ public interface Client
 	QueryResponse query(QueryBuilder builder) throws URISyntaxException, IOException;
 
 	/**
-	 * Sends metrics from the builder to the Kairos server.
+	 * Sends metrics from the builder to the KairosDB server.
 	 *
 	 * @param builder metrics builder
 	 * @return response from the server
@@ -69,6 +69,16 @@ public interface Client
 	 * @throws IOException        problem occurred sending to the server
 	 */
 	Response pushMetrics(MetricBuilder builder) throws URISyntaxException, IOException;
+	
+	/**
+	 * Deletes data in KairosDB using the query built by the builder.
+	 *
+	 * @param builder query builder
+	 * @return response from the server
+	 * @throws URISyntaxException if the host or post is invalid
+	 * @throws IOException        problem occurred querying the server
+	 */
+	Response delete(QueryBuilder builder) throws URISyntaxException, IOException;
 
 	/**
 	 * Returns true of the connection is using SSL.
@@ -88,4 +98,5 @@ public interface Client
 	 * Shuts down the client. Should be called when done using the client.
 	 */
 	void shutdown();
+
 }

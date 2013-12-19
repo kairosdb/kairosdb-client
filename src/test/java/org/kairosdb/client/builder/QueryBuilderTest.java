@@ -154,6 +154,25 @@ public class QueryBuilderTest
 	}
 
 	@Test
+	public void test_MultipleMetricsWithMultivalueTags() throws IOException
+	{
+		String json = Resources.toString(Resources.getResource("query_multiple_metrics_multival_tags.json"), Charsets.UTF_8);
+
+		QueryBuilder builder = QueryBuilder.getInstance();
+		builder.setStart(new Date(1359774127000L));
+		builder.addMetric("metric1")
+				.addTag("foo", "bar")
+				.addTag("larry", "moe")
+				.addTag("larry", "jack");
+		builder.addMetric("metric2")
+				.addTag("curly", "joe");
+				
+
+		assertThat(builder.build(), equalTo(json));
+	}
+
+	
+	@Test
 	public void test_SingleMetricAbsoluteStartNoEndTimeNoTags() throws IOException
 	{
 		String json = Resources.toString(Resources.getResource("query_single_metric_absoluteStart_noEndTime_noTags.json"), Charsets.UTF_8);
@@ -178,7 +197,6 @@ public class QueryBuilderTest
 		metric.addGrouper(new ValueGrouper(10));
 		metric.addGrouper(new TagGrouper("tag1", "tag2"));
 		metric.addGrouper(new TimeGrouper(new RelativeTime(2, TimeUnit.HOURS), 3));
-
 		assertThat(builder.build(), equalTo(json));
 	}
 }

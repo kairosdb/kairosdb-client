@@ -23,6 +23,7 @@ import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.HttpParams;
 
 import java.io.IOException;
 
@@ -47,6 +48,18 @@ public class HttpClient extends AbstractClient
 	{
 		this(host, port, false);
 	}
+	
+	/**
+	 * Creates a client to talk to the host on the specified port.
+	 *
+	 * @param host 			name of the KairosDB server
+	 * @param port 			KairosDB server port
+	 * @param httpParams	http client parameters
+	 */
+	public HttpClient(String host, int port, HttpParams httpParams)
+	{
+		this(host, port, httpParams, false);
+	}
 
 	/**
 	 * Creates a client to talk to the host on the specified port.
@@ -55,10 +68,22 @@ public class HttpClient extends AbstractClient
 	 * @param port   KairosDB server port
 	 * @param useSSL if true, SSL is used for the connection
 	 */
-	public HttpClient(String host, int port, boolean useSSL)
+	public HttpClient(String host, int port, boolean useSSL) {
+		this(host, port, null, useSSL);
+	}
+
+	/**
+	 * Creates a client to talk to the host on the specified port.
+	 *
+	 * @param host   		name of the KairosDB server
+	 * @param port   		KairosDB server port
+	 * @param httpParams	http client parameters
+	 * @param useSSL 		if true, SSL is used for the connection
+	 */
+	public HttpClient(String host, int port, HttpParams httpParams, boolean useSSL)
 	{
 		super(host, port);
-		client = new DefaultHttpClient();
+		client = new DefaultHttpClient(httpParams);
 		this.isSSL = useSSL;
 
 		if (useSSL)
