@@ -21,6 +21,7 @@ import org.kairosdb.client.serializer.DataPointSerializer;
 
 import java.util.*;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
 
 /**
@@ -31,12 +32,12 @@ import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
  */
 public class Metric
 {
-	private String metricName;
-	private Map<String, String> tags = new HashMap<String, String>();
+	private final String metricName;
+	private final Map<String, String> tags = new HashMap<String, String>();
 
 	@JsonSerialize(using = DataPointSerializer.class)
 	@JsonProperty("datapoints")
-	private List<DataPoint> dataPoints = new ArrayList<DataPoint>();
+	private final List<DataPoint> dataPoints = new ArrayList<DataPoint>();
 
 	protected Metric(String metricName)
 	{
@@ -54,6 +55,19 @@ public class Metric
 		checkNotNullOrEmpty(name);
 		checkNotNullOrEmpty(value);
 		tags.put(name, value);
+
+		return this;
+	}
+
+	/**
+	 * Adds tags to the data point.
+	 * @param tags map of tags
+	 * @return the metric the tags were added to
+	 */
+	public Metric addTags(Map<String, String> tags)
+	{
+		checkNotNull(tags);
+		this.tags.putAll(tags);
 
 		return this;
 	}
