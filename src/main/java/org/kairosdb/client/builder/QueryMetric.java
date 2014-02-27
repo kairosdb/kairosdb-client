@@ -45,13 +45,13 @@ public class QueryMetric
 	private Map<String, String> tags = new LinkedHashMap<String, String>();
 
 	@JsonSerialize(using = AggregatorSerializer.class, include=JsonSerialize.Inclusion.NON_EMPTY)
-	private List<String> aggregators = new ArrayList<String>();
+	private final List<String> aggregators = new ArrayList<String>();
 
 	@JsonProperty("group_by")
 	@JsonSerialize(using = GrouperSerializer.class, include=JsonSerialize.Inclusion.NON_EMPTY)
-	private List<String> groupers = new ArrayList<String>();
+	private final List<String> groupers = new ArrayList<String>();
 
-	private String name;
+	private final String name;
 
 	QueryMetric(String name)
 	{
@@ -85,7 +85,21 @@ public class QueryMetric
 		checkNotNullOrEmpty(value);
 		tags.put(name, value);
 
-		return (this);
+		return this;
+	}
+
+	/**
+	 * Adds tags. This narrows the query to only show data points associated with the tags.
+	 *
+	 * @param tags map of tags
+	 * @return the metric
+	 */
+	public QueryMetric addTags(Map<String, String> tags)
+	{
+		checkNotNull(tags);
+		this.tags.putAll(tags);
+
+		return this;
 	}
 
 	/**
