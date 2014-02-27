@@ -31,12 +31,12 @@ import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
  */
 public class Metric
 {
-	private String metricName;
-	private Map<String, String> tags = new HashMap<String, String>();
+	private final String metricName;
+	private final Map<String, String> tags = new HashMap<String, String>();
 
 	@JsonSerialize(using = DataPointSerializer.class)
 	@JsonProperty("datapoints")
-	private List<DataPoint> dataPoints = new ArrayList<DataPoint>();
+	private final List<DataPoint> dataPoints = new ArrayList<DataPoint>();
 
 	protected Metric(String metricName)
 	{
@@ -106,6 +106,33 @@ public class Metric
 	public Metric addDataPoint(double value)
 	{
 		return addDataPoint(System.currentTimeMillis(), value);
+	}
+
+	/**
+	 * Adds the data point to the metric.
+	 *
+	 * @param timestamp when the measurement occurred
+	 * @param value the measurement value
+	 * @param type the API data type
+	 * @return the metric
+	 */
+	public <T> Metric addDataPoint(long timestamp, T value, String type)
+	{
+		CustomDataPoint<T> dataPoint = new CustomDataPoint<T>(timestamp, value, type);
+		dataPoints.add(dataPoint);
+		return this;
+	}
+
+	/**
+	 * Adds the data point to the metric with a timestamp of now.
+	 *
+	 * @param value the measurement value
+	 * @param type the API data type
+	 * @return the metric
+	 */
+	public <T> Metric addDataPoint(T value, String type)
+	{
+		return addDataPoint(System.currentTimeMillis(), value, type);
 	}
 
 	public List<DataPoint> getDataPoints()

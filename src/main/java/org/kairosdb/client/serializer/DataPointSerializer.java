@@ -18,6 +18,7 @@ package org.kairosdb.client.serializer;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.JsonSerializer;
 import org.codehaus.jackson.map.SerializerProvider;
+import org.kairosdb.client.builder.CustomDataPoint;
 import org.kairosdb.client.builder.DataPoint;
 import org.kairosdb.client.builder.DoubleDataPoint;
 import org.kairosdb.client.builder.LongDataPoint;
@@ -39,17 +40,21 @@ public class DataPointSerializer extends JsonSerializer<List<DataPoint>>
 	@Override
 	public void serialize(List<DataPoint> value, JsonGenerator jgen, SerializerProvider provider) throws IOException
 	{
-
 		jgen.writeStartArray();
 		for (DataPoint dataPoint : value)
 		{
 			jgen.writeStartArray();
 			jgen.writeNumber(dataPoint.getTimestamp());
 
-			if (dataPoint instanceof LongDataPoint)
+			if (dataPoint instanceof CustomDataPoint) {
+				CustomDataPoint<?> customDataPoint = (CustomDataPoint<?>) dataPoint;
+				jgen.writeObject(customDataPoint.getValue());
+				jgen.writeString(customDataPoint.getType());
+			} else if (dataPoint instanceof LongDataPoint) {
 				jgen.writeNumber(((LongDataPoint)dataPoint).getValue());
-			else
+			} else {
 				jgen.writeNumber(((DoubleDataPoint)dataPoint).getValue());
+			}
 			jgen.writeEndArray();
 		}
 		jgen.writeEndArray();
