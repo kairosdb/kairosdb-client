@@ -19,6 +19,7 @@ import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 import org.kairosdb.client.response.grouping.TagGroupResults;
 import org.kairosdb.client.response.grouping.TimeGroupResults;
+import org.kairosdb.client.response.grouping.TypeGroupResults;
 import org.kairosdb.client.response.grouping.ValueGroupResults;
 
 @JsonTypeInfo(
@@ -28,7 +29,8 @@ import org.kairosdb.client.response.grouping.ValueGroupResults;
 @JsonSubTypes({
 		@JsonSubTypes.Type(value = ValueGroupResults.class, name="value"),
 		@JsonSubTypes.Type(value = TagGroupResults.class, name="tag"),
-		@JsonSubTypes.Type(value = TimeGroupResults.class, name="time")
+		@JsonSubTypes.Type(value = TimeGroupResults.class, name="time"),
+		@JsonSubTypes.Type(value = TypeGroupResults.class, name="type")
 })
 public interface GroupResults
 {

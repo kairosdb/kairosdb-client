@@ -18,6 +18,7 @@ package org.kairosdb.client.response;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.kairosdb.client.builder.CustomDataPoint;
 import org.kairosdb.client.builder.DataPoint;
 import org.kairosdb.client.builder.DoubleDataPoint;
 import org.kairosdb.client.builder.LongDataPoint;
@@ -30,10 +31,10 @@ import java.util.Map;
 @JsonIgnoreProperties({"tags"})
 public class Results
 {
-	private String name;
-	private Map<String, List<String>> tags;
-	private List<DataPoint> dataPoints;
-	private List<GroupResults> groupResults;
+	private final String name;
+	private final Map<String, List<String>> tags;
+	private final List<DataPoint> dataPoints;
+	private final List<GroupResults> groupResults;
 
 	@JsonCreator
 	public Results(@JsonProperty("name")String name,
@@ -50,10 +51,14 @@ public class Results
 		for (String[] value : values)
 		{
 			long timestamp = Long.parseLong(value[0]);
-			if (value[1].contains("."))
+			if (value[1].startsWith("[")) {
+			  // TODO this is a total assumption-laden hack. how can we do this cleaner?
+			  dataPoints.add(new CustomDataPoint<String>(timestamp, value[1], null));
+			} else if (value[1].contains(".")) {
 				dataPoints.add(new DoubleDataPoint(timestamp, Double.parseDouble(value[1])));
-			else
+			} else {
 				dataPoints.add(new LongDataPoint(timestamp, Long.parseLong(value[1])));
+			}
 		}
 	}
 
