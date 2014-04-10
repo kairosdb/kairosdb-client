@@ -15,6 +15,7 @@
  */
 package org.kairosdb.client.builder;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
 
 public class AggregatorFactory
@@ -26,7 +27,7 @@ public class AggregatorFactory
 	 *
 	 * @param value value for time period.
 	 * @param unit unit of time
-	 * @return average aggregator
+	 * @return min aggregator
 	 */
 	public static SamplingAggregator createMinAggregator(int value, TimeUnit unit)
 	{
@@ -39,7 +40,7 @@ public class AggregatorFactory
 	 *
 	 * @param value value for time period.
 	 * @param unit unit of time
-	 * @return average aggregator
+	 * @return max aggregator
 	 */
 	public static SamplingAggregator createMaxAggregator(int value, TimeUnit unit)
 	{
@@ -65,7 +66,7 @@ public class AggregatorFactory
 	 *
 	 * @param value value for time period.
 	 * @param unit unit of time
-	 * @return average aggregator
+	 * @return standard deviation aggregator
 	 */
 	public static SamplingAggregator createStandardDeviationAggregator(int value, TimeUnit unit)
 	{
@@ -78,11 +79,36 @@ public class AggregatorFactory
 	 *
 	 * @param value value for time period.
 	 * @param unit unit of time
-	 * @return average aggregator
+	 * @return sum aggregator
 	 */
 	public static SamplingAggregator createSumAggregator(int value, TimeUnit unit)
 	{
 		return new SamplingAggregator("sum", value, unit);
+	}
+
+	/**
+	 * Creates an aggregator that returns the count of all values over each time period as specified.
+	 * For example, "5 minutes" would returns the count of data points for each 5 minute period.
+	 *
+	 * @param value value for time period.
+	 * @param unit unit of time
+	 * @return count aggregator
+	 */
+	public static SamplingAggregator createCountAggregator(int value, TimeUnit unit)
+	{
+		return new SamplingAggregator("count", value, unit);
+	}
+
+	/**
+	 * Creates an aggregator that divides each value by the divisor.
+	 *
+	 * @param divisor divisor.
+	 * @return div aggregator
+	 */
+	public static Aggregator createDivAggregator(double divisor)
+	{
+		checkArgument(divisor != 0, "Divisor cannot be zero.");
+		return new CustomAggregator("div", "\"divisor\":" + divisor);
 	}
 
 	/**
