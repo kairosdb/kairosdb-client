@@ -9,9 +9,6 @@ import org.junit.Test;
 import org.kairosdb.client.builder.RelativeTime;
 import org.kairosdb.client.builder.TimeUnit;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
-
 public class TimeGrouperTest
 {
 
@@ -25,13 +22,5 @@ public class TimeGrouperTest
 	public void test_constructor_CountLessThanOne_invalid()
 	{
 		new TimeGrouper(new RelativeTime(1, TimeUnit.DAYS), 0);
-	}
-
-	@Test
-	public void test_toJson()
-	{
-		TimeGrouper grouper = new TimeGrouper(new RelativeTime(2, TimeUnit.MINUTES), 5);
-
-		assertThat(grouper.toJson(), equalTo("{\"name\":\"time\",\"range_size\":{\"value\":2,\"unit\":\"MINUTES\"},\"group_count\":5}"));
 	}
 }

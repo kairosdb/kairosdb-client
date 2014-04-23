@@ -47,4 +47,50 @@ public class DoubleDataPoint extends DataPoint
 	{
 		return false;
 	}
+
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o)
+		{
+			return true;
+		}
+		if (o == null || getClass() != o.getClass())
+		{
+			return false;
+		}
+
+		DoubleDataPoint that = (DoubleDataPoint) o;
+
+		if (getTimestamp() != that.getTimestamp())
+		{
+			return false;
+		}
+		if (Double.compare(that.value, value) != 0)
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		int result;
+		long temp;
+		temp = Double.doubleToLongBits(value);
+		result = (int) (temp ^ (temp >>> 32));
+		result = 31 * result + (int) (getTimestamp() ^ (getTimestamp() >>> 32));
+		return result;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "DoubleDataPoint{" +
+				"value=" + value +
+				", timestamp=" + getTimestamp() +
+				'}';
+	}
 }

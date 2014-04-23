@@ -15,17 +15,23 @@
  */
 package org.kairosdb.client.builder;
 
-public interface Grouper
+import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
+
+public abstract class Grouper
 {
+	private String name;
+
+	protected Grouper(String name)
+	{
+		this.name = checkNotNullOrEmpty(name);
+	}
+
 	/**
 	 * Returns the name of the group by.
 	 * @return group by name
 	 */
-	String getName();
-
-	/**
-	 * Returns the group by serialized to JSON.
-	 * @return JSON serialization of the group by
-	 */
-	public String toJson();
+	public String getName()
+	{
+		return name;
+	}
 }

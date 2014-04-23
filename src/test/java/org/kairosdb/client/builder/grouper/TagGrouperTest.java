@@ -7,9 +7,6 @@ package org.kairosdb.client.builder.grouper;
 
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
-
 public class TagGrouperTest
 {
 
@@ -29,13 +26,5 @@ public class TagGrouperTest
 	public void test_constructor_emptyTagNameList_invalid()
 	{
 		new TagGrouper();
-	}
-
-	@Test
-	public void test_toJson()
-	{
-		TagGrouper grouper = new TagGrouper("tag1", "tag2");
-
-		assertThat(grouper.toJson(), equalTo("{\"name\":\"tag\",\"tags\":[\"tag1\",\"tag2\"]}"));
 	}
 }

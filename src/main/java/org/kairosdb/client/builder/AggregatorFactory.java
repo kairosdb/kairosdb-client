@@ -15,8 +15,10 @@
  */
 package org.kairosdb.client.builder;
 
+import org.kairosdb.client.builder.aggregator.CustomAggregator;
+import org.kairosdb.client.builder.aggregator.RateAggregator;
+
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
 
 public class AggregatorFactory
 {
@@ -144,32 +146,12 @@ public class AggregatorFactory
 
 	/**
 	 * Creates an aggregator that returns the rate of change between each pair of data points
+	 *
+	 * @param unit unit of time
 	 * @return rate aggregator
 	 */
-	public static Aggregator createRateAggregator()
+	public static Aggregator createRateAggregator(TimeUnit unit)
 	{
-		return new AggregatorImpl("rate");
-	}
-
-	private static class AggregatorImpl implements Aggregator
-	{
-		private String name;
-
-		private AggregatorImpl(String name)
-		{
-			this.name = checkNotNullOrEmpty(name);
-		}
-
-		@Override
-		public String getName()
-		{
-			return name;
-		}
-
-		@Override
-		public String toJson()
-		{
-			return "\"name\": \"" + name + "\"";
-		}
+		return new RateAggregator(unit);
 	}
 }

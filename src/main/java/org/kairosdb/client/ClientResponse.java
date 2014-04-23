@@ -21,6 +21,6 @@ import java.io.InputStream;
 interface ClientResponse
 {
 	int getStatusCode();
-	
+
 	InputStream getContentStream() throws IOException;
 }

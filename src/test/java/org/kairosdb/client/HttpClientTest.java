@@ -17,10 +17,11 @@ package org.kairosdb.client;
 
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
 import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.junit.Test;
@@ -29,6 +30,7 @@ import org.kairosdb.client.builder.QueryBuilder;
 import org.kairosdb.client.builder.TimeUnit;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -37,17 +39,35 @@ import static org.junit.Assert.fail;
 
 public class HttpClientTest
 {
-	@Test(expected = IllegalArgumentException.class)
-	public void test_negativeRetries_invalid()
+	@Test(expected = NullPointerException.class)
+	public void test_constructor_null_url_invalid() throws MalformedURLException
 	{
-		HttpClient client = new HttpClient("bogus", 80);
+		new HttpClient(null);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void test_constructor_empty_url_invalid() throws MalformedURLException
+	{
+		new HttpClient("");
+	}
+
+	@Test(expected = MalformedURLException.class)
+	public void test_constructor_invalid_url() throws MalformedURLException
+	{
+		new HttpClient("foo");
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void test_negativeRetries_invalid() throws MalformedURLException
+	{
+		HttpClient client = new HttpClient("http://bogus");
 		client.setRetryCount(-1);
 	}
 
 	@Test
 	public void test_pushMetrics_DefaultRetries() throws IOException, URISyntaxException
 	{
-		HttpClient client = new HttpClient("bogus", 80);
+		HttpClient client = new HttpClient("http://bogus");
 		FakeClient fakeClient = new FakeClient();
 		client.setClient(fakeClient);
 
@@ -66,9 +86,9 @@ public class HttpClientTest
 	}
 
 	@Test
-	public void test_pushMetrics_setRetries() throws URISyntaxException
+	public void test_pushMetrics_setRetries() throws URISyntaxException, MalformedURLException
 	{
-		HttpClient client = new HttpClient("bogus", 80);
+		HttpClient client = new HttpClient("http://bogus");
 		FakeClient fakeClient = new FakeClient();
 		client.setClient(fakeClient);
 		client.setRetryCount(10);
@@ -88,9 +108,9 @@ public class HttpClientTest
 	}
 
 	@Test
-	public void test_pushMetrics_setRetries_zero() throws URISyntaxException
+	public void test_pushMetrics_setRetries_zero() throws URISyntaxException, MalformedURLException
 	{
-		HttpClient client = new HttpClient("bogus", 80);
+		HttpClient client = new HttpClient("http://bogus");
 		FakeClient fakeClient = new FakeClient();
 		client.setClient(fakeClient);
 		client.setRetryCount(0);
@@ -112,7 +132,7 @@ public class HttpClientTest
 	@Test
 	public void test_query_DefaultRetries() throws IOException, URISyntaxException
 	{
-		HttpClient client = new HttpClient("bogus", 80);
+		HttpClient client = new HttpClient("http://bogus");
 		FakeClient fakeClient = new FakeClient();
 		client.setClient(fakeClient);
 
@@ -132,9 +152,9 @@ public class HttpClientTest
 	}
 
 	@Test
-	public void test_query_setRetries() throws URISyntaxException
+	public void test_query_setRetries() throws URISyntaxException, MalformedURLException
 	{
-		HttpClient client = new HttpClient("bogus", 80);
+		HttpClient client = new HttpClient("http://bogus");
 		FakeClient fakeClient = new FakeClient();
 		client.setClient(fakeClient);
 		client.setRetryCount(10);
@@ -155,9 +175,9 @@ public class HttpClientTest
 	}
 
 	@Test
-	public void test_query_setRetries_zero() throws URISyntaxException
+	public void test_query_setRetries_zero() throws URISyntaxException, MalformedURLException
 	{
-		HttpClient client = new HttpClient("bogus", 80);
+		HttpClient client = new HttpClient("http://bogus");
 		FakeClient fakeClient = new FakeClient();
 		client.setClient(fakeClient);
 		client.setRetryCount(0);
@@ -177,7 +197,7 @@ public class HttpClientTest
 		}
 	}
 
-	private static class FakeClient implements org.apache.http.client.HttpClient
+	private static class FakeClient extends CloseableHttpClient
 	{
 		private int executionCount;
 
@@ -199,27 +219,33 @@ public class HttpClientTest
 		}
 
 		@Override
-		public HttpResponse execute(HttpUriRequest httpUriRequest) throws IOException
+		public CloseableHttpResponse execute(HttpUriRequest httpUriRequest) throws IOException
 		{
 			executionCount++;
 			throw new IOException("Fake Exception");
 		}
 
 		@Override
-		public HttpResponse execute(HttpUriRequest httpUriRequest, HttpContext httpContext) throws IOException
+		public CloseableHttpResponse execute(HttpUriRequest httpUriRequest, HttpContext httpContext) throws IOException
 		{
 			executionCount++;
 			throw new IOException("Fake Exception");
 		}
 
 		@Override
-		public HttpResponse execute(HttpHost httpHost, HttpRequest httpRequest) throws IOException
+		public CloseableHttpResponse execute(HttpHost httpHost, HttpRequest httpRequest) throws IOException
 		{
 			return null;
 		}
 
 		@Override
-		public HttpResponse execute(HttpHost httpHost, HttpRequest httpRequest, HttpContext httpContext) throws IOException
+		protected CloseableHttpResponse doExecute(HttpHost httpHost, HttpRequest httpRequest, HttpContext httpContext) throws IOException
+		{
+			return null;
+		}
+
+		@Override
+		public CloseableHttpResponse execute(HttpHost httpHost, HttpRequest httpRequest, HttpContext httpContext) throws IOException
 		{
 			return null;
 		}
@@ -246,6 +272,12 @@ public class HttpClientTest
 		public <T> T execute(HttpHost httpHost, HttpRequest httpRequest, ResponseHandler<? extends T> responseHandler, HttpContext httpContext) throws IOException
 		{
 			return null;
+		}
+
+		@Override
+		public void close() throws IOException
+		{
+
 		}
 	}
 }

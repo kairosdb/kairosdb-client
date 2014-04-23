@@ -15,10 +15,15 @@
  */
 package org.kairosdb.client.builder;
 
-import org.codehaus.jackson.map.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import org.kairosdb.client.builder.aggregator.CustomAggregator;
+import org.kairosdb.client.builder.grouper.CustomGrouper;
+import org.kairosdb.client.serializer.CustomAggregatorSerializer;
+import org.kairosdb.client.serializer.CustomGrouperSerializer;
+import org.kairosdb.client.serializer.DataPointSerializer;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,9 +35,15 @@ import static com.google.common.base.Preconditions.checkState;
 public class MetricBuilder
 {
 	private List<Metric> metrics = new ArrayList<Metric>();
+	private transient Gson mapper;
 
 	private MetricBuilder()
 	{
+		GsonBuilder builder = new GsonBuilder();
+		builder.registerTypeAdapter(CustomAggregator.class, new CustomAggregatorSerializer());
+		builder.registerTypeAdapter(CustomGrouper.class, new CustomGrouperSerializer());
+		builder.registerTypeAdapter(DataPoint.class, new DataPointSerializer());
+		mapper = builder.create();
 	}
 
 	/**
@@ -70,6 +81,7 @@ public class MetricBuilder
 
 	/**
 	 * Returns the JSON string built by the builder. This is the JSON that can be used by the client add metrics.
+	 *
 	 * @return JSON
 	 * @throws IOException if metrics cannot be converted to JSON
 	 */
@@ -80,11 +92,6 @@ public class MetricBuilder
 			// verify that there is at least one tag for each metric
 			checkState(metric.getTags().size() > 0, metric.getName() + " must contain at least one tag.");
 		}
-
-		StringWriter writer = new StringWriter();
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.writeValue(writer, metrics);
-
-		return writer.toString();
+		return mapper.toJson(metrics);
 	}
 }

@@ -15,36 +15,24 @@
  */
 package org.kairosdb.client.response.grouping;
 
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.kairosdb.client.builder.RelativeTime;
-import org.kairosdb.client.response.GroupResults;
+import com.google.gson.annotations.SerializedName;
+import org.kairosdb.client.response.GroupResult;
 
-public class TimeGroupResults implements GroupResults
+/**
+ * Results from a ValueGrouper. The group field is group number the results were placed into.
+ */
+public class ValueGroupResult extends GroupResult
 {
-	private static final String NAME = "time";
-	private RelativeTime rangeSize;
-	private int groupCount;
+	@SerializedName("range_size")
+	private int rangeSize;
+
 	private GroupingNumber group;
 
-	@JsonCreator
-	public TimeGroupResults(@JsonProperty("range_size") RelativeTime rangeSize,
-	                       @JsonProperty("group_count") int groupCount,
-	                       @JsonProperty("group") GroupingNumber group)
+	public ValueGroupResult(int rangeSize, GroupingNumber group)
 	{
+		super("value");
 		this.rangeSize = rangeSize;
-		this.groupCount = groupCount;
 		this.group = group;
-	}
-
-	/**
-	 * Name of the grouper.
-	 *
-	 * @return grouper name
-	 */
-	public String getName()
-	{
-		return NAME;
 	}
 
 	/**
@@ -52,23 +40,14 @@ public class TimeGroupResults implements GroupResults
 	 *
 	 * @return range size of the group
 	 */
-	public RelativeTime getRangeSize()
+	public int getRangeSize()
 	{
 		return rangeSize;
 	}
 
 	/**
-	 * Number of groups.
-	 *
-	 * @return number of groups
-	 */
-	public int getGroupCount()
-	{
-		return groupCount;
-	}
-
-	/**
 	 * How the results were group. This indicates the group number.
+	 *
 	 * @return group number
 	 */
 	public GroupingNumber getGroup()

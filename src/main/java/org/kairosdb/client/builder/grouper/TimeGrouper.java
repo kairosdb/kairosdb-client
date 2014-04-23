@@ -15,12 +15,8 @@
  */
 package org.kairosdb.client.builder.grouper;
 
-import com.google.gson.stream.JsonWriter;
 import org.kairosdb.client.builder.Grouper;
 import org.kairosdb.client.builder.RelativeTime;
-
-import java.io.IOException;
-import java.io.StringWriter;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -31,48 +27,26 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * 1 days with a count of 7, creates 1 day groups for a week. A rangeSize of 1 hours with a count of 168 (7 * 24),
  * creates groups for each hour of the week.
  */
-public class TimeGrouper implements Grouper
+public class TimeGrouper extends Grouper
 {
 	private RelativeTime rangeSize;
 	private int count;
 
 	public TimeGrouper(RelativeTime rangeSize, int count)
 	{
+		super("time");
 		checkArgument(count > 0);
 		this.rangeSize = checkNotNull(rangeSize);
 		this.count = count;
 	}
 
-	@Override
-	public String getName()
+	public RelativeTime getRangeSize()
 	{
-		return "time";
+		return rangeSize;
 	}
 
-	@Override
-	public String toJson()
+	public int getCount()
 	{
-		StringWriter stringWriter = new StringWriter();
-		JsonWriter writer = new JsonWriter(stringWriter);
-
-		try
-		{
-			writer.beginObject();
-			writer.name("name").value("time");
-			writer.name("range_size").beginObject();
-			writer.name("value").value(rangeSize.getValue());
-			writer.name("unit").value(rangeSize.getUnit());
-			writer.endObject();
-			writer.name("group_count").value(count);
-			writer.endObject();
-		}
-		catch (IOException e)
-		{
-			throw new IllegalStateException(e);
-		}
-		return stringWriter.toString();
-
+		return count;
 	}
-
-
 }

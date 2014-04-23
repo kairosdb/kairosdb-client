@@ -15,102 +15,101 @@
  */
 package org.kairosdb.client;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
-import org.apache.commons.io.IOUtils;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.map.ObjectMapper;
+import org.kairosdb.client.builder.DataPoint;
 import org.kairosdb.client.builder.MetricBuilder;
 import org.kairosdb.client.builder.QueryBuilder;
-import org.kairosdb.client.response.ErrorResponse;
-import org.kairosdb.client.response.GetResponse;
-import org.kairosdb.client.response.QueryResponse;
-import org.kairosdb.client.response.Response;
+import org.kairosdb.client.deserializer.DataPointDeserializer;
+import org.kairosdb.client.deserializer.GroupByDeserializer;
+import org.kairosdb.client.response.*;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.StringWriter;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
 
 /**
  * Base code used to send metrics to Kairos or query Kairos.
  */
 public abstract class AbstractClient implements Client
 {
-	private String host;
-	private int port;
-	private ObjectMapper mapper;
+	private String url;
+	private Gson mapper;
 
 	/**
 	 * Creates a client
 	 *
-	 * @param host name of the Kairos server
-	 * @param port Kairos port
+	 * @param url url to the KairosDB server
 	 */
-	protected AbstractClient(String host, int port)
+	protected AbstractClient(String url) throws MalformedURLException
 	{
-		this.host = host;
-		this.port = port;
-		mapper = new ObjectMapper();
+		this.url = checkNotNullOrEmpty(url);
+		new URL(url); // validate url
+
+		GsonBuilder builder = new GsonBuilder();
+		builder.registerTypeAdapter(GroupResult.class, new GroupByDeserializer());
+		builder.registerTypeAdapter(DataPoint.class, new DataPointDeserializer());
+		mapper = builder.create();
 	}
 
 	@Override
 	public GetResponse getMetricNames() throws IOException
 	{
-		return get(getURLBase() + "/api/v1/metricnames");
+		return get(url + "/api/v1/metricnames");
 	}
 
 	@Override
 	public GetResponse getTagNames() throws IOException
 	{
-		return get(getURLBase() + "/api/v1/tagnames");
+		return get(url + "/api/v1/tagnames");
 	}
 
 	@Override
 	public GetResponse getTagValues() throws IOException
 	{
-		return get(getURLBase() + "/api/v1/tagvalues");
+		return get(url + "/api/v1/tagvalues");
 	}
 
 	@Override
 	public QueryResponse query(QueryBuilder builder) throws URISyntaxException, IOException
 	{
-		ClientResponse clientResponse = postData(builder.build(), getURLBase() + "/api/v1/datapoints/query");
+		ClientResponse clientResponse = postData(builder.build(), url + "/api/v1/datapoints/query");
 		int responseCode = clientResponse.getStatusCode();
 
 		InputStream stream = clientResponse.getContentStream();
-		try
+		if (stream != null)
 		{
-			if (stream != null)
+			InputStreamReader reader = new InputStreamReader(stream);
+			try
 			{
-				StringWriter resultWriter = new StringWriter();
-				IOUtils.copy(stream, resultWriter);
-
-				JsonParser jsonParser = mapper.getJsonFactory().createJsonParser(resultWriter.toString());
 				if (responseCode >= 400)
 				{
 					QueryResponse response = new QueryResponse();
 					response.setStatusCode(responseCode);
-					ErrorResponse errorResponse = mapper.readValue(jsonParser, ErrorResponse.class);
+					ErrorResponse errorResponse = mapper.fromJson(reader, ErrorResponse.class);
 					response.addErrors(errorResponse.getErrors());
 					return response;
 				}
 				else
 				{
-					QueryResponse response = mapper.readValue(jsonParser, QueryResponse.class);
+					QueryResponse response = mapper.fromJson(reader, QueryResponse.class);
 					response.setStatusCode(responseCode);
 					return response;
 				}
 			}
-		}
-		finally
-		{
-			if (stream != null)
-				stream.close();
+			finally
+			{
+				reader.close();
+			}
 		}
 
 		QueryResponse response = new QueryResponse();
@@ -122,7 +121,7 @@ public abstract class AbstractClient implements Client
 	public Response pushMetrics(MetricBuilder builder) throws URISyntaxException, IOException
 	{
 		checkNotNull(builder);
-		return post(builder.build(), getURLBase() + "/api/v1/datapoints");
+		return post(builder.build(), url + "/api/v1/datapoints");
 	}
 
 	private Response post(String json, String url) throws URISyntaxException, IOException
@@ -131,24 +130,19 @@ public abstract class AbstractClient implements Client
 
 		Response response = new Response(clientResponse.getStatusCode());
 		InputStream stream = clientResponse.getContentStream();
-		try
+		if (stream != null)
 		{
-			if (stream != null)
+			InputStreamReader reader = new InputStreamReader(stream);
+			try
 			{
-				StringWriter resultWriter = new StringWriter();
-				IOUtils.copy(stream, resultWriter);
-
-				JsonParser jsonParser = mapper.getJsonFactory().createJsonParser(resultWriter.toString());
-				ErrorResponse errorResponse = mapper.readValue(jsonParser, ErrorResponse.class);
+				ErrorResponse errorResponse = mapper.fromJson(reader, ErrorResponse.class);
 				response.addErrors(errorResponse.getErrors());
 			}
+			finally
+			{
+				reader.close();
+			}
 		}
-		finally
-		{
-			if (stream != null)
-				stream.close();
-		}
-
 		return response;
 	}
 
@@ -202,13 +196,4 @@ public abstract class AbstractClient implements Client
 	protected abstract ClientResponse postData(String json, String url) throws IOException;
 
 	protected abstract ClientResponse queryData(String url) throws IOException;
-
-	private String getURLBase()
-	{
-		if (isSSLConnection())
-			return "https://" + host + ":" + port;
-		else
-			return "http://" + host + ":" + port;
-	}
-
 }

@@ -15,9 +15,6 @@
  */
 package org.kairosdb.client.builder;
 
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
-
 import java.util.Calendar;
 import java.util.TimeZone;
 
@@ -28,10 +25,9 @@ public class RelativeTime
 {
 	private int value;
 	private TimeUnit unit;
-	private Calendar calendar;
+	private transient Calendar calendar;
 
-	@JsonCreator
-	public RelativeTime(@JsonProperty("value") int value, @JsonProperty("unit") TimeUnit unit)
+	public RelativeTime(int value, TimeUnit unit)
 	{
 		this.value = value;
 		this.unit = unit;
@@ -63,26 +59,40 @@ public class RelativeTime
 	 * this method returns 3 days from <code>time</code>.
 	 *
 	 * @param time time to calculate the relative time.
-	 *
-	 * @return  time in milliseconds relative to the specified time
+	 * @return time in milliseconds relative to the specified time
 	 */
+	@SuppressWarnings("MagicConstant")
 	public long getTimeRelativeTo(long time)
 	{
 		int field = 0;
-		if (unit == TimeUnit.SECONDS )
+		if (unit == TimeUnit.SECONDS)
+		{
 			field = Calendar.SECOND;
+		}
 		else if (unit == TimeUnit.MINUTES)
+		{
 			field = Calendar.MINUTE;
+		}
 		else if (unit == TimeUnit.HOURS)
+		{
 			field = Calendar.HOUR;
+		}
 		else if (unit == TimeUnit.DAYS)
+		{
 			field = Calendar.DATE;
+		}
 		else if (unit == TimeUnit.WEEKS)
+		{
 			field = Calendar.WEEK_OF_MONTH;
+		}
 		else if (unit == TimeUnit.MONTHS)
+		{
 			field = Calendar.MONTH;
+		}
 		else if (unit == TimeUnit.YEARS)
+		{
 			field = Calendar.YEAR;
+		}
 
 		calendar.setTimeInMillis(time);
 		calendar.add(field, -value);

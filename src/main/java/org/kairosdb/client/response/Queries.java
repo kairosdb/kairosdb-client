@@ -15,20 +15,18 @@
  */
 package org.kairosdb.client.response;
 
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class Queries
 {
 	private List<Results> results;
+
+	@SerializedName("sample_size")
 	private long sampleSize;
 
-	@JsonCreator
-	public Queries(@JsonProperty("results")List<Results> results, @JsonProperty("sample_size")long sampleSize)
+	public Queries(List<Results> results, long sampleSize)
 	{
 		this.results = results;
 		this.sampleSize = sampleSize;

@@ -15,34 +15,21 @@
  */
 package org.kairosdb.client.response.grouping;
 
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.kairosdb.client.response.GroupResults;
+import org.kairosdb.client.response.GroupResult;
 
 import java.util.List;
 import java.util.Map;
 
-public class TagGroupResults implements GroupResults
+public class TagGroupResult extends GroupResult
 {
-	private static final String NAME = "tag";
 	private List<String> tags;
 	private Map<String, String> group;
 
-	@JsonCreator
-	public TagGroupResults(@JsonProperty("tags") List<String> tags, @JsonProperty("group") Map<String, String> group)
+	public TagGroupResult(List<String> tags, Map<String, String> group)
 	{
+		super("tag");
 		this.tags = tags;
 		this.group = group;
-	}
-
-	/**
-	 * Name of the grouper.
-	 *
-	 * @return grouper name
-	 */
-	public String getName()
-	{
-		return NAME;
 	}
 
 	/**

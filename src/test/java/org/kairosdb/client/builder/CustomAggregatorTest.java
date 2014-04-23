@@ -6,6 +6,7 @@
 package org.kairosdb.client.builder;
 
 import org.junit.Test;
+import org.kairosdb.client.builder.aggregator.CustomAggregator;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -39,7 +40,7 @@ public class CustomAggregatorTest
 	@Test
 	public void test()
 	{
-		Aggregator aggregator = new CustomAggregator("testAggregator", "{\"property1\":\"value1\", \"property2\": \"value2\"}");
+		CustomAggregator aggregator = new CustomAggregator("testAggregator", "{\"property1\":\"value1\", \"property2\": \"value2\"}");
 
 		assertThat(aggregator.toJson(), equalTo("\"name\":\"testAggregator\",{\"property1\":\"value1\", \"property2\": \"value2\"}"));
 	}

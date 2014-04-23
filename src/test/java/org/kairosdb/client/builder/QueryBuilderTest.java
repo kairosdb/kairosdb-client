@@ -23,9 +23,7 @@ import org.kairosdb.client.builder.grouper.TimeGrouper;
 import org.kairosdb.client.builder.grouper.ValueGrouper;
 
 import java.io.IOException;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -162,7 +160,7 @@ public class QueryBuilderTest
 		builder.setStart(new Date(1359774127000L))
 				.addMetric("metric1")
 				.addAggregator(AggregatorFactory.createMaxAggregator(1, TimeUnit.DAYS))
-				.addAggregator(AggregatorFactory.createRateAggregator());
+				.addAggregator(AggregatorFactory.createRateAggregator(TimeUnit.MINUTES));
 
 		assertThat(builder.build(), equalTo(json));
 	}

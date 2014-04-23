@@ -15,9 +15,6 @@
  */
 package org.kairosdb.client.response;
 
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
-
 import java.util.Collections;
 import java.util.List;
 
@@ -28,8 +25,7 @@ public class ErrorResponse
 {
 	private List<String> errors;
 
-	@JsonCreator
-	public ErrorResponse(@JsonProperty("errors") List<String> errors)
+	public ErrorResponse(List<String> errors)
 	{
 		this.errors = errors;
 	}
@@ -39,7 +35,6 @@ public class ErrorResponse
 		errors = Collections.singletonList(error);
 	}
 
-	@JsonProperty
 	public List<String> getErrors()
 	{
 		return (errors);

@@ -15,43 +15,29 @@
  */
 package org.kairosdb.client.serializer;
 
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.map.JsonSerializer;
-import org.codehaus.jackson.map.SerializerProvider;
+import com.google.gson.*;
 import org.kairosdb.client.builder.DataPoint;
 import org.kairosdb.client.builder.DoubleDataPoint;
 import org.kairosdb.client.builder.LongDataPoint;
 
-import java.io.IOException;
-import java.util.List;
+import java.lang.reflect.Type;
 
-public class DataPointSerializer extends JsonSerializer<List<DataPoint>>
+public class DataPointSerializer implements JsonSerializer<DataPoint>
 {
-	/**
-	 * Method that can be called to ask implementation to serialize
-	 * values of type this serializer handles.
-	 *
-	 * @param value    Value to serialize; can <b>not</b> be null.
-	 * @param jgen     Generator used to output resulting Json content
-	 * @param provider Provider that can be used to get serializers for
-	 *                 serializing Objects value contains, if any.
-	 */
 	@Override
-	public void serialize(List<DataPoint> value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+	public JsonElement serialize(DataPoint src, Type typeOfSrc, JsonSerializationContext context)
 	{
-
-		jgen.writeStartArray();
-		for (DataPoint dataPoint : value)
+		JsonArray array = new JsonArray();
+		array.add(new JsonPrimitive(src.getTimestamp()));
+		if (src instanceof LongDataPoint)
 		{
-			jgen.writeStartArray();
-			jgen.writeNumber(dataPoint.getTimestamp());
-
-			if (dataPoint instanceof LongDataPoint)
-				jgen.writeNumber(((LongDataPoint)dataPoint).getValue());
-			else
-				jgen.writeNumber(((DoubleDataPoint)dataPoint).getValue());
-			jgen.writeEndArray();
+			array.add(new JsonPrimitive(((LongDataPoint) src).getValue()));
 		}
-		jgen.writeEndArray();
+		else
+		{
+			array.add(new JsonPrimitive(((DoubleDataPoint) src).getValue()));
+		}
+
+		return array;
 	}
 }

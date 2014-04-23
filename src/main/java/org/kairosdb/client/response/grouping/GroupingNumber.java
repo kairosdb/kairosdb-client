@@ -15,19 +15,18 @@
  */
 package org.kairosdb.client.response.grouping;
 
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.google.gson.annotations.SerializedName;
 import org.kairosdb.client.response.Group;
 
 public class GroupingNumber implements Group
 {
+	@SerializedName("group_number")
 	private int groupNumber;
 
 	/**
-	 * How the results were group. This indicates the group number.
+	 * How the results were grouped. This indicates the group number.
 	 */
-	@JsonCreator
-	public GroupingNumber(@JsonProperty("group_number") int groupNumber)
+	public GroupingNumber(int groupNumber)
 	{
 		this.groupNumber = groupNumber;
 	}

@@ -15,11 +15,8 @@
  */
 package org.kairosdb.client.builder.grouper;
 
-import com.google.gson.stream.JsonWriter;
 import org.kairosdb.client.builder.Grouper;
 
-import java.io.IOException;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,12 +27,13 @@ import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
 /**
  * Grouper used to group by tag names.
  */
-public class TagGrouper implements Grouper
+public class TagGrouper extends Grouper
 {
 	private List<String> tagNames = new ArrayList<String>();
 
 	public TagGrouper(String... tagNames)
 	{
+		super("tag");
 		checkArgument(tagNames.length > 0);
 		for (String tagName : tagNames)
 		{
@@ -45,38 +43,13 @@ public class TagGrouper implements Grouper
 
 	public TagGrouper(List<String> tagNames)
 	{
+		super("tag");
 		checkNotNull(tagNames);
 		this.tagNames = tagNames;
 	}
 
-	@Override
-	public String getName()
+	public List<String> getTagNames()
 	{
-		return "tag";
-	}
-
-	@Override
-	public String toJson()
-	{
-		StringWriter stringWriter = new StringWriter();
-		JsonWriter writer = new JsonWriter(stringWriter);
-
-		try
-		{
-			writer.beginObject();
-			writer.name("name").value("tag");
-			writer.name("tags").beginArray();
-			for (String tagName : tagNames)
-			{
-				writer.value(tagName);
-			}
-			writer.endArray();
-			writer.endObject();
-		}
-		catch (IOException e)
-		{
-			throw new IllegalStateException(e);
-		}
-		return stringWriter.toString();
+		return tagNames;
 	}
 }

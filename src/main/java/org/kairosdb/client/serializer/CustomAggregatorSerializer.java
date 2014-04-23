@@ -15,30 +15,20 @@
  */
 package org.kairosdb.client.serializer;
 
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.JsonProcessingException;
-import org.codehaus.jackson.map.JsonSerializer;
-import org.codehaus.jackson.map.SerializerProvider;
 
-import java.io.IOException;
-import java.util.List;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+import org.kairosdb.client.builder.aggregator.CustomAggregator;
 
-public class GrouperSerializer extends JsonSerializer<List<String>>
+import java.lang.reflect.Type;
+
+public class CustomAggregatorSerializer implements JsonSerializer<CustomAggregator>
 {
 	@Override
-	public void serialize(List<String> groupers, JsonGenerator jgen, SerializerProvider serializerProvider) throws IOException, JsonProcessingException
+	public JsonElement serialize(CustomAggregator src, Type typeOfSrc, JsonSerializationContext context)
 	{
-		jgen.writeStartArray();
-
-		boolean first = true;
-		for (String grouperJson : groupers)
-		{
-			if (!first)
-				jgen.writeRaw(",");
-			jgen.writeRaw(grouperJson);
-			first = false;
-		}
-		jgen.writeEndArray();
-
+		return new JsonPrimitive(src.toJson());
 	}
 }

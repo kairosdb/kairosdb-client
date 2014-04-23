@@ -15,12 +15,10 @@
  */
 package org.kairosdb.client.builder;
 
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
+import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -30,41 +28,36 @@ import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
 
 /**
  * Builder used to create the JSON to query KairosDB.
- *
+ * <p/>
  * The query returns the data points for the given metrics for the specified time range. The time range can
  * be specified as absolute or relative. Absolute times are a given point in time. Relative times are relative to now.
  * The end time is not required and defaults to now.
- *
+ * <p/>
  * For example, if you specify a relative start time of 30 minutes, all matching data points for the last 30 minutes
  * will be returned. If you specify a relative start time of 30 minutes and a relative end time of 10 minutes, then
  * all matching data points that occurred between the last 30 minutes up to and including the last 10 minutes are returned.
  */
 public class QueryBuilder
 {
-	@JsonProperty("start_absolute")
-	@JsonSerialize(include= JsonSerialize.Inclusion.NON_NULL)
-	private Date startAbsolute;
+	@SerializedName("start_absolute")
+	private Long startAbsolute;
 
-	@JsonProperty("end_absolute")
-	@JsonSerialize(include= JsonSerialize.Inclusion.NON_NULL)
-	private Date endAbsolute;
+	@SerializedName("end_absolute")
+	private Long endAbsolute;
 
-	@JsonProperty("start_relative")
-	@JsonSerialize(include= JsonSerialize.Inclusion.NON_NULL)
+	@SerializedName("start_relative")
 	private RelativeTime startRelative;
 
-	@JsonProperty("end_relative")
-	@JsonSerialize(include= JsonSerialize.Inclusion.NON_NULL)
+	@SerializedName("end_relative")
 	private RelativeTime endRelative;
 
-	@JsonSerialize(include= JsonSerialize.Inclusion.NON_DEFAULT)
 	private int cacheTime;
 	private List<QueryMetric> metrics = new ArrayList<QueryMetric>();
-	private ObjectMapper mapper;
+	private transient Gson mapper;
 
 	private QueryBuilder()
 	{
-		mapper = new ObjectMapper();
+		mapper = new Gson();
 	}
 
 	/**
@@ -78,8 +71,8 @@ public class QueryBuilder
 		checkNotNull(start);
 		checkArgument(startRelative == null, "Both relative and absolute start times cannot be set.");
 
-		this.startAbsolute = start;
-		checkArgument(startAbsolute.getTime() <= System.currentTimeMillis(), "Start time cannot be in the future.");
+		this.startAbsolute = start.getTime();
+		checkArgument(startAbsolute <= System.currentTimeMillis(), "Start time cannot be in the future.");
 		return this;
 	}
 
@@ -88,7 +81,7 @@ public class QueryBuilder
 	 * ago.
 	 *
 	 * @param duration relative time value
-	 * @param unit unit of time
+	 * @param unit     unit of time
 	 * @return the builder
 	 */
 	public QueryBuilder setStart(int duration, TimeUnit unit)
@@ -105,20 +98,22 @@ public class QueryBuilder
 	/**
 	 * The ending value of the time range. Must be later in time than the start time. An end time is not required
 	 * and default to now.
+	 *
 	 * @param end end time
 	 * @return the builder
 	 */
 	public QueryBuilder setEnd(Date end)
 	{
 		checkArgument(endRelative == null, "Both relative and absolute end times cannot be set.");
-		this.endAbsolute = end;
+		this.endAbsolute = end.getTime();
 		return this;
 	}
 
 	/**
 	 * The ending time of the time range relative to now.
+	 *
 	 * @param duration relative time value
-	 * @param unit unit of time
+	 * @param unit     unit of time
 	 * @return the builder
 	 */
 	public QueryBuilder setEnd(int duration, TimeUnit unit)
@@ -132,6 +127,7 @@ public class QueryBuilder
 
 	/**
 	 * How long to cache this exact query. The default is to never cache.
+	 *
 	 * @param cacheTime cache time in milliseconds
 	 * @return the builder
 	 */
@@ -154,6 +150,7 @@ public class QueryBuilder
 
 	/**
 	 * The metric to query for.
+	 *
 	 * @param name metric name
 	 * @return the builder
 	 */
@@ -173,20 +170,22 @@ public class QueryBuilder
 	 */
 	public Date getStartAbsolute()
 	{
-		return startAbsolute;
+		return new Date(startAbsolute);
 	}
 
 	/**
 	 * Returns the absolute range end time.
+	 *
 	 * @return absolute range end time
 	 */
 	public Date getEndAbsolute()
 	{
-		return endAbsolute;
+		return new Date(endAbsolute);
 	}
 
 	/**
 	 * Returns the relative range start time.
+	 *
 	 * @return relative range start time
 	 */
 	public RelativeTime getStartRelative()
@@ -196,6 +195,7 @@ public class QueryBuilder
 
 	/**
 	 * Returns the relative range end time.
+	 *
 	 * @return relative range end time
 	 */
 	public RelativeTime getEndRelative()
@@ -205,6 +205,7 @@ public class QueryBuilder
 
 	/**
 	 * Returns the cache time.
+	 *
 	 * @return cache time
 	 */
 	public int getCacheTime()
@@ -214,6 +215,7 @@ public class QueryBuilder
 
 	/**
 	 * Returns the list metrics to query for.
+	 *
 	 * @return metrics
 	 */
 	public List<QueryMetric> getMetrics()
@@ -223,6 +225,7 @@ public class QueryBuilder
 
 	/**
 	 * Returns the JSON string built by the builder. This is the JSON that can be used by the client to query KairosDB
+	 *
 	 * @return JSON
 	 * @throws IOException if the query is invalid and cannot be converted to JSON
 	 */
@@ -230,10 +233,7 @@ public class QueryBuilder
 	{
 		validateTimes();
 
-		StringWriter writer = new StringWriter();
-		mapper.writeValue(writer, this);
-
-		return writer.toString();
+		return mapper.toJson(this);
 	}
 
 	private void validateTimes()
@@ -246,7 +246,7 @@ public class QueryBuilder
 				TimeValidator.validateEndTimeLaterThanStartTime(startAbsolute, endAbsolute);
 			else
 				TimeValidator.validateEndTimeLaterThanStartTime(startRelative, endAbsolute);
-		}
+			}
 		else if (endRelative != null)
 		{
 			if (startAbsolute != null)

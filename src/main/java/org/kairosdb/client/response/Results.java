@@ -15,46 +15,31 @@
  */
 package org.kairosdb.client.response;
 
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.google.gson.annotations.SerializedName;
 import org.kairosdb.client.builder.DataPoint;
-import org.kairosdb.client.builder.DoubleDataPoint;
-import org.kairosdb.client.builder.LongDataPoint;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 
-@JsonIgnoreProperties({"tags"})
 public class Results
 {
 	private String name;
 	private Map<String, List<String>> tags;
-	private List<DataPoint> dataPoints;
-	private List<GroupResults> groupResults;
 
-	@JsonCreator
-	public Results(@JsonProperty("name")String name,
-	               @JsonProperty("tags") Map<String, List<String>> tags,
-	               @JsonProperty("values") List<String[]> values,
-	               @JsonProperty("group_by") List<GroupResults> groupResults)
+	@SerializedName("values")
+	private List<DataPoint> dataPoints;
+
+	@SerializedName("group_by")
+	private List<GroupResult> groupResults;
+
+	public Results(String name,
+	               Map<String, List<String>> tags,
+	               List<String[]> values,
+	               List<GroupResult> groupResults)
 	{
 		this.name = name;
 		this.tags = tags;
 		this.groupResults = groupResults;
-
-		// todo how to not hold both objects in memory. Really want to only parse the data points until the caller asks for them
-		dataPoints = new ArrayList<DataPoint>();
-		for (String[] value : values)
-		{
-			long timestamp = Long.parseLong(value[0]);
-			if (value[1].contains("."))
-				dataPoints.add(new DoubleDataPoint(timestamp, Double.parseDouble(value[1])));
-			else
-				dataPoints.add(new LongDataPoint(timestamp, Long.parseLong(value[1])));
-		}
 	}
 
 	public String getName()
@@ -72,7 +57,7 @@ public class Results
 		return tags;
 	}
 
-	public List<GroupResults> getGroupResults()
+	public List<GroupResult> getGroupResults()
 	{
 		return groupResults;
 	}

@@ -15,27 +15,19 @@
  */
 package org.kairosdb.client.serializer;
 
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.map.JsonSerializer;
-import org.codehaus.jackson.map.SerializerProvider;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+import org.kairosdb.client.builder.grouper.CustomGrouper;
 
-import java.io.IOException;
-import java.util.List;
+import java.lang.reflect.Type;
 
-public class AggregatorSerializer extends JsonSerializer<List<String>>
+public class CustomGrouperSerializer implements JsonSerializer<CustomGrouper>
 {
 	@Override
-	public void serialize(List<String> aggregators, JsonGenerator jgen, SerializerProvider serializerProvider)
-			throws IOException
+	public JsonElement serialize(CustomGrouper src, Type typeOfSrc, JsonSerializationContext context)
 	{
-		jgen.writeStartArray();
-
-		for (String aggregatorJson : aggregators)
-		{
-			jgen.writeStartObject();
-			jgen.writeRaw(aggregatorJson);
-			jgen.writeEndObject();
-		}
-		jgen.writeEndArray();
+		return new JsonPrimitive(src.toJson());
 	}
 }

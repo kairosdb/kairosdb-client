@@ -15,9 +15,7 @@
  */
 package org.kairosdb.client.builder;
 
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
-import org.kairosdb.client.serializer.DataPointSerializer;
+import com.google.gson.annotations.SerializedName;
 
 import java.util.*;
 
@@ -31,21 +29,21 @@ import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
  */
 public class Metric
 {
-	private String metricName;
+	private String name;
 	private Map<String, String> tags = new HashMap<String, String>();
 
-	@JsonSerialize(using = DataPointSerializer.class)
-	@JsonProperty("datapoints")
+	@SerializedName("datapoints")
 	private List<DataPoint> dataPoints = new ArrayList<DataPoint>();
 
-	protected Metric(String metricName)
+	protected Metric(String name)
 	{
-		this.metricName = checkNotNullOrEmpty(metricName);
+		this.name = checkNotNullOrEmpty(name);
 	}
 
 	/**
 	 * Adds a tag to the data point.
-	 * @param name tag identifier
+	 *
+	 * @param name  tag identifier
 	 * @param value tag value
 	 * @return the metric the tag was added to
 	 */
@@ -62,7 +60,7 @@ public class Metric
 	 * Adds the data point to the metric.
 	 *
 	 * @param timestamp when the measurement occurred
-	 * @param value the measurement value
+	 * @param value     the measurement value
 	 * @return the metric
 	 */
 	public Metric addDataPoint(long timestamp, long value)
@@ -87,7 +85,7 @@ public class Metric
 	 * Adds the data point to the metric.
 	 *
 	 * @param timestamp when the measurement occurred
-	 * @param value the measurement value
+	 * @param value     the measurement value
 	 * @return the metric
 	 */
 	public Metric addDataPoint(long timestamp, double value)
@@ -120,11 +118,12 @@ public class Metric
 	 */
 	public String getName()
 	{
-		return metricName;
+		return name;
 	}
 
 	/**
 	 * Returns the tags associated with the data point.
+	 *
 	 * @return tag for the data point
 	 */
 	public Map<String, String> getTags()

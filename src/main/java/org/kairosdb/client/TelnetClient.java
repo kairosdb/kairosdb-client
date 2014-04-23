@@ -2,6 +2,7 @@ package org.kairosdb.client;
 
 import org.kairosdb.client.builder.*;
 
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -24,7 +25,7 @@ public class TelnetClient
 	public TelnetClient(String host, int port) throws IOException
 	{
 		socket = new Socket(host, port);
-		writer = new PrintWriter(socket.getOutputStream());
+		writer = new PrintWriter(new BufferedOutputStream(socket.getOutputStream()));
 	}
 
 	/**
@@ -58,7 +59,7 @@ public class TelnetClient
 	 *
 	 * @throws IOException if the socket could not be closed.
 	 */
-	public void close() throws IOException
+	public void shutdown() throws IOException
 	{
 		socket.close();
 	}

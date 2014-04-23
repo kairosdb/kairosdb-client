@@ -15,22 +15,19 @@
  */
 package org.kairosdb.client.response;
 
-import org.codehaus.jackson.annotate.JsonSubTypes;
-import org.codehaus.jackson.annotate.JsonTypeInfo;
-import org.kairosdb.client.response.grouping.TagGroupResults;
-import org.kairosdb.client.response.grouping.TimeGroupResults;
-import org.kairosdb.client.response.grouping.ValueGroupResults;
+import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
 
-@JsonTypeInfo(
-		use = JsonTypeInfo.Id.NAME,
-		include = JsonTypeInfo.As.PROPERTY,
-		property = "name")
-@JsonSubTypes({
-		@JsonSubTypes.Type(value = ValueGroupResults.class, name="value"),
-		@JsonSubTypes.Type(value = TagGroupResults.class, name="tag"),
-		@JsonSubTypes.Type(value = TimeGroupResults.class, name="time")
-})
-public interface GroupResults
+public abstract class GroupResult
 {
+	private String name;
 
+	protected GroupResult(String name)
+	{
+		this.name = checkNotNullOrEmpty(name);
+	}
+
+	public String getName()
+	{
+		return name;
+	}
 }

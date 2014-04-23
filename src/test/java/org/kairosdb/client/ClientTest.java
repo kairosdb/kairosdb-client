@@ -23,9 +23,9 @@ import org.kairosdb.client.builder.MetricBuilder;
 import org.kairosdb.client.builder.QueryBuilder;
 import org.kairosdb.client.builder.TimeUnit;
 import org.kairosdb.client.response.*;
-import org.kairosdb.client.response.grouping.TagGroupResults;
-import org.kairosdb.client.response.grouping.TimeGroupResults;
-import org.kairosdb.client.response.grouping.ValueGroupResults;
+import org.kairosdb.client.response.grouping.TagGroupResult;
+import org.kairosdb.client.response.grouping.TimeGroupResult;
+import org.kairosdb.client.response.grouping.ValueGroupResult;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -99,14 +99,14 @@ public class ClientTest
 		assertThat(results.get(0).getGroupResults().size(), equalTo(3));
 
 		// Value Group
-		ValueGroupResults valueGroupResults = (ValueGroupResults) results.get(0).getGroupResults().get(0);
+		ValueGroupResult valueGroupResults = (ValueGroupResult) results.get(0).getGroupResults().get(0);
 		assertThat(valueGroupResults.getName(), equalTo("value"));
 		assertThat(valueGroupResults.getRangeSize(), equalTo(10));
 		assertThat(valueGroupResults.getRangeSize(), equalTo(10));
 		assertThat(valueGroupResults.getGroup().getGroupNumber(), equalTo(2));
 
 		// Tag Group
-		TagGroupResults tagGroupResults = (TagGroupResults) results.get(0).getGroupResults().get(1);
+		TagGroupResult tagGroupResults = (TagGroupResult) results.get(0).getGroupResults().get(1);
 		assertThat(tagGroupResults.getName(), equalTo("tag"));
 		assertThat(tagGroupResults.getTags(), hasItems("bucket", "customer", "datacenter"));
 		assertThat(tagGroupResults.getGroup().size(), equalTo(2));
@@ -114,7 +114,7 @@ public class ClientTest
 		assertThat(tagGroupResults.getGroup().get("customer"), equalTo("Acme"));
 
 		// Time Group
-		TimeGroupResults timeGroupResults = (TimeGroupResults) results.get(0).getGroupResults().get(2);
+		TimeGroupResult timeGroupResults = (TimeGroupResult) results.get(0).getGroupResults().get(2);
 		assertThat(timeGroupResults.getName(), equalTo("time"));
 		assertThat(timeGroupResults.getGroupCount(), equalTo(168));
 		assertThat(timeGroupResults.getRangeSize().getValue(), equalTo(1));

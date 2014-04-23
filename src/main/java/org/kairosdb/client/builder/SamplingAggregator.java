@@ -17,41 +17,38 @@ package org.kairosdb.client.builder;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
 
-public class SamplingAggregator implements Aggregator
+public class SamplingAggregator extends Aggregator
 {
-	private String name;
-	private int value;
-	private TimeUnit unit;
+	private Sampling sampling;
 
 	public SamplingAggregator(String name, int value, TimeUnit unit)
 	{
+		super(name);
 		checkArgument(value > 0, "value must be greater than 0.");
 
-		this.name = checkNotNullOrEmpty(name);
-		this.value = value;
-		this.unit = checkNotNull(unit);
-	}
-
-	public String getName()
-	{
-		return name;
-	}
-
-	@Override
-	public String toJson()
-	{
-		return "\"name\": \"" + name + "\", \"sampling\":{\"value\": " + value + ", \"unit\": \"" + unit.toString() + "\"}";
+		sampling = new Sampling(value, unit);
 	}
 
 	public int getValue()
 	{
-		return value;
+		return sampling.value;
 	}
 
 	public TimeUnit getUnit()
 	{
-		return unit;
+		return sampling.unit;
+	}
+
+	private class Sampling
+	{
+		private Sampling(int value, TimeUnit unit)
+		{
+			this.value = value;
+			this.unit = checkNotNull(unit);
+		}
+
+		private int value;
+		private TimeUnit unit;
 	}
 }

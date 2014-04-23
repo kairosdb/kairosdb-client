@@ -17,8 +17,6 @@ package org.kairosdb.client.builder;
 
 import org.junit.Test;
 
-import java.util.Date;
-
 public class TimeValidatorTest
 {
 
@@ -28,7 +26,7 @@ public class TimeValidatorTest
 		long now = System.currentTimeMillis();
 		RelativeTime startTime = new RelativeTime(2, TimeUnit.WEEKS);
 		RelativeTime endTime = new RelativeTime(2, TimeUnit.DAYS);
-		TimeValidator.validateEndTimeLaterThanStartTime(new Date(startTime.getTimeRelativeTo(now)), new Date(endTime.getTimeRelativeTo(now)));
+		TimeValidator.validateEndTimeLaterThanStartTime(startTime.getTimeRelativeTo(now), endTime.getTimeRelativeTo(now));
 	}
 
 	@Test(expected = IllegalStateException.class)
@@ -37,7 +35,7 @@ public class TimeValidatorTest
 		long now = System.currentTimeMillis();
 		RelativeTime startTime = new RelativeTime(2, TimeUnit.DAYS);
 		RelativeTime endTime = new RelativeTime(2, TimeUnit.WEEKS);
-		TimeValidator.validateEndTimeLaterThanStartTime(new Date(startTime.getTimeRelativeTo(now)), new Date(endTime.getTimeRelativeTo(now)));
+		TimeValidator.validateEndTimeLaterThanStartTime(startTime.getTimeRelativeTo(now), endTime.getTimeRelativeTo(now));
 	}
 
 	@Test
@@ -45,7 +43,7 @@ public class TimeValidatorTest
 	{
 		RelativeTime startTime = new RelativeTime(2, TimeUnit.WEEKS);
 		RelativeTime endTime = new RelativeTime(2, TimeUnit.DAYS);
-		TimeValidator.validateEndTimeLaterThanStartTime(startTime, new Date(endTime.getTimeRelativeTo(System.currentTimeMillis())));
+		TimeValidator.validateEndTimeLaterThanStartTime(startTime, endTime.getTimeRelativeTo(System.currentTimeMillis()));
 	}
 
 	@Test(expected = IllegalStateException.class)
@@ -53,7 +51,7 @@ public class TimeValidatorTest
 	{
 		RelativeTime startTime = new RelativeTime(2, TimeUnit.DAYS);
 		RelativeTime endTime = new RelativeTime(2, TimeUnit.WEEKS);
-		TimeValidator.validateEndTimeLaterThanStartTime(startTime, new Date(endTime.getTimeRelativeTo(System.currentTimeMillis())));
+		TimeValidator.validateEndTimeLaterThanStartTime(startTime, endTime.getTimeRelativeTo(System.currentTimeMillis()));
 	}
 
 	@Test
@@ -61,7 +59,7 @@ public class TimeValidatorTest
 	{
 		RelativeTime startTime = new RelativeTime(2, TimeUnit.WEEKS);
 		RelativeTime endTime = new RelativeTime(2, TimeUnit.DAYS);
-		TimeValidator.validateEndTimeLaterThanStartTime(new Date(startTime.getTimeRelativeTo(System.currentTimeMillis())), endTime);
+		TimeValidator.validateEndTimeLaterThanStartTime(startTime.getTimeRelativeTo(System.currentTimeMillis()), endTime);
 	}
 
 	@Test(expected = IllegalStateException.class)
@@ -69,7 +67,7 @@ public class TimeValidatorTest
 	{
 		RelativeTime startTime = new RelativeTime(2, TimeUnit.DAYS);
 		RelativeTime endTime = new RelativeTime(2, TimeUnit.WEEKS);
-		TimeValidator.validateEndTimeLaterThanStartTime(new Date(startTime.getTimeRelativeTo(System.currentTimeMillis())), endTime);
+		TimeValidator.validateEndTimeLaterThanStartTime(startTime.getTimeRelativeTo(System.currentTimeMillis()), endTime);
 	}
 
 	@Test

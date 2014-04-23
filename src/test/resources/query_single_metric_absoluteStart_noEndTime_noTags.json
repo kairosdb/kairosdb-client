@@ -1,1 +1,1 @@
-{"metrics":[{"tags":{},"aggregators":[{"name": "max", "sampling":{"value": 1, "unit": "DAYS"}},{"name": "rate"}],"name":"metric1"}],"start_absolute":1359774127000}
+{"start_absolute":1359774127000,"cacheTime":0,"metrics":[{"aggregators":[{"sampling":{"value":1,"unit":"DAYS"},"name":"max"},{"unit":"MINUTES","name":"rate"}],"name":"metric1"}]}

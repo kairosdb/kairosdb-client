@@ -18,15 +18,16 @@ package org.kairosdb.client;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 
 public class FakeClient extends AbstractClient
 {
 	private int responseCode;
 	private String responseJson;
 
-	protected FakeClient(int responseCode, String responseJson)
+	protected FakeClient(int responseCode, String responseJson) throws MalformedURLException
 	{
-		super("fake", 80);
+		super("http://fake");
 		this.responseCode = responseCode;
 		this.responseJson = responseJson;
 	}
@@ -67,12 +68,6 @@ public class FakeClient extends AbstractClient
 				return new ByteArrayInputStream(responseJson.getBytes());
 			return null;
 		}
-	}
-
-	@Override
-	public boolean isSSLConnection()
-	{
-		return false;
 	}
 
 	@Override

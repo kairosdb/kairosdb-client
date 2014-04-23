@@ -71,13 +71,6 @@ public interface Client
 	Response pushMetrics(MetricBuilder builder) throws URISyntaxException, IOException;
 
 	/**
-	 * Returns true of the connection is using SSL.
-	 *
-	 * @return true if using SSL
-	 */
-	public boolean isSSLConnection();
-
-	/**
 	 * Returns the number of retries.
 	 * @return number of retries
 	 */
@@ -87,5 +80,5 @@ public interface Client
 	/**
 	 * Shuts down the client. Should be called when done using the client.
 	 */
-	void shutdown();
+	void shutdown() throws IOException;
 }

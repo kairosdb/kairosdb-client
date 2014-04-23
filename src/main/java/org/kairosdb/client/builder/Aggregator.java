@@ -15,21 +15,28 @@
  */
 package org.kairosdb.client.builder;
 
+import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
+
 /**
- * An aggregator manipulates data points. For example, a sum aggregator would add data point together.
+ * An aggregator manipulates data points. For example, a sum aggregator would add data points together.
  */
-public interface Aggregator
+public abstract class Aggregator
 {
+	private String name;
+
+	protected Aggregator(String name)
+	{
+		this.name = checkNotNullOrEmpty(name);
+	}
+
 	/**
 	 * Returns the aggregator's name.
 	 * @return aggregator name
 	 */
-	String getName();
+	public String getName()
+	{
+		return name;
+	}
 
-	/**
-	 * Returns the aggregator serialized to JSON.
-	 *
-	 * @return JSON serialization of the aggregator
-	 */
-	public String toJson();
+	// todo add align_sampling - aligns to the next biggest unit base on the unit
 }

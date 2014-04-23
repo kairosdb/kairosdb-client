@@ -72,27 +72,11 @@ public class QueryMetricTest
 	}
 
 	@Test(expected = NullPointerException.class)
-	public void test_nullAggregatorJson_invalid()
-	{
-		QueryMetric queryMetric = new QueryMetric("metric");
-
-		queryMetric.addAggregator((String) null);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void test_emptyAggregatorJson_invalid()
-	{
-		QueryMetric queryMetric = new QueryMetric("metric");
-
-		queryMetric.addAggregator("");
-	}
-
-	@Test(expected = NullPointerException.class)
 	public void test_nullAggregator_invalid()
 	{
 		QueryMetric queryMetric = new QueryMetric("metric");
 
-		queryMetric.addAggregator((Aggregator) null);
+		queryMetric.addAggregator(null);
 	}
 
 	@Test(expected = NullPointerException.class)
@@ -100,22 +84,6 @@ public class QueryMetricTest
 	{
 		QueryMetric queryMetric = new QueryMetric("metric");
 
-		queryMetric.addGrouper((Grouper) null);
-	}
-
-	@Test(expected = NullPointerException.class)
-	public void test_nullGrouperJson_invalid()
-	{
-		QueryMetric queryMetric = new QueryMetric("metric");
-
-		queryMetric.addGrouper((String) null);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void test_emptyGrouperJson_invalid()
-	{
-		QueryMetric queryMetric = new QueryMetric("metric");
-
-		queryMetric.addGrouper("");
+		queryMetric.addGrouper(null);
 	}
 }

@@ -25,9 +25,9 @@ public class TimeValidator
 	{
 	}
 
-	public static void validateEndTimeLaterThanStartTime(Date startTime, Date endTime)
+	public static void validateEndTimeLaterThanStartTime(long startTime, long endTime)
 	{
-		checkState(endTime.after(startTime), "Start time cannot be later than the ending time");
+		checkState(endTime > startTime, "Start time cannot be later than the ending time");
 	}
 	
 	public static void validateEndTimeLaterThanStartTime(RelativeTime startTime, RelativeTime endTime)
@@ -36,15 +36,15 @@ public class TimeValidator
 		checkState(startTime.getTimeRelativeTo(now) < endTime.getTimeRelativeTo(now), "Start time cannot be later than the ending time");
 	}
 
-	public static void validateEndTimeLaterThanStartTime(Date startTime, RelativeTime endTime)
+	public static void validateEndTimeLaterThanStartTime(long startTime, RelativeTime endTime)
 	{
 		long now = System.currentTimeMillis();
-		checkState(startTime.getTime() < endTime.getTimeRelativeTo(now), "Start time cannot be later than the ending time");
+		checkState(startTime < endTime.getTimeRelativeTo(now), "Start time cannot be later than the ending time");
 	}
 
-	public static void validateEndTimeLaterThanStartTime(RelativeTime startTime, Date endTime)
+	public static void validateEndTimeLaterThanStartTime(RelativeTime startTime, long endTime)
 	{
 		long now = System.currentTimeMillis();
-		checkState(startTime.getTimeRelativeTo(now) < endTime.getTime(),"Start time cannot be later than the ending time");
+		checkState(startTime.getTimeRelativeTo(now) < endTime,"Start time cannot be later than the ending time");
 	}
 }
