@@ -18,6 +18,9 @@ package org.kairosdb.client.response;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Response of a GET request.
+ */
 public class GetResponse extends Response
 {
 	private List<String> results = new ArrayList<String>();

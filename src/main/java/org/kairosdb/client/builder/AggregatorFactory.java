@@ -17,6 +17,7 @@ package org.kairosdb.client.builder;
 
 import org.kairosdb.client.builder.aggregator.CustomAggregator;
 import org.kairosdb.client.builder.aggregator.RateAggregator;
+import org.kairosdb.client.builder.aggregator.SamplingAggregator;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -107,7 +108,7 @@ public class AggregatorFactory
 	 * @param divisor divisor.
 	 * @return div aggregator
 	 */
-	public static Aggregator createDivAggregator(double divisor)
+	public static CustomAggregator createDivAggregator(double divisor)
 	{
 		checkArgument(divisor != 0, "Divisor cannot be zero.");
 		return new CustomAggregator("div", "\"divisor\":" + divisor);
@@ -139,7 +140,7 @@ public class AggregatorFactory
 	 * @param json aggregator JSON fragment
 	 * @return customer aggregator
 	 */
-	public static Aggregator createCustomAggregator(String name, String json)
+	public static CustomAggregator createCustomAggregator(String name, String json)
 	{
 		return new CustomAggregator(name, json);
 	}
@@ -150,7 +151,7 @@ public class AggregatorFactory
 	 * @param unit unit of time
 	 * @return rate aggregator
 	 */
-	public static Aggregator createRateAggregator(TimeUnit unit)
+	public static RateAggregator createRateAggregator(TimeUnit unit)
 	{
 		return new RateAggregator(unit);
 	}

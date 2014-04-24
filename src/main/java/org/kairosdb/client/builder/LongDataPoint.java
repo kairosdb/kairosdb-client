@@ -15,6 +15,9 @@
  */
 package org.kairosdb.client.builder;
 
+/**
+ * DataPoint that holds a long value.
+ */
 public class LongDataPoint extends DataPoint
 {
 	private long value;

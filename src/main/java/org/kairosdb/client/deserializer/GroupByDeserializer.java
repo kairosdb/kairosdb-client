@@ -9,6 +9,9 @@ import org.kairosdb.client.response.grouping.ValueGroupResult;
 
 import java.lang.reflect.Type;
 
+/**
+ * Called by the JSON parser to deserialize groub-by.
+ */
 public class GroupByDeserializer implements JsonDeserializer<GroupResult>
 {
 	@Override

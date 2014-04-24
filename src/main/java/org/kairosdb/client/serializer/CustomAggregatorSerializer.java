@@ -24,6 +24,9 @@ import org.kairosdb.client.builder.aggregator.CustomAggregator;
 
 import java.lang.reflect.Type;
 
+/**
+ * Used by the JSON parser to serialize a custom aggregator.
+ */
 public class CustomAggregatorSerializer implements JsonSerializer<CustomAggregator>
 {
 	@Override

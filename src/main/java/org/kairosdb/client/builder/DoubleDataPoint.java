@@ -16,6 +16,9 @@
 
 package org.kairosdb.client.builder;
 
+/**
+ * DataPoint that holds a double value.
+ */
 public class DoubleDataPoint extends DataPoint
 {
 	private double value;

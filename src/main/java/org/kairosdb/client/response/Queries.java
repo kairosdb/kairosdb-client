@@ -19,6 +19,9 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
+/**
+ * Resulting object from a Query.
+ */
 public class Queries
 {
 	private List<Results> results;

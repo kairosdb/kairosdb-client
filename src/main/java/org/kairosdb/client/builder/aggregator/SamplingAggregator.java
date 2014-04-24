@@ -13,7 +13,10 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.kairosdb.client.builder;
+package org.kairosdb.client.builder.aggregator;
+
+import org.kairosdb.client.builder.Aggregator;
+import org.kairosdb.client.builder.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;

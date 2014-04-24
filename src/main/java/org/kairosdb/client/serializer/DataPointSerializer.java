@@ -22,6 +22,9 @@ import org.kairosdb.client.builder.LongDataPoint;
 
 import java.lang.reflect.Type;
 
+/**
+ * Used by the JSON parser to serialize a DataPoint.
+ */
 public class DataPointSerializer implements JsonSerializer<DataPoint>
 {
 	@Override

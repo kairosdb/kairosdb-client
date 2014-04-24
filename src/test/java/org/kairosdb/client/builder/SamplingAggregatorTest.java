@@ -16,6 +16,7 @@
 package org.kairosdb.client.builder;
 
 import org.junit.Test;
+import org.kairosdb.client.builder.aggregator.SamplingAggregator;
 
 public class SamplingAggregatorTest
 {

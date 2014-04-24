@@ -103,7 +103,7 @@ public class QueryBuilderTest
 	}
 
 	@Test(expected = IllegalStateException.class)
-	public void test_endTimeAbsoluteLaterThanStartTimeAbsolute() throws IOException
+	public void test_endTimeAbsoluteBeforeStartTimeAbsolute_invalid() throws IOException
 	{
 		QueryBuilder.getInstance()
 				.setStart(new Date())
@@ -112,11 +112,29 @@ public class QueryBuilderTest
 	}
 
 	@Test(expected = IllegalStateException.class)
-	public void test_endTimeRelativeLaterThanStartTimeRelative() throws IOException
+	public void test_endTimeRelativeBeforeThanStartTimeRelative_invalid() throws IOException
 	{
 		QueryBuilder.getInstance()
 				.setStart(2, TimeUnit.DAYS)
 				.setEnd(2, TimeUnit.WEEKS)
+				.build();
+	}
+
+	@Test(expected = IllegalStateException.class)
+	public void test_endTimeRelativeBeforeStartTimeAbsolute_invalid() throws IOException
+	{
+		QueryBuilder.getInstance()
+				.setStart(new Date())
+				.setEnd(2, TimeUnit.WEEKS)
+				.build();
+	}
+
+	@Test(expected = IllegalStateException.class)
+	public void test_endTimeAbsoluteBeforeStartTimeRelative_invalid() throws IOException
+	{
+		QueryBuilder.getInstance()
+				.setStart(60, TimeUnit.SECONDS)
+				.setEnd(new Date(1000))
 				.build();
 	}
 

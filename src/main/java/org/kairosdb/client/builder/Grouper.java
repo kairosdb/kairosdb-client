@@ -17,6 +17,9 @@ package org.kairosdb.client.builder;
 
 import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
 
+/**
+ * Specifies how data is grouped. This is used by the JSON parser to deserialize a JSON response.
+ */
 public abstract class Grouper
 {
 	private String name;

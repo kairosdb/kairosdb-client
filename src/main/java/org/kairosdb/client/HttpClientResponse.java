@@ -10,6 +10,9 @@ import org.apache.http.HttpResponse;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * Response from an HTTP client request.
+ */
 class HttpClientResponse implements ClientResponse
 {
 	private HttpResponse httpResponse;

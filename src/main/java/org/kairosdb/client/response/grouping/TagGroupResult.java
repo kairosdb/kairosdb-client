@@ -20,6 +20,11 @@ import org.kairosdb.client.response.GroupResult;
 import java.util.List;
 import java.util.Map;
 
+import static clover.com.google.common.base.Preconditions.checkNotNull;
+
+/**
+ * Grouping by tags.
+ */
 public class TagGroupResult extends GroupResult
 {
 	private List<String> tags;
@@ -28,8 +33,8 @@ public class TagGroupResult extends GroupResult
 	public TagGroupResult(List<String> tags, Map<String, String> group)
 	{
 		super("tag");
-		this.tags = tags;
-		this.group = group;
+		this.tags = checkNotNull(tags);
+		this.group = checkNotNull(group);
 	}
 
 	/**

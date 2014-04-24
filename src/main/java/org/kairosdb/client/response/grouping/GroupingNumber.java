@@ -18,14 +18,14 @@ package org.kairosdb.client.response.grouping;
 import com.google.gson.annotations.SerializedName;
 import org.kairosdb.client.response.Group;
 
+/**
+ * How the results were grouped. This indicates the group number.
+ */
 public class GroupingNumber implements Group
 {
 	@SerializedName("group_number")
 	private int groupNumber;
 
-	/**
-	 * How the results were grouped. This indicates the group number.
-	 */
 	public GroupingNumber(int groupNumber)
 	{
 		this.groupNumber = groupNumber;

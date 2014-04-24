@@ -20,7 +20,9 @@ import org.kairosdb.client.builder.DataPoint;
 import java.util.List;
 import java.util.Map;
 
-
+/**
+ * Query Results. This is the results of a single query.
+ */
 public class Results
 {
 	private String name;

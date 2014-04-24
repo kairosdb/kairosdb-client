@@ -19,6 +19,9 @@ import com.google.gson.annotations.SerializedName;
 import org.kairosdb.client.builder.RelativeTime;
 import org.kairosdb.client.response.GroupResult;
 
+import static clover.com.google.common.base.Preconditions.checkArgument;
+import static clover.com.google.common.base.Preconditions.checkNotNull;
+
 public class TimeGroupResult extends GroupResult
 {
 	@SerializedName("range_size")
@@ -33,9 +36,12 @@ public class TimeGroupResult extends GroupResult
 	                       GroupingNumber group)
 	{
 		super("time");
-		this.rangeSize = rangeSize;
+
+		checkArgument(groupCount > 0);
+
+		this.rangeSize = checkNotNull(rangeSize);
 		this.groupCount = groupCount;
-		this.group = group;
+		this.group = checkNotNull(group);
 	}
 
 	/**

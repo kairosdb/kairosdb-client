@@ -15,10 +15,11 @@
  */
 package org.kairosdb.client.builder;
 
-import java.util.Date;
-
 import static com.google.common.base.Preconditions.checkState;
 
+/**
+ * Validates start and end times.
+ */
 public class TimeValidator
 {
 	private TimeValidator()
@@ -29,7 +30,7 @@ public class TimeValidator
 	{
 		checkState(endTime > startTime, "Start time cannot be later than the ending time");
 	}
-	
+
 	public static void validateEndTimeLaterThanStartTime(RelativeTime startTime, RelativeTime endTime)
 	{
 		long now = System.currentTimeMillis();
@@ -45,6 +46,6 @@ public class TimeValidator
 	public static void validateEndTimeLaterThanStartTime(RelativeTime startTime, long endTime)
 	{
 		long now = System.currentTimeMillis();
-		checkState(startTime.getTimeRelativeTo(now) < endTime,"Start time cannot be later than the ending time");
+		checkState(startTime.getTimeRelativeTo(now) < endTime, "Start time cannot be later than the ending time");
 	}
 }

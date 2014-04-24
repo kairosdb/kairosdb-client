@@ -4,6 +4,9 @@ import org.kairosdb.client.builder.Grouper;
 
 import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
 
+/**
+ * Grouper that that takes custom json.
+ */
 public class CustomGrouper extends Grouper
 {
 	private String json;
@@ -16,6 +19,6 @@ public class CustomGrouper extends Grouper
 
 	public String toJson()
 	{
-		return "\"name\": \"" + getName() + "\" " + json;
+		return "\"name\": \"" + getName() + "\", " + json;
 	}
 }

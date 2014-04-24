@@ -7,6 +7,9 @@ import org.kairosdb.client.builder.LongDataPoint;
 
 import java.lang.reflect.Type;
 
+/**
+ * Called by the JSON parser to deserialize a DataPoint.
+ */
 public class DataPointDeserializer implements JsonDeserializer<DataPoint>
 {
 	@Override
