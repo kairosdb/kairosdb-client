@@ -20,7 +20,8 @@ import org.kairosdb.client.response.GroupResult;
 import java.util.List;
 import java.util.Map;
 
-import static clover.com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 
 /**
  * Grouping by tags.

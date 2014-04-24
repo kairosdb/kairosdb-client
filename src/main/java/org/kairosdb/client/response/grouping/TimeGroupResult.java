@@ -19,8 +19,9 @@ import com.google.gson.annotations.SerializedName;
 import org.kairosdb.client.builder.RelativeTime;
 import org.kairosdb.client.response.GroupResult;
 
-import static clover.com.google.common.base.Preconditions.checkArgument;
-import static clover.com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 
 public class TimeGroupResult extends GroupResult
 {

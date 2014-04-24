@@ -18,8 +18,9 @@ package org.kairosdb.client.response.grouping;
 import com.google.gson.annotations.SerializedName;
 import org.kairosdb.client.response.GroupResult;
 
-import static clover.com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 
 /**
  * Results from a ValueGrouper. The group field is group number the results were placed into.
