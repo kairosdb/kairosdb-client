@@ -15,6 +15,7 @@
  */
 package org.kairosdb.client.builder.grouper;
 
+import com.google.gson.annotations.SerializedName;
 import org.kairosdb.client.builder.Grouper;
 
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
  */
 public class TagGrouper extends Grouper
 {
+	@SerializedName("tags")
 	private List<String> tagNames = new ArrayList<String>();
 
 	public TagGrouper(String... tagNames)

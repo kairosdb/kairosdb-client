@@ -16,10 +16,7 @@
 package org.kairosdb.client.serializer;
 
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
+import com.google.gson.*;
 import org.kairosdb.client.builder.aggregator.CustomAggregator;
 
 import java.lang.reflect.Type;
@@ -32,6 +29,7 @@ public class CustomAggregatorSerializer implements JsonSerializer<CustomAggregat
 	@Override
 	public JsonElement serialize(CustomAggregator src, Type typeOfSrc, JsonSerializationContext context)
 	{
-		return new JsonPrimitive(src.toJson());
+		JsonParser parser = new JsonParser();
+		return parser.parse(src.toJson());
 	}
 }

@@ -24,6 +24,6 @@ public class CustomAggregator extends Aggregator
 
 	public String toJson()
 	{
-		return "\"name\":\"" + getName() + "\"," +  json;
+		return "{\"name\":\"" + getName() + "\"," +  json + "}";
 	}
 }

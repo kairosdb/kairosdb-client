@@ -16,7 +16,10 @@
 package org.kairosdb.client.builder;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
+import org.kairosdb.client.builder.aggregator.CustomAggregator;
+import org.kairosdb.client.serializer.CustomAggregatorSerializer;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -57,7 +60,9 @@ public class QueryBuilder
 
 	private QueryBuilder()
 	{
-		mapper = new Gson();
+		GsonBuilder builder = new GsonBuilder();
+		builder.registerTypeAdapter(CustomAggregator.class, new CustomAggregatorSerializer());
+		mapper = builder.create();
 	}
 
 	/**

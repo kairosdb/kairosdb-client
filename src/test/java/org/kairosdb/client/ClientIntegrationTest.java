@@ -4,6 +4,9 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.kairosdb.client.builder.*;
+import org.kairosdb.client.builder.grouper.TagGrouper;
+import org.kairosdb.client.builder.grouper.TimeGrouper;
+import org.kairosdb.client.builder.grouper.ValueGrouper;
 import org.kairosdb.client.response.GetResponse;
 import org.kairosdb.client.response.QueryResponse;
 import org.kairosdb.client.response.Response;
@@ -57,7 +60,7 @@ public class ClientIntegrationTest
 	}
 
 	@Test
-	public void test_telnetClient() throws IOException
+	public void test_telnetClient() throws IOException, URISyntaxException
 	{
 		TelnetClient client = new TelnetClient("localhost", 4242);
 
@@ -66,7 +69,7 @@ public class ClientIntegrationTest
 			MetricBuilder metricBuilder = MetricBuilder.getInstance();
 
 			Metric metric1 = metricBuilder.addMetric(TELNET_METRIC_NAME_1);
-			metric1.addTag(TELNET_TAG_NAME_1, TELNET_TAG_NAME_1);
+			metric1.addTag(TELNET_TAG_NAME_1, TELNET_TAG_VALUE_1);
 			long timestamp1 = System.currentTimeMillis();
 			metric1.addDataPoint(timestamp1, 20);
 
@@ -76,13 +79,31 @@ public class ClientIntegrationTest
 			metric2.addDataPoint(timestamp2, 40);
 
 			client.pushMetrics(metricBuilder);
+
+			client.shutdown();
+
+			// Query metrics
+			QueryBuilder builder = QueryBuilder.getInstance();
+			builder.setStart(1, TimeUnit.MINUTES);
+			builder.addMetric(TELNET_METRIC_NAME_1);
+			builder.addMetric(TELNET_METRIC_NAME_2);
+
+			HttpClient httpClient = new HttpClient("http://localhost:8080");
+			QueryResponse query = httpClient.query(builder);
+			assertThat(query.getQueries().size(), equalTo(2));
+
+			assertThat(query.getQueries().get(0).getResults().size(), equalTo(1));
+			List<DataPoint> dataPoints = query.getQueries().get(0).getResults().get(0).getDataPoints();
+			assertThat(dataPoints, hasItem((DataPoint)new LongDataPoint(timestamp1, 20L)));
+
+			assertThat(query.getQueries().get(1).getResults().size(), equalTo(1));
+			dataPoints = query.getQueries().get(1).getResults().get(0).getDataPoints();
+			assertThat(dataPoints, hasItem((DataPoint)new LongDataPoint(timestamp2, 40L)));
 		}
 		finally
 		{
 			client.shutdown();
 		}
-
-		// todo query and verify that metrics were added
 	}
 
 	@Test
@@ -140,6 +161,59 @@ public class ClientIntegrationTest
 
 			List<DataPoint> dataPoints = query.getQueries().get(0).getResults().get(0).getDataPoints();
 			assertThat(dataPoints, hasItem((DataPoint)new LongDataPoint(timestamp1, 20L)));
+		}
+		finally
+		{
+			client.shutdown();
+		}
+	}
+
+	/**
+	 * The purpose of this test is to exercise the JSON parsing code. We want to verify that Kairos does not
+	 * return any errors which means that the aggregators and groupBys are all valid.
+	 */
+	@Test
+	public void test_aggregatorsAndGroupBy() throws InterruptedException, IOException, URISyntaxException
+	{
+		HttpClient client = new HttpClient("http://localhost:8080");
+
+		try
+		{
+			MetricBuilder metricBuilder = MetricBuilder.getInstance();
+
+			Metric metric1 = metricBuilder.addMetric(HTTP_METRIC_NAME_1);
+			metric1.addTag(HTTP_TAG_NAME_1, HTTP_TAG_VALUE_1);
+			metric1.addDataPoint(System.currentTimeMillis(), 20);
+			metric1.addDataPoint(System.currentTimeMillis(), 21);
+			metric1.addDataPoint(System.currentTimeMillis(), 22);
+			metric1.addDataPoint(System.currentTimeMillis(), 23);
+
+			// Push Metrics
+			Response response = client.pushMetrics(metricBuilder);
+
+			assertThat(response.getStatusCode(), equalTo(204));
+			assertThat(response.getErrors().size(), equalTo(0));
+
+			// Query metrics
+			QueryBuilder builder = QueryBuilder.getInstance();
+			builder.setStart(1, TimeUnit.MINUTES);
+
+			QueryMetric metric = builder.addMetric(HTTP_METRIC_NAME_1);
+			metric.addAggregator(AggregatorFactory.createStandardDeviationAggregator(1, TimeUnit.SECONDS));
+			metric.addAggregator(AggregatorFactory.createRateAggregator(TimeUnit.SECONDS));
+			metric.addAggregator(AggregatorFactory.createSumAggregator(1, TimeUnit.SECONDS));
+			metric.addAggregator(AggregatorFactory.createDivAggregator(5));
+			metric.addAggregator(AggregatorFactory.createCountAggregator(1, TimeUnit.SECONDS));
+			metric.addAggregator(AggregatorFactory.createAverageAggregator(1, TimeUnit.SECONDS));
+			metric.addAggregator(AggregatorFactory.createMaxAggregator(1, TimeUnit.SECONDS));
+			metric.addAggregator(AggregatorFactory.createMinAggregator(1, TimeUnit.SECONDS));
+
+			metric.addGrouper(new TagGrouper(HTTP_TAG_NAME_1, HTTP_TAG_NAME_2));
+			metric.addGrouper(new TimeGrouper(new RelativeTime(1, TimeUnit.MILLISECONDS), 3));
+			metric.addGrouper(new ValueGrouper(4));
+
+			QueryResponse query = client.query(builder);
+			assertThat(query.getErrors().size(), equalTo(0));
 		}
 		finally
 		{

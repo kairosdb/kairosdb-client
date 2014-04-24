@@ -15,6 +15,7 @@
  */
 package org.kairosdb.client.builder.grouper;
 
+import com.google.gson.annotations.SerializedName;
 import org.kairosdb.client.builder.Grouper;
 import org.kairosdb.client.builder.RelativeTime;
 
@@ -29,7 +30,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class TimeGrouper extends Grouper
 {
+	@SerializedName("range_size")
 	private RelativeTime rangeSize;
+
+	@SerializedName("group_count")
 	private int count;
 
 	public TimeGrouper(RelativeTime rangeSize, int count)

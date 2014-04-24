@@ -15,6 +15,7 @@
  */
 package org.kairosdb.client.builder.grouper;
 
+import com.google.gson.annotations.SerializedName;
 import org.kairosdb.client.builder.Grouper;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -25,6 +26,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  */
 public class ValueGrouper extends Grouper
 {
+	@SerializedName("range_size")
 	private int rangeSize;
 
 	public ValueGrouper(int rangeSize)
