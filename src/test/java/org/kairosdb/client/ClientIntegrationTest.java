@@ -1,5 +1,6 @@
 package org.kairosdb.client;
 
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -14,6 +15,7 @@ import org.kairosdb.core.Main;
 import org.kairosdb.core.exception.DatastoreException;
 import org.kairosdb.core.exception.KairosDBException;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -22,6 +24,9 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
 
 public class ClientIntegrationTest
 {
@@ -39,12 +44,19 @@ public class ClientIntegrationTest
 	public static final String TELNET_TAG_VALUE_1 = "telnetTag1";
 	public static final String TELNET_TAG_VALUE_2 = "telnetTag2";
 
+	public static final String SSL_METRIC_NAME_1 = "sslMetric1";
+	public static final String SSL_METRIC_NAME_2 = "sslMetric2";
+	public static final String SSL_TAG_NAME_1 = "sslTag1";
+	public static final String SSL_TAG_NAME_2 = "sslTag2";
+	public static final String SSL_TAG_VALUE_1 = "sslTag1";
+	public static final String SSL_TAG_VALUE_2 = "sslTag2";
+
 	private static InMemoryKairosServer kairos;
 
 	@BeforeClass
 	public static void setupClass() throws InterruptedException
 	{
-		kairos = new InMemoryKairosServer();
+		kairos = new InMemoryKairosServer(new File("src/test/resources/kairos.properties"));
 		kairos.start();
 
 		while (!kairos.isStarted())
@@ -59,9 +71,18 @@ public class ClientIntegrationTest
 		kairos.shutdown();
 	}
 
+	@After
+	public void tearDown()
+	{
+		kairos.getDataPointListener().setEvent(null);
+	}
+
 	@Test
 	public void test_telnetClient() throws IOException, URISyntaxException
 	{
+		DataPointEvent dataPointEvent = mock(DataPointEvent.class);
+		kairos.getDataPointListener().setEvent(dataPointEvent);
+
 		TelnetClient client = new TelnetClient("localhost", 4242);
 
 		try
@@ -82,6 +103,11 @@ public class ClientIntegrationTest
 
 			client.shutdown();
 
+			// Because Telnet is Asynchronous, it take some time before the datapoints get written.
+			// Wait for Kairos to notify us that they have been written.
+			verify(dataPointEvent, timeout(5000).times(1)).datapoint(TELNET_METRIC_NAME_1);
+			verify(dataPointEvent, timeout(5000).times(1)).datapoint(TELNET_METRIC_NAME_2);
+
 			// Query metrics
 			QueryBuilder builder = QueryBuilder.getInstance();
 			builder.setStart(1, TimeUnit.MINUTES);
@@ -94,6 +120,7 @@ public class ClientIntegrationTest
 
 			assertThat(query.getQueries().get(0).getResults().size(), equalTo(1));
 			List<DataPoint> dataPoints = query.getQueries().get(0).getResults().get(0).getDataPoints();
+			System.out.println(timestamp1);
 			assertThat(dataPoints, hasItem((DataPoint)new LongDataPoint(timestamp1, 20L)));
 
 			assertThat(query.getQueries().get(1).getResults().size(), equalTo(1));
@@ -165,8 +192,7 @@ public class ClientIntegrationTest
 		finally
 		{
 			client.shutdown();
-		}
-	}
+		}}
 
 	/**
 	 * The purpose of this test is to exercise the JSON parsing code. We want to verify that Kairos does not
@@ -221,44 +247,67 @@ public class ClientIntegrationTest
 		}
 	}
 
-
-	public static class InMemoryKairosServer extends Thread
+	@Test
+	public void test_ssl() throws IOException, URISyntaxException
 	{
-		private Main kairos;
-		private boolean started;
+		System.setProperty("javax.net.ssl.trustStore", "src/test/resources/ssl.jks");
+		System.setProperty("javax.net.ssl.trustStorePassword", "testtest");
+		HttpClient client = new HttpClient("https://localhost:8443");
 
-		@Override
-		public void run()
+		try
 		{
-			try
-			{
-				kairos = new Main(null);
-				kairos.startServices();
-				setStarted();
-			}
-			catch (KairosDBException e)
-			{
-				e.printStackTrace();
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
+			MetricBuilder metricBuilder = MetricBuilder.getInstance();
+
+			Metric metric1 = metricBuilder.addMetric(SSL_METRIC_NAME_1);
+			metric1.addTag(SSL_TAG_NAME_1, SSL_TAG_VALUE_1);
+			long timestamp1 = System.currentTimeMillis();
+			metric1.addDataPoint(timestamp1, 20);
+
+			Metric metric2 = metricBuilder.addMetric(SSL_METRIC_NAME_2);
+			metric2.addTag(SSL_TAG_NAME_2, SSL_TAG_VALUE_2);
+			long timestamp2 = System.currentTimeMillis();
+			metric2.addDataPoint(timestamp2, 40);
+
+			// Push Metrics
+			Response response = client.pushMetrics(metricBuilder);
+
+			assertThat(response.getStatusCode(), equalTo(204));
+			assertThat(response.getErrors().size(), equalTo(0));
+
+			// Check Metric names
+			GetResponse metricNames = client.getMetricNames();
+
+			assertThat(metricNames.getStatusCode(), equalTo(200));
+			assertThat(metricNames.getResults(), hasItems(SSL_METRIC_NAME_1, SSL_METRIC_NAME_2));
+
+			// Check Tag names
+			GetResponse tagNames = client.getTagNames();
+
+			assertThat(tagNames.getStatusCode(), equalTo(200));
+			assertThat(tagNames.getResults(), hasItems(SSL_TAG_NAME_1, SSL_TAG_NAME_2));
+
+			// Check Tag values
+			GetResponse tagValues = client.getTagValues();
+
+			assertThat(tagValues.getStatusCode(), equalTo(200));
+			assertThat(tagValues.getResults(), hasItems(SSL_TAG_VALUE_1, SSL_TAG_VALUE_2));
+
+			// Query metrics
+			QueryBuilder builder = QueryBuilder.getInstance();
+			builder.setStart(1, TimeUnit.MINUTES);
+			builder.addMetric(SSL_METRIC_NAME_1);
+			builder.addMetric(SSL_METRIC_NAME_2);
+
+			QueryResponse query = client.query(builder);
+			assertThat(query.getQueries().size(), equalTo(2));
+			assertThat(query.getQueries().get(0).getResults().size(), equalTo(1));
+
+			List<DataPoint> dataPoints = query.getQueries().get(0).getResults().get(0).getDataPoints();
+			assertThat(dataPoints, hasItem((DataPoint)new LongDataPoint(timestamp1, 20L)));
 		}
-
-		public synchronized boolean isStarted()
+		finally
 		{
-			return started;
-		}
-
-		private synchronized void setStarted()
-		{
-			started = true;
-		}
-
-		public void shutdown() throws InterruptedException, DatastoreException
-		{
-			kairos.stopServices();
+			client.shutdown();
 		}
 	}
 }

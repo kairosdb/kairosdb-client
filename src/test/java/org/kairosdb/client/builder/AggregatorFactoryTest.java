@@ -91,7 +91,7 @@ public class AggregatorFactoryTest
 		CustomAggregator aggregator = AggregatorFactory.createCustomAggregator("foobar", "\"foo\": 10");
 
 		assertThat(aggregator.getName(), equalTo("foobar"));
-		assertThat(aggregator.toJson(), equalTo("\"name\":\"foobar\",\"foo\": 10"));
+		assertThat(aggregator.toJson(), equalTo("{\"name\":\"foobar\",\"foo\": 10}"));
 	}
 
 	@Test
@@ -100,7 +100,7 @@ public class AggregatorFactoryTest
 		CustomAggregator aggregator = AggregatorFactory.createDivAggregator(60);
 
 		assertThat(aggregator.getName(), equalTo("div"));
-		assertThat(aggregator.toJson(), equalTo("\"name\":\"div\",\"divisor\":60.0"));
+		assertThat(aggregator.toJson(), equalTo("{\"name\":\"div\",\"divisor\":60.0}"));
 	}
 
 }

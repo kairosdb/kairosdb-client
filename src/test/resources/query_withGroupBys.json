@@ -1,1 +1,1 @@
-{"start_relative":{"value":2,"unit":"MONTHS"},"cacheTime":0,"metrics":[{"group_by":[{"rangeSize":10,"name":"value"},{"tagNames":["tag1","tag2"],"name":"tag"},{"rangeSize":{"value":2,"unit":"HOURS"},"count":3,"name":"time"}],"name":"metric1"}]}
+{"start_relative":{"value":2,"unit":"MONTHS"},"cacheTime":0,"metrics":[{"group_by":[{"range_size":10,"name":"value"},{"tags":["tag1","tag2"],"name":"tag"},{"range_size":{"value":2,"unit":"HOURS"},"group_count":3,"name":"time"}],"name":"metric1"}]}

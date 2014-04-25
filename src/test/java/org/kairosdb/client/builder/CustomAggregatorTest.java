@@ -42,6 +42,6 @@ public class CustomAggregatorTest
 	{
 		CustomAggregator aggregator = new CustomAggregator("testAggregator", "{\"property1\":\"value1\", \"property2\": \"value2\"}");
 
-		assertThat(aggregator.toJson(), equalTo("\"name\":\"testAggregator\",{\"property1\":\"value1\", \"property2\": \"value2\"}"));
+		assertThat(aggregator.toJson(), equalTo("{\"name\":\"testAggregator\",{\"property1\":\"value1\", \"property2\": \"value2\"}}"));
 	}
 }
