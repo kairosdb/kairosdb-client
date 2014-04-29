@@ -16,8 +16,10 @@
 package org.kairosdb.client;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -55,25 +57,7 @@ public class HttpClient extends AbstractClient
 		HttpPost postMethod = new HttpPost(url);
 		postMethod.setEntity(requestEntity);
 
-		HttpResponse response;
-
-		int tries = ++retries;
-		while (true)
-		{
-			tries--;
-			try
-			{
-				response = client.execute(postMethod);
-				break;
-			}
-			catch (IOException e)
-			{
-				if (tries < 1)
-					throw e;
-			}
-		}
-
-		return new HttpClientResponse(response);
+		return execute(postMethod);
 	}
 
 	@Override
@@ -82,6 +66,20 @@ public class HttpClient extends AbstractClient
 		HttpGet getMethod = new HttpGet(url);
 		getMethod.addHeader("accept", "application/json");
 
+		return execute(getMethod);
+	}
+
+	@Override
+	protected ClientResponse delete(String url) throws IOException
+	{
+		HttpDelete deleteMethod = new HttpDelete(url);
+		deleteMethod.addHeader("accept", "application/json");
+
+		return execute(deleteMethod);
+	}
+
+	private ClientResponse execute(HttpUriRequest request) throws IOException
+	{
 		HttpResponse response;
 
 		int tries = ++retries;
@@ -90,7 +88,7 @@ public class HttpClient extends AbstractClient
 			tries--;
 			try
 			{
-				response = client.execute(getMethod);
+				response = client.execute(request);
 				break;
 			}
 			catch (IOException e)

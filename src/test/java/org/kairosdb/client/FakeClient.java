@@ -44,6 +44,12 @@ public class FakeClient extends AbstractClient
 		return new FakeClientResponse(responseCode, responseJson);
 	}
 
+	@Override
+	protected ClientResponse delete(String url) throws IOException
+	{
+		return null;
+	}
+
 	private class FakeClientResponse implements ClientResponse
 	{
 		private int statusCode;

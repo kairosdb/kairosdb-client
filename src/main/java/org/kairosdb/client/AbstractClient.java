@@ -127,7 +127,27 @@ public abstract class AbstractClient implements Client
 	public Response pushMetrics(MetricBuilder builder) throws URISyntaxException, IOException
 	{
 		checkNotNull(builder);
-		return post(builder.build(), url + "/api/v1/datapoints");
+		ClientResponse clientResponse = postData(builder.build(), url + "/api/v1/datapoints");
+
+		return getResponse(clientResponse);
+	}
+
+	@Override
+	public Response deleteMetric(String name) throws IOException
+	{
+		checkNotNullOrEmpty(name);
+
+		ClientResponse response = delete(url + "/api/v1/metric/" + name);
+		return getResponse(response);
+	}
+
+	@Override
+	public Response delete(QueryBuilder builder) throws URISyntaxException, IOException
+	{
+		checkNotNull(builder);
+		ClientResponse clientResponse = postData(builder.build(), url + "/api/v1/datapoints/delete");
+
+		return getResponse(clientResponse);
 	}
 
 	@Override
@@ -144,10 +164,8 @@ public abstract class AbstractClient implements Client
 		return customGroupTypes.get(groupType);
 	}
 
-	private Response post(String json, String url) throws URISyntaxException, IOException
+	private Response getResponse(ClientResponse clientResponse) throws IOException
 	{
-		ClientResponse clientResponse = postData(json, url);
-
 		Response response = new Response(clientResponse.getStatusCode());
 		InputStream stream = clientResponse.getContentStream();
 		if (stream != null)
@@ -179,7 +197,9 @@ public abstract class AbstractClient implements Client
 		{
 			InputStream stream = clientResponse.getContentStream();
 			if (stream == null)
+			{
 				throw new IOException("Could not get content stream.");
+			}
 
 			return new GetResponse(responseCode, readNameQueryResponse(stream));
 		}
@@ -216,4 +236,6 @@ public abstract class AbstractClient implements Client
 	protected abstract ClientResponse postData(String json, String url) throws IOException;
 
 	protected abstract ClientResponse queryData(String url) throws IOException;
+
+	protected abstract ClientResponse delete(String url) throws IOException;
 }
