@@ -47,7 +47,7 @@ public class TelnetClient
 			for (DataPoint dataPoint : metric.getDataPoints())
 			{
 				writer.println("put" + " " + metric.getName() + " " + dataPoint.getTimestamp() + " " +
-						(dataPoint.isInteger() ? ((LongDataPoint) dataPoint).getValue() : ((DoubleDataPoint) dataPoint).getValue()) +
+						dataPoint.getValue() +
 						" " + tags.toString());
 			}
 		}

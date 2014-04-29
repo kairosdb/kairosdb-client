@@ -45,7 +45,6 @@ public class GroupByDeserializer implements JsonDeserializer<GroupResult>
 		}
 		else
 		{
-			// todo use a factory or deserializer for registered types
 			throw new JsonParseException("Invalid group_by: " + name);
 		}
 	}

@@ -72,7 +72,7 @@
         <repository>
             <id>kairos_staging</id>
             <name>Staging repo for Kairos</name>
-            <url>https://oss.sonatype.org/content/repositories/orgkairosdb-1003</url>
+            <url>https://oss.sonatype.org/content/repositories/orgkairosdb-1005</url>
         </repository>
     </repositories>
 

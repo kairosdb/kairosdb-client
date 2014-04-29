@@ -36,12 +36,13 @@ public class Results
 
 	public Results(String name,
 	               Map<String, List<String>> tags,
-	               List<String[]> values,
+	               List<DataPoint> dataPoints,
 	               List<GroupResult> groupResults)
 	{
 		this.name = name;
 		this.tags = tags;
 		this.groupResults = groupResults;
+		this.dataPoints = dataPoints;
 	}
 
 	public String getName()

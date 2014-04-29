@@ -17,6 +17,10 @@ package org.kairosdb.client.builder;
 
 import org.junit.Test;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertThat;
+
 public class DataPointTest
 {
 
@@ -30,5 +34,43 @@ public class DataPointTest
 	public void test_timestampZero_invalid()
 	{
 		MetricBuilder.getInstance().addMetric("metric").addDataPoint(0, 3);
+	}
+
+	@Test
+	public void test_constructor_longValue() throws DataFormatException
+	{
+		DataPoint dataPoint = new DataPoint(93939393, 30L);
+
+		assertThat(dataPoint.longValue(), equalTo(30L));
+		assertThat(dataPoint.getValue(), instanceOf(Long.class));
+		assertThat(dataPoint.isIntegerValue(), equalTo(true));
+		assertThat(dataPoint.isDoubleValue(), equalTo(false));
+	}
+
+	@Test
+	public void test_constructor_doubleValue() throws DataFormatException
+	{
+		DataPoint dataPoint = new DataPoint(93939393, 30.3);
+
+		assertThat(dataPoint.doubleValue(), equalTo(30.3));
+		assertThat(dataPoint.getValue(), instanceOf(Double.class));
+		assertThat(dataPoint.isIntegerValue(), equalTo(false));
+		assertThat(dataPoint.isDoubleValue(), equalTo(true));
+	}
+
+	@Test(expected = DataFormatException.class)
+	public void test_longValue_wrong_type_invalid() throws DataFormatException
+	{
+		DataPoint dataPoint = new DataPoint(388383, "foo");
+
+		dataPoint.longValue();
+	}
+
+	@Test(expected = DataFormatException.class)
+	public void test_doubleValue_wrong_type_invalid() throws DataFormatException
+	{
+		DataPoint dataPoint = new DataPoint(388383, "foo");
+
+		dataPoint.doubleValue();
 	}
 }

@@ -31,6 +31,7 @@ public class Metric
 {
 	private String name;
 	private Map<String, String> tags = new HashMap<String, String>();
+	private String type;
 
 	@SerializedName("datapoints")
 	private List<DataPoint> dataPoints = new ArrayList<DataPoint>();
@@ -38,6 +39,12 @@ public class Metric
 	protected Metric(String name)
 	{
 		this.name = checkNotNullOrEmpty(name);
+	}
+
+	protected Metric(String name, String registeredType)
+	{
+		this(name);
+		type = registeredType;
 	}
 
 	/**
@@ -65,8 +72,7 @@ public class Metric
 	 */
 	public Metric addDataPoint(long timestamp, long value)
 	{
-		LongDataPoint dataPoint = new LongDataPoint(timestamp, value);
-		dataPoints.add(dataPoint);
+		dataPoints.add(new DataPoint(timestamp, value));
 		return this;
 	}
 
@@ -81,6 +87,12 @@ public class Metric
 		return addDataPoint(System.currentTimeMillis(), value);
 	}
 
+	public Metric addDataPoint(long timestamp, Object value)
+	{
+		dataPoints.add(new DataPoint(timestamp, value));
+		return this;
+	}
+
 	/**
 	 * Adds the data point to the metric.
 	 *
@@ -90,8 +102,7 @@ public class Metric
 	 */
 	public Metric addDataPoint(long timestamp, double value)
 	{
-		DoubleDataPoint dataPoint = new DoubleDataPoint(timestamp, value);
-		dataPoints.add(dataPoint);
+		dataPoints.add(new DataPoint(timestamp, value));
 		return this;
 	}
 
@@ -129,5 +140,15 @@ public class Metric
 	public Map<String, String> getTags()
 	{
 		return Collections.unmodifiableMap(tags);
+	}
+
+	/**
+	 * Returns the custom type name. Null if the type is a number.
+	 *
+	 * @return custom type name
+	 */
+	public String getType()
+	{
+		return type;
 	}
 }

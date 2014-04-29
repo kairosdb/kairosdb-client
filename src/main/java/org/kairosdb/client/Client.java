@@ -72,6 +72,7 @@ public interface Client
 
 	/**
 	 * Returns the number of retries.
+	 *
 	 * @return number of retries
 	 */
 	@SuppressWarnings("UnusedDeclaration")
@@ -81,4 +82,21 @@ public interface Client
 	 * Shuts down the client. Should be called when done using the client.
 	 */
 	void shutdown() throws IOException;
+
+	/**
+	 * Registers a new custom data type. The assumption is that this data type already exists on the server. The
+	 * dataPointValueClass is used to serialize and deserialize the custom type. This is simply a POJO.
+	 *
+	 * @param groupType           type used to deserialize the json on the client
+	 * @param dataPointValueClass class that is the value of a data point
+	 */
+	void registerCustomDataType(String groupType, Class dataPointValueClass);
+
+	/**
+	 * Returns the data point value class for the given group type or null if one is not registered for the group type
+	 *
+	 * @param groupType group type
+	 * @return data point class associated with the group type
+	 */
+	Class getDataPointValueClass(String groupType);
 }

@@ -4,6 +4,10 @@
 			{
 				"name": "archive_search",
 				"group_by": [
+				    {
+				        "name": "type",
+				        "type": "number"
+				    },
 					{
 						"name": "value",
 						"range_size": 10,

@@ -18,16 +18,15 @@ package org.kairosdb.client;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import org.junit.Test;
-import org.kairosdb.client.builder.LongDataPoint;
-import org.kairosdb.client.builder.MetricBuilder;
-import org.kairosdb.client.builder.QueryBuilder;
-import org.kairosdb.client.builder.TimeUnit;
+import org.kairosdb.client.builder.*;
 import org.kairosdb.client.response.*;
+import org.kairosdb.client.response.grouping.DefaultGroupResult;
 import org.kairosdb.client.response.grouping.TagGroupResult;
 import org.kairosdb.client.response.grouping.TimeGroupResult;
 import org.kairosdb.client.response.grouping.ValueGroupResult;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.List;
 
@@ -59,7 +58,7 @@ public class ClientTest
 	}
 
 	@Test
-	public void test_validResponse() throws IOException, URISyntaxException
+	public void test_validResponse() throws IOException, URISyntaxException, DataFormatException
 	{
 		QueryBuilder builder = QueryBuilder.getInstance();
 		builder.setStart(2, TimeUnit.MILLISECONDS);
@@ -85,28 +84,33 @@ public class ClientTest
 
 		// Data points
 		assertThat(results.get(0).getDataPoints().size(), equalTo(3));
-		LongDataPoint dataPoint = (LongDataPoint) results.get(0).getDataPoints().get(0);
+		DataPoint dataPoint = results.get(0).getDataPoints().get(0);
 		assertThat(dataPoint.getTimestamp(), equalTo(1362034800000L));
-		assertThat(dataPoint.getValue(), equalTo(1L));
-		dataPoint = (LongDataPoint) results.get(0).getDataPoints().get(1);
+		assertThat(dataPoint.longValue(), equalTo(1L));
+		dataPoint = results.get(0).getDataPoints().get(1);
 		assertThat(dataPoint.getTimestamp(), equalTo(1362121200000L));
-		assertThat(dataPoint.getValue(), equalTo(2L));
-		dataPoint = (LongDataPoint) results.get(0).getDataPoints().get(2);
+		assertThat(dataPoint.longValue(), equalTo(2L));
+		dataPoint = results.get(0).getDataPoints().get(2);
 		assertThat(dataPoint.getTimestamp(), equalTo(1362207600000L));
-		assertThat(dataPoint.getValue(), equalTo(3L));
+		assertThat(dataPoint.longValue(), equalTo(3L));
 
 		// Groups
-		assertThat(results.get(0).getGroupResults().size(), equalTo(3));
+		assertThat(results.get(0).getGroupResults().size(), equalTo(4));
+
+		// Default Group
+		DefaultGroupResult defaultGroupResults = (DefaultGroupResult) results.get(0).getGroupResults().get(0);
+		assertThat(defaultGroupResults.getName(), equalTo("type"));
+		assertThat(defaultGroupResults.getType(), equalTo("number"));
 
 		// Value Group
-		ValueGroupResult valueGroupResults = (ValueGroupResult) results.get(0).getGroupResults().get(0);
+		ValueGroupResult valueGroupResults = (ValueGroupResult) results.get(0).getGroupResults().get(1);
 		assertThat(valueGroupResults.getName(), equalTo("value"));
 		assertThat(valueGroupResults.getRangeSize(), equalTo(10));
 		assertThat(valueGroupResults.getRangeSize(), equalTo(10));
 		assertThat(valueGroupResults.getGroup().getGroupNumber(), equalTo(2));
 
 		// Tag Group
-		TagGroupResult tagGroupResults = (TagGroupResult) results.get(0).getGroupResults().get(1);
+		TagGroupResult tagGroupResults = (TagGroupResult) results.get(0).getGroupResults().get(2);
 		assertThat(tagGroupResults.getName(), equalTo("tag"));
 		assertThat(tagGroupResults.getTags(), hasItems("bucket", "customer", "datacenter"));
 		assertThat(tagGroupResults.getGroup().size(), equalTo(2));
@@ -114,11 +118,20 @@ public class ClientTest
 		assertThat(tagGroupResults.getGroup().get("customer"), equalTo("Acme"));
 
 		// Time Group
-		TimeGroupResult timeGroupResults = (TimeGroupResult) results.get(0).getGroupResults().get(2);
+		TimeGroupResult timeGroupResults = (TimeGroupResult) results.get(0).getGroupResults().get(3);
 		assertThat(timeGroupResults.getName(), equalTo("time"));
 		assertThat(timeGroupResults.getGroupCount(), equalTo(168));
 		assertThat(timeGroupResults.getRangeSize().getValue(), equalTo(1));
 		assertThat(timeGroupResults.getRangeSize().getUnit(), equalTo(TimeUnit.HOURS.toString()));
 		assertThat(timeGroupResults.getGroup().getGroupNumber(), equalTo(3));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void test_registerCustomDataType_groupType_alreadyRegistered_invalid() throws MalformedURLException
+	{
+		FakeClient client = new FakeClient(200, "");
+
+		client.registerCustomDataType("groupType", String.class);
+		client.registerCustomDataType("groupType", String.class);
 	}
 }

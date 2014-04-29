@@ -16,22 +16,23 @@
 package org.kairosdb.client.builder;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * A measurement. Contains the time when the measurement occurred and its value.
- *
- * @see LongDataPoint
- * @see DoubleDataPoint
  */
-public abstract class DataPoint
+public class DataPoint
 {
 	private long timestamp;
+	private Object value;
 
-	protected DataPoint(long timestamp)
+	public DataPoint(long timestamp, Object value)
 	{
 		checkArgument(timestamp > 0);
 		this.timestamp = timestamp;
+		this.value = checkNotNull(value);
 	}
+
 	/**
 	 * Time when the data point was measured.
 	 *
@@ -42,5 +43,82 @@ public abstract class DataPoint
 		return timestamp;
 	}
 
-	public abstract boolean isInteger();
+	public Object getValue()
+	{
+		return value;
+	}
+
+	public String stringValue() throws DataFormatException
+	{
+		return value.toString();
+	}
+
+	public long longValue() throws DataFormatException
+	{
+		try
+		{
+			return ((Number)value).longValue();
+		}
+		catch (Exception e)
+		{
+			throw new DataFormatException("Value is not a long");
+		}
+	}
+
+	public double doubleValue() throws DataFormatException
+	{
+		try
+		{
+			return ((Number)value).doubleValue();
+		}
+		catch (Exception e)
+		{
+			throw new DataFormatException("Value is not a double");
+		}
+	}
+
+	public boolean isDoubleValue()
+	{
+		return !(((Number) value).doubleValue() == Math.floor(((Number) value).doubleValue()));
+	}
+
+	public boolean isIntegerValue()
+	{
+		return ((Number) value).doubleValue() == Math.floor(((Number) value).doubleValue());
+	}
+
+	@Override
+	public String toString()
+	{
+		return "DataPoint{" +
+				"timestamp=" + timestamp +
+				", value=" + value +
+				'}';
+	}
+
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o)
+		{
+			return true;
+		}
+		if (o == null || getClass() != o.getClass())
+		{
+			return false;
+		}
+
+		DataPoint dataPoint = (DataPoint) o;
+
+		return timestamp == dataPoint.timestamp && value.equals(dataPoint.value);
+
+	}
+
+	@Override
+	public int hashCode()
+	{
+		int result = (int) (timestamp ^ (timestamp >>> 32));
+		result = 31 * result + value.hashCode();
+		return result;
+	}
 }

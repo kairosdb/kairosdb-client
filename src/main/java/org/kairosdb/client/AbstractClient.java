@@ -18,11 +18,10 @@ package org.kairosdb.client;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
-import org.kairosdb.client.builder.DataPoint;
 import org.kairosdb.client.builder.MetricBuilder;
 import org.kairosdb.client.builder.QueryBuilder;
-import org.kairosdb.client.deserializer.DataPointDeserializer;
 import org.kairosdb.client.deserializer.GroupByDeserializer;
+import org.kairosdb.client.deserializer.ResultsDeserializer;
 import org.kairosdb.client.response.*;
 
 import java.io.IOException;
@@ -32,8 +31,11 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
 
@@ -44,6 +46,7 @@ public abstract class AbstractClient implements Client
 {
 	private String url;
 	private Gson mapper;
+	private Map<String, Class> customGroupTypes = new HashMap<String, Class>();
 
 	/**
 	 * Creates a client
@@ -57,8 +60,11 @@ public abstract class AbstractClient implements Client
 
 		GsonBuilder builder = new GsonBuilder();
 		builder.registerTypeAdapter(GroupResult.class, new GroupByDeserializer());
-		builder.registerTypeAdapter(DataPoint.class, new DataPointDeserializer());
+		builder.registerTypeAdapter(Results.class, new ResultsDeserializer(this));
 		mapper = builder.create();
+
+		customGroupTypes.put("number", Number.class);
+		customGroupTypes.put("text", String.class);
 	}
 
 	@Override
@@ -122,6 +128,20 @@ public abstract class AbstractClient implements Client
 	{
 		checkNotNull(builder);
 		return post(builder.build(), url + "/api/v1/datapoints");
+	}
+
+	@Override
+	public void registerCustomDataType(String groupType, Class dataPointClass)
+	{
+		checkArgument(!customGroupTypes.containsKey(groupType), "Type has already been registered");
+
+		customGroupTypes.put(groupType, dataPointClass);
+	}
+
+	@Override
+	public Class getDataPointValueClass(String groupType)
+	{
+		return customGroupTypes.get(groupType);
 	}
 
 	private Response post(String json, String url) throws URISyntaxException, IOException

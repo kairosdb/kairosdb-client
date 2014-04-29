@@ -60,11 +60,25 @@ public class MetricBuilder
 	 * Adds a metric to the builder.
 	 *
 	 * @param metricName metric name
-	 * @return the builder
+	 * @return the new metric
 	 */
 	public Metric addMetric(String metricName)
 	{
 		Metric metric = new Metric(metricName);
+		metrics.add(metric);
+		return metric;
+	}
+
+	/**
+	 * Adds a metric to the builder with a customer type.
+	 *
+	 * @param metricName    metric name
+	 * @param registeredType type used to deserialize the json on the server
+	 * @return the new metric
+	 */
+	public Metric addMetric(String metricName, String registeredType)
+	{
+		Metric metric = new Metric(metricName, registeredType);
 		metrics.add(metric);
 		return metric;
 	}

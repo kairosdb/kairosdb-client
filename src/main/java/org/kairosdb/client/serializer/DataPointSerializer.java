@@ -17,8 +17,6 @@ package org.kairosdb.client.serializer;
 
 import com.google.gson.*;
 import org.kairosdb.client.builder.DataPoint;
-import org.kairosdb.client.builder.DoubleDataPoint;
-import org.kairosdb.client.builder.LongDataPoint;
 
 import java.lang.reflect.Type;
 
@@ -32,15 +30,7 @@ public class DataPointSerializer implements JsonSerializer<DataPoint>
 	{
 		JsonArray array = new JsonArray();
 		array.add(new JsonPrimitive(src.getTimestamp()));
-		if (src instanceof LongDataPoint)
-		{
-			array.add(new JsonPrimitive(((LongDataPoint) src).getValue()));
-		}
-		else
-		{
-			array.add(new JsonPrimitive(((DoubleDataPoint) src).getValue()));
-		}
-
+		array.add(context.serialize(src.getValue()));
 		return array;
 	}
 }

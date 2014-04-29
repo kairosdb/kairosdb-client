@@ -11,22 +11,16 @@ import org.kairosdb.client.builder.grouper.ValueGrouper;
 import org.kairosdb.client.response.GetResponse;
 import org.kairosdb.client.response.QueryResponse;
 import org.kairosdb.client.response.Response;
-import org.kairosdb.core.Main;
 import org.kairosdb.core.exception.DatastoreException;
-import org.kairosdb.core.exception.KairosDBException;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 public class ClientIntegrationTest
 {
@@ -78,7 +72,7 @@ public class ClientIntegrationTest
 	}
 
 	@Test
-	public void test_telnetClient() throws IOException, URISyntaxException
+	public void test_telnetClient() throws IOException, URISyntaxException, DataFormatException
 	{
 		DataPointEvent dataPointEvent = mock(DataPointEvent.class);
 		kairos.getDataPointListener().setEvent(dataPointEvent);
@@ -121,11 +115,15 @@ public class ClientIntegrationTest
 			assertThat(query.getQueries().get(0).getResults().size(), equalTo(1));
 			List<DataPoint> dataPoints = query.getQueries().get(0).getResults().get(0).getDataPoints();
 			System.out.println(timestamp1);
-			assertThat(dataPoints, hasItem((DataPoint)new LongDataPoint(timestamp1, 20L)));
+			assertThat(dataPoints.size(), equalTo(1));
+			assertThat(dataPoints.get(0).getTimestamp(), equalTo(timestamp1));
+			assertThat(dataPoints.get(0).longValue(), equalTo(20L));
 
 			assertThat(query.getQueries().get(1).getResults().size(), equalTo(1));
 			dataPoints = query.getQueries().get(1).getResults().get(0).getDataPoints();
-			assertThat(dataPoints, hasItem((DataPoint)new LongDataPoint(timestamp2, 40L)));
+			assertThat(dataPoints.size(), equalTo(1));
+			assertThat(dataPoints.get(0).getTimestamp(), equalTo(timestamp2));
+			assertThat(dataPoints.get(0).longValue(), equalTo(40L));
 		}
 		finally
 		{
@@ -134,7 +132,7 @@ public class ClientIntegrationTest
 	}
 
 	@Test
-	public void test_httpClient() throws InterruptedException, IOException, URISyntaxException
+	public void test_httpClient() throws InterruptedException, IOException, URISyntaxException, DataFormatException
 	{
 		HttpClient client = new HttpClient("http://localhost:8080");
 
@@ -187,7 +185,9 @@ public class ClientIntegrationTest
 			assertThat(query.getQueries().get(0).getResults().size(), equalTo(1));
 
 			List<DataPoint> dataPoints = query.getQueries().get(0).getResults().get(0).getDataPoints();
-			assertThat(dataPoints, hasItem((DataPoint)new LongDataPoint(timestamp1, 20L)));
+			assertThat(dataPoints.size(), equalTo(1));
+			assertThat(dataPoints.get(0).getTimestamp(), equalTo(timestamp1));
+			assertThat(dataPoints.get(0).longValue(), equalTo(20L));
 		}
 		finally
 		{
@@ -248,7 +248,7 @@ public class ClientIntegrationTest
 	}
 
 	@Test
-	public void test_ssl() throws IOException, URISyntaxException
+	public void test_ssl() throws IOException, URISyntaxException, DataFormatException
 	{
 		System.setProperty("javax.net.ssl.trustStore", "src/test/resources/ssl.jks");
 		System.setProperty("javax.net.ssl.trustStorePassword", "testtest");
@@ -303,11 +303,99 @@ public class ClientIntegrationTest
 			assertThat(query.getQueries().get(0).getResults().size(), equalTo(1));
 
 			List<DataPoint> dataPoints = query.getQueries().get(0).getResults().get(0).getDataPoints();
-			assertThat(dataPoints, hasItem((DataPoint)new LongDataPoint(timestamp1, 20L)));
+			assertThat(dataPoints.size(), equalTo(1));
+			assertThat(dataPoints.get(0).getTimestamp(), equalTo(timestamp1));
+			assertThat(dataPoints.get(0).longValue(), equalTo(20L));
 		}
 		finally
 		{
 			client.shutdown();
+		}
+	}
+
+	@Test
+	public void test_customDataType() throws IOException, URISyntaxException
+	{
+		HttpClient client = new HttpClient("http://localhost:8080");
+		client.registerCustomDataType("complex", Complex.class);
+
+		try
+		{
+			MetricBuilder metricBuilder = MetricBuilder.getInstance();
+
+			Metric metric1 = metricBuilder.addMetric("complex", "complex");
+			metric1.addTag("host", "a");
+			long timestamp1 = System.currentTimeMillis();
+			metric1.addDataPoint(timestamp1, new Complex(4, 5));
+
+			// Push Metrics
+			Response response = client.pushMetrics(metricBuilder);
+
+			assertThat(response.getStatusCode(), equalTo(204));
+
+			// Query Metric
+			QueryBuilder queryBuilder = QueryBuilder.getInstance();
+			queryBuilder.setStart(2, TimeUnit.MINUTES);
+			queryBuilder.addMetric("complex");
+
+			QueryResponse queryResponse = client.query(queryBuilder);
+			assertThat(queryResponse.getQueries().size(), equalTo(1));
+			assertThat(queryResponse.getQueries().get(0).getResults().size(), equalTo(1));
+
+			List<DataPoint> dataPoints = queryResponse.getQueries().get(0).getResults().get(0).getDataPoints();
+			assertThat(dataPoints, hasItem(new DataPoint(timestamp1, new Complex(4, 5))));
+		}
+		finally
+		{
+            client.shutdown();
+		}
+
+	}
+
+	private class Complex
+	{
+		private long real;
+		private long imaginary;
+
+		private Complex(long real, long imaginary)
+		{
+			this.real = real;
+			this.imaginary = imaginary;
+		}
+
+		@Override
+		public boolean equals(Object o)
+		{
+			if (this == o)
+			{
+				return true;
+			}
+			if (o == null || getClass() != o.getClass())
+			{
+				return false;
+			}
+
+			Complex complex = (Complex) o;
+
+			return imaginary == complex.imaginary && real == complex.real;
+
+		}
+
+		@Override
+		public int hashCode()
+		{
+			int result = (int) (real ^ (real >>> 32));
+			result = 31 * result + (int) (imaginary ^ (imaginary >>> 32));
+			return result;
+		}
+
+		@Override
+		public String toString()
+		{
+			return "Complex{" +
+					"real=" + real +
+					", imaginary=" + imaginary +
+					'}';
 		}
 	}
 }
