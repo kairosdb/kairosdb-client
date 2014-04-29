@@ -51,7 +51,7 @@ You can get a list of all metric names in KairosDB.
   	client.shutdown();
 
 ## Querying Tag Names
-Similiarly you can get a list of all tag names in KariosDB.
+Similarly you can get a list of all tag names in KairosDB.
 
 	HttpClient client = new HttpClient("localhost", 9000);
 	GetResponse response = client.getTagNames();
@@ -75,6 +75,55 @@ And a list of all tag values.
     	System.out.println(name);
     }
    	client.shutdown();
+
+
+## Custom Data Types
+Starting with version 0.9.4 of KairosDB, you can store more than just numbers as values. This version of the client
+has been modified to support custom data types. Note that custom types is only supported by the HTTP client.
+The Telnet protocol for KairosDB does not support custom types. Longs, doubles, and Strings are now supported by default. If,
+however, you want to store and query for other data types, additional work is required.
+
+First, you must modify KairosDB to handle the new data type.
+
+Second, you must create an object for the new data type. This is simply a POJO that contains fields for the new type.
+For example, if you wanted to store complex numbers as your new data type you would create a ComplexNumber class.
+
+    public class ComplexNumber
+    {
+        private double real;
+        private double imaginary;
+
+        public ComplexNumber(double real, double imaginary)
+        {
+            this.real = real;
+            this.double = double;
+        }
+    }
+
+This Class must then be registered with the client by its group type. In this example, "complex" is the name of the group type
+registered in KairosDB.
+
+    HttpClient client = new HttpClient("localhost", 9000);
+    client.registerCustomDataType("complex", ComplexNumber.class);
+
+Next, you must specify the registered type when creating a new metric. In this example, "complex-number" is the registered
+type in KairosDB.
+
+    MetricBuilder builder = MetricBuilder.getInstance();
+    builder.addMetric("metric1", "complex-number")
+
+Last, you must cast to your new type following a query for a metric.
+
+    QueryResponse queryResponse = client.query(queryBuilder);
+    List<DataPoint> dataPoints = queryResponse.getQueries().get(0).getResults().get(0).getDataPoints();
+
+    for (DataPoint dataPoint : dataPoints)
+    {
+        Complex complex = (Complex) dataPoint.getValue();
+        System.out.println(+ complex.real + " + " + complex.imaginary + "i");
+    }
+
+
 
 ## Copyright and License
 
