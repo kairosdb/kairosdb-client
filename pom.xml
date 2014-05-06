@@ -56,7 +56,7 @@
         <dependency>
             <groupId>org.kairosdb</groupId>
             <artifactId>kairosdb</artifactId>
-            <version>0.9.4</version>
+            <version>0.9.4-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
 
@@ -70,11 +70,18 @@
 
     <repositories>
         <repository>
-            <id>kairos_staging</id>
-            <name>Staging repo for Kairos</name>
-            <url>https://oss.sonatype.org/content/repositories/orgkairosdb-1005</url>
+            <id>sonatype-nexus-snapshots</id>
+            <name>Sonatype Nexus Snapshots</name>
+            <url>http://oss.sonatype.org/content/repositories/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
         </repository>
     </repositories>
+
 
     <build>
         <plugins>
