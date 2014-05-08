@@ -132,6 +132,49 @@ public class ClientIntegrationTest
 	}
 
 	@Test
+	public void test_httpClient_no_results_from_query()
+			throws InterruptedException, IOException, URISyntaxException, DataFormatException
+	{
+		HttpClient client = new HttpClient("http://localhost:8080");
+
+		try
+		{
+			MetricBuilder metricBuilder = MetricBuilder.getInstance();
+
+			Metric metric1 = metricBuilder.addMetric(HTTP_METRIC_NAME_1);
+			metric1.addTag(HTTP_TAG_NAME_1, HTTP_TAG_VALUE_1);
+			long timestamp1 = System.currentTimeMillis();
+			metric1.addDataPoint(timestamp1, 20);
+
+			Metric metric2 = metricBuilder.addMetric(HTTP_METRIC_NAME_2);
+			metric2.addTag(HTTP_TAG_NAME_2, HTTP_TAG_VALUE_2);
+			long timestamp2 = System.currentTimeMillis();
+			metric2.addDataPoint(timestamp2, 40);
+
+			// Push Metrics
+			Response response = client.pushMetrics(metricBuilder);
+
+			assertThat(response.getStatusCode(), equalTo(204));
+			assertThat(response.getErrors().size(), equalTo(0));
+
+			// Query metrics
+			QueryBuilder builder = QueryBuilder.getInstance();
+			builder.setStart(1, TimeUnit.MINUTES);
+			builder.addMetric("bogus");
+
+			QueryResponse query = client.query(builder);
+			assertThat(query.getQueries().size(), equalTo(1));
+			assertThat(query.getQueries().get(0).getResults().size(), equalTo(1));
+
+			List<DataPoint> dataPoints = query.getQueries().get(0).getResults().get(0).getDataPoints();
+			assertThat(dataPoints.size(), equalTo(0));
+		}
+		finally
+		{
+			client.shutdown();
+		}}
+
+	@Test
 	public void test_httpClient() throws InterruptedException, IOException, URISyntaxException, DataFormatException
 	{
 		HttpClient client = new HttpClient("http://localhost:8080");
@@ -314,7 +357,7 @@ public class ClientIntegrationTest
 	}
 
 	@Test
-	public void test_customDataType() throws IOException, URISyntaxException
+	public void test_customDataType() throws IOException, URISyntaxException, InterruptedException
 	{
 		HttpClient client = new HttpClient("http://localhost:8080");
 		client.registerCustomDataType("complex", Complex.class);
@@ -323,7 +366,7 @@ public class ClientIntegrationTest
 		{
 			MetricBuilder metricBuilder = MetricBuilder.getInstance();
 
-			Metric metric1 = metricBuilder.addMetric("complex", "complex");
+			Metric metric1 = metricBuilder.addMetric("metric1", "complex-number");
 			metric1.addTag("host", "a");
 			long timestamp1 = System.currentTimeMillis();
 			metric1.addDataPoint(timestamp1, new Complex(4, 5));
@@ -336,7 +379,7 @@ public class ClientIntegrationTest
 			// Query Metric
 			QueryBuilder queryBuilder = QueryBuilder.getInstance();
 			queryBuilder.setStart(2, TimeUnit.MINUTES);
-			queryBuilder.addMetric("complex");
+			queryBuilder.addMetric("metric1");
 
 			QueryResponse queryResponse = client.query(queryBuilder);
 			assertThat(queryResponse.getQueries().size(), equalTo(1));

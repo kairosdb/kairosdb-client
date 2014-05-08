@@ -34,33 +34,40 @@ public class ResultsDeserializer implements JsonDeserializer<Results>
 
 		// Tags
 		JsonElement tagsElement = json.getAsJsonObject().get("tags");
-		Map<String, List<String>> tags = context.deserialize(tagsElement, new TypeToken<Map<String, List<String>>>(){}.getType());
+		Map<String, List<String>> tags = context.deserialize(tagsElement, new TypeToken<Map<String, List<String>>>()
+		{
+		}.getType());
 
 		// Group_By
 		JsonElement group_by = json.getAsJsonObject().get("group_by");
-		List<GroupResult> groupResults = context.deserialize(group_by, new TypeToken<List<GroupResult>>(){}.getType());
-
-		String type = null;
-		for (GroupResult groupResult : groupResults)
+		List<GroupResult> groupResults = context.deserialize(group_by, new TypeToken<List<GroupResult>>()
 		{
-			if (groupResult.getName().equals("type"))
-			{
-				type = ((DefaultGroupResult)groupResult).getType();
-			}
-		}
-
-		checkState(type != null, "Missing type");
-
-		// Data points
-		final Class dataPointValueClass = client.getDataPointValueClass(type);
-		checkState(dataPointValueClass != null, "type: " + type + " is not registered to a custom data type.");
+		}.getType());
 
 		List<DataPoint> dataPoints = new ArrayList<DataPoint>();
-		JsonArray array = (JsonArray) json.getAsJsonObject().get("values");
-		for (JsonElement element : array)
+		if (group_by != null)
 		{
-			JsonArray pair = element.getAsJsonArray();
-			dataPoints.add(new DataPoint(pair.get(0).getAsLong(), context.<DataPoint>deserialize(pair.get(1), dataPointValueClass)));
+			String type = null;
+			for (GroupResult groupResult : groupResults)
+			{
+				if (groupResult.getName().equals("type"))
+				{
+					type = ((DefaultGroupResult) groupResult).getType();
+				}
+			}
+
+			checkState(type != null, "Missing type");
+
+			// Data points
+			final Class dataPointValueClass = client.getDataPointValueClass(type);
+			checkState(dataPointValueClass != null, "type: " + type + " is not registered to a custom data type.");
+
+			JsonArray array = (JsonArray) json.getAsJsonObject().get("values");
+			for (JsonElement element : array)
+			{
+				JsonArray pair = element.getAsJsonArray();
+				dataPoints.add(new DataPoint(pair.get(0).getAsLong(), context.<DataPoint>deserialize(pair.get(1), dataPointValueClass)));
+			}
 		}
 
 		return new Results(name, tags, dataPoints, groupResults);

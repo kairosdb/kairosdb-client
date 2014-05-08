@@ -80,13 +80,20 @@ And a list of all tag values.
 ## Custom Data Types
 Starting with version 0.9.4 of KairosDB, you can store more than just numbers as values. This version of the client
 has been modified to support custom data types. Note that custom types is only supported by the HTTP client.
-The Telnet protocol for KairosDB does not support custom types. Longs, doubles, and Strings are now supported by default. If,
+The Telnet protocol for KairosDB does not support custom types.
+
+Longs, doubles, and Strings are now supported by default. If,
 however, you want to store and query for other data types, additional work is required.
 
-First, you must modify KairosDB to handle the new data type.
+You must first understand the different custom type value you must specify on the client; group type and registered type.
+The group type is used for JSON serialization/de-serialization. The registered type is used by the server to identify which
+DataPointFactory it will use to serialize/de-serialize the data to the data store.
 
-Second, you must create an object for the new data type. This is simply a POJO that contains fields for the new type.
-For example, if you wanted to store complex numbers as your new data type you would create a ComplexNumber class.
+Next, you must modify KairosDB to handle the new data type.
+
+Next, you must create an object for the new data type. This is simply a POJO that contains fields for the new type.
+For example, if you wanted to store complex numbers as your new data type you would create a ComplexNumber class. The
+client uses GSON to serialize/de-serialize this class.
 
     public class ComplexNumber
     {
@@ -96,33 +103,41 @@ For example, if you wanted to store complex numbers as your new data type you wo
         public ComplexNumber(double real, double imaginary)
         {
             this.real = real;
-            this.double = double;
+            this.imaginary = imaginary;
         }
     }
 
 This Class must then be registered with the client by its group type. In this example, "complex" is the name of the group type
-registered in KairosDB.
+registered in KairosDB. Then, when you add the metric you must specify the registered type. In this example, "complex-number"
+is the registered type in KairosDB.
 
-    HttpClient client = new HttpClient("localhost", 9000);
-    client.registerCustomDataType("complex", ComplexNumber.class);
 
-Next, you must specify the registered type when creating a new metric. In this example, "complex-number" is the registered
-type in KairosDB.
+	HttpClient client = new HttpClient("http://localhost:8080");
+	client.registerCustomDataType("complex", ComplexNumber.class); // "complex" is the group type
 
-    MetricBuilder builder = MetricBuilder.getInstance();
-    builder.addMetric("metric1", "complex-number")
+	MetricBuilder metricBuilder = MetricBuilder.getInstance();
+	Metric metric = metricBuilder.addMetric("metric1", "complex-number");  // "complex-number" is the registered type
+	metric.addTag("host", "myHost");
+	metric.addDataPoint(System.currentTimeMillis(), new ComplexNumber(2.3, 3.4));
+	metric.addDataPoint(System.currentTimeMillis(), new ComplexNumber(1.1, 5));
+
+	client.pushMetrics(metricBuilder);
+
 
 Last, you must cast to your new type following a query for a metric.
 
-    QueryResponse queryResponse = client.query(queryBuilder);
-    List<DataPoint> dataPoints = queryResponse.getQueries().get(0).getResults().get(0).getDataPoints();
+	QueryBuilder queryBuilder = QueryBuilder.getInstance();
+	queryBuilder.addMetric("metric1");
+	queryBuilder.setStart(1, TimeUnit.HOURS);
 
-    for (DataPoint dataPoint : dataPoints)
-    {
-        Complex complex = (Complex) dataPoint.getValue();
-        System.out.println(+ complex.real + " + " + complex.imaginary + "i");
-    }
+	QueryResponse response = client.query(queryBuilder);
+	List<DataPoint> dataPoints = response.getQueries().get(0).getResults().get(0).getDataPoints();
 
+	for (DataPoint dataPoint : dataPoints)
+	{
+		ComplexNumber complex = (ComplexNumber) dataPoint.getValue();
+		System.out.println(complex.real + " + " + complex.imaginary + "i");
+	}
 
 
 ## Copyright and License
