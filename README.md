@@ -16,7 +16,7 @@ the data points.
 			.addTag("host", "server1")
 			.addTag("customer", "Acme")
 			.addDataPoint(System.currentTimeMillis(), 10)
-			.addDataPoint(System.currentTimeMillis(), 30L)
+			.addDataPoint(System.currentTimeMillis(), 30L);
     HttpClient client = new HttpClient("myServer", 9000);
 	Response response = client.pushMetrics(builder);
 	client.shutdown();
