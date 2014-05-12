@@ -16,8 +16,8 @@ the data points.
 			.addTag("host", "server1")
 			.addTag("customer", "Acme")
 			.addDataPoint(System.currentTimeMillis(), 10)
-			.addDataPoint(System.currentTimeMillis(), 30L)
-    HttpClient client = new HttpClient("myServer", 9000);
+			.addDataPoint(System.currentTimeMillis(), 30L);
+    HttpClient client = new HttpClient("localhost", 8080);
 	Response response = client.pushMetrics(builder);
 	client.shutdown();
 
@@ -32,7 +32,7 @@ Optionally, tags may be added to narrow down the search.
            .setEnd(1, TimeUnit.MONTHS)
            .addMetric("metric1")
            .addAggregator(AggregatorFactory.sumAggregator(5, TimeUnit.MINUTES));
-    HttpClient client = new HttpClient("localhost", 9000);
+    HttpClient client = new HttpClient("localhost", 8080);
     QueryResponse response = client.query(builder);
    	client.shutdown();
 
@@ -40,7 +40,7 @@ Optionally, tags may be added to narrow down the search.
 
 You can get a list of all metric names in KairosDB.
 
-	HttpClient client = new HttpClient("localhost", 9000);
+	HttpClient client = new HttpClient("localhost", 8080);
 	GetResponse response = client.getTagNames();
 
 	System.out.println("Response Code =" + response.getStatusCode());
@@ -53,7 +53,7 @@ You can get a list of all metric names in KairosDB.
 ## Querying Tag Names
 Similarly you can get a list of all tag names in KairosDB.
 
-	HttpClient client = new HttpClient("localhost", 9000);
+	HttpClient client = new HttpClient("localhost", 8080);
 	GetResponse response = client.getTagNames();
 
 	System.out.println("response=" + response.getStatusCode());
@@ -66,7 +66,7 @@ Similarly you can get a list of all tag names in KairosDB.
 ## Querying Tag Values
 And a list of all tag values.
 
-	HttpClient client = new HttpClient("localhost", 9000);
+	HttpClient client = new HttpClient("localhost", 8080);
 	GetResponse response = client.getTagValues();
 
 	System.out.println("response=" + response.getStatusCode());
