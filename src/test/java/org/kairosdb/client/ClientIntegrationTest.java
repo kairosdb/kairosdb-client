@@ -30,6 +30,7 @@ public class ClientIntegrationTest
 	public static final String HTTP_TAG_NAME_2 = "httpTag2";
 	public static final String HTTP_TAG_VALUE_1 = "httpTagValue1";
 	public static final String HTTP_TAG_VALUE_2 = "httpTagValue2";
+	public static final String HTTP_TAG_VALUE_3 = "httpTagValue3";
 
 	public static final String TELNET_METRIC_NAME_1 = "telnetMetric1";
 	public static final String TELNET_METRIC_NAME_2 = "telnetMetric2";
@@ -236,6 +237,63 @@ public class ClientIntegrationTest
 		{
 			client.shutdown();
 		}}
+
+	@Test
+	public void test_httpClient_multiTagValues() throws InterruptedException, IOException, URISyntaxException, DataFormatException
+	{
+		HttpClient client = new HttpClient("http://localhost:8080");
+
+		try
+		{
+			MetricBuilder metricBuilder = MetricBuilder.getInstance();
+
+			Metric metric1 = metricBuilder.addMetric(HTTP_METRIC_NAME_1);
+			metric1.addTag(HTTP_TAG_NAME_1, HTTP_TAG_VALUE_1);
+			long timestamp1 = System.currentTimeMillis();
+			metric1.addDataPoint(timestamp1, 20);
+
+			Metric metric2 = metricBuilder.addMetric(HTTP_METRIC_NAME_1);
+			metric2.addTag(HTTP_TAG_NAME_1, HTTP_TAG_VALUE_2);
+			long timestamp2 = System.currentTimeMillis();
+			metric2.addDataPoint(timestamp2, 40);
+
+			Metric metric3 = metricBuilder.addMetric(HTTP_METRIC_NAME_1);
+			metric3.addTag(HTTP_TAG_NAME_1, HTTP_TAG_VALUE_3);
+			long timestamp3 = System.currentTimeMillis();
+			metric3.addDataPoint(timestamp3, 30);
+
+			// Push Metrics
+			Response response = client.pushMetrics(metricBuilder);
+
+			assertThat(response.getStatusCode(), equalTo(204));
+			assertThat(response.getErrors().size(), equalTo(0));
+
+			// Query metrics
+			QueryBuilder builder = QueryBuilder.getInstance();
+			builder.setStart(1, TimeUnit.MINUTES);
+			QueryMetric queryMetric = builder.addMetric(HTTP_METRIC_NAME_1);
+			queryMetric.addTag(HTTP_TAG_NAME_1, HTTP_TAG_VALUE_2, HTTP_TAG_VALUE_3);
+
+			QueryResponse query = client.query(builder);
+
+			assertThat(query.getQueries().size(), equalTo(1));
+			assertThat(query.getQueries().get(0).getResults().size(), equalTo(1));
+			assertThat(query.getQueries().get(0).getResults().get(0).getTags().size(), equalTo(1));
+			assertThat(query.getQueries().get(0).getResults().get(0).getTags().get(HTTP_TAG_NAME_1).size(), equalTo(2));
+			assertThat(query.getQueries().get(0).getResults().get(0).getTags().get(HTTP_TAG_NAME_1), hasItems(HTTP_TAG_VALUE_2, HTTP_TAG_VALUE_3));
+
+			List<DataPoint> dataPoints = query.getQueries().get(0).getResults().get(0).getDataPoints();
+			assertThat(dataPoints.size(), equalTo(2));
+			assertThat(dataPoints.get(0).getTimestamp(), equalTo(timestamp2));
+			assertThat(dataPoints.get(0).longValue(), equalTo(30L));
+			assertThat(dataPoints.get(1).getTimestamp(), equalTo(timestamp3));
+			assertThat(dataPoints.get(1).longValue(), equalTo(40L));
+		}
+		finally
+		{
+			client.shutdown();
+		}
+	}
 
 	/**
 	 * The purpose of this test is to exercise the JSON parsing code. We want to verify that Kairos does not

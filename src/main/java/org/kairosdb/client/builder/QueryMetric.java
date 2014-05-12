@@ -15,10 +15,13 @@
  */
 package org.kairosdb.client.builder;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.*;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
 
@@ -37,16 +40,18 @@ import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
  * <p/>
  * Note that aggregation is very fast but grouping can slow down the query.
  */
+@SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
 public class QueryMetric
 {
-	private Map<String, String> tags;
+	@SuppressWarnings({"FieldCanBeLocal", "UnusedDeclaration"})
+	private final String name;
 
-	private List<Aggregator> aggregators;
+	private final ListMultimap<String, String> tags = ArrayListMultimap.create();
 
 	@SerializedName("group_by")
-	private List<Grouper> groupers;
+	private final List<Grouper> groupers = new ArrayList<Grouper>();
 
-	private String name;
+	private final List<Aggregator> aggregators = new ArrayList<Aggregator>();
 
 	QueryMetric(String name)
 	{
@@ -54,56 +59,61 @@ public class QueryMetric
 	}
 
 	/**
-	 * Sets tags.
+	 * Add a map of tags.
 	 *
 	 * @param tags tags to add
 	 * @return the metric
 	 */
-	public QueryMetric setTags(Map<String, String> tags)
+	public QueryMetric addMultiValuedTags(Map<String, List<String>> tags)
 	{
 		checkNotNull(tags);
-		this.tags = new LinkedHashMap<String, String>(tags);
+
+		for (String key : tags.keySet())
+		{
+			this.tags.putAll(key, tags.get(key));
+		}
 
 		return this;
 	}
 
 	/**
-	 * Adds a tag. This narrows the query to only show data points associated with the tag.
+	 * Add a map of tags. This narrows the query to only show data points associated with the tags' values.
 	 *
-	 * @param name  tag name
-	 * @param value tag value
+	 * @param tags tags to add
 	 * @return the metric
 	 */
-	public QueryMetric addTag(String name, String value)
+	public QueryMetric addTags(Map<String, String> tags)
+	{
+		checkNotNull(tags);
+
+		for (String key : tags.keySet())
+		{
+			this.tags.put(key, tags.get(key));
+		}
+
+		return this;
+	}
+
+	/**
+	 * Adds a tag with multiple values. This narrows the query to only show data points associated with the tag's values.
+	 *
+	 * @param name   tag name
+	 * @param values tag values
+	 * @return the metric
+	 */
+	public QueryMetric addTag(String name, String... values)
 	{
 		checkNotNullOrEmpty(name);
-		checkNotNullOrEmpty(value);
+		checkArgument(values.length > 0);
 
-		if (tags == null)
-			tags = new LinkedHashMap<String, String>();
-		tags.put(name, value);
+		for (String value : values)
+		{
+			checkNotNullOrEmpty(value);
+		}
+
+		tags.putAll(name, Arrays.asList(values));
 
 		return (this);
-	}
-
-	/**
-	 * Returns tags associated with the metric.
-	 *
-	 * @return tags
-	 */
-	public Map<String, String> getTags()
-	{
-		return tags;
-	}
-
-	/**
-	 * Returns the name of the metric.
-	 *
-	 * @return metric name
-	 */
-	public String getName()
-	{
-		return name;
 	}
 
 	/**
@@ -115,22 +125,9 @@ public class QueryMetric
 	public QueryMetric addAggregator(Aggregator aggregator)
 	{
 		checkNotNull(aggregator);
-		if (aggregators == null)
-			aggregators = new ArrayList<Aggregator>();
 		aggregators.add(aggregator);
 		return this;
 	}
-
-	/**
-	 * Returns the list of aggregators.
-	 *
-	 * @return list of aggregators
-	 */
-	public List<Aggregator> getAggregators()
-	{
-		return Collections.unmodifiableList(aggregators);
-	}
-
 	/**
 	 * Add a grouper to the metric.
 	 *
@@ -141,19 +138,7 @@ public class QueryMetric
 	{
 		checkNotNull(grouper);
 
-		if (groupers == null)
-			groupers = new ArrayList<Grouper>();
 		groupers.add(grouper);
 		return this;
-	}
-
-	/**
-	 * Returns the list of groupers.
-	 *
-	 * @return list of groupers
-	 */
-	public List<Grouper> getGroupers()
-	{
-		return Collections.unmodifiableList(groupers);
 	}
 }

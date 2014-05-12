@@ -32,19 +32,27 @@ public class QueryMetricTest
 	}
 
 	@Test(expected = NullPointerException.class)
-	public void test_setTags_null_Invalid()
-	{
-		QueryMetric queryMetric = new QueryMetric("metric");
-
-		queryMetric.setTags(null);
-	}
-
-	@Test(expected = NullPointerException.class)
 	public void test_addTag_nullName_Invalid()
 	{
 		QueryMetric queryMetric = new QueryMetric("metric");
 
 		queryMetric.addTag(null, "value");
+	}
+
+	@Test(expected = NullPointerException.class)
+	public void testAddTags_nullMap_invalid()
+	{
+		QueryMetric queryMetric = new QueryMetric("metric");
+
+		queryMetric.addTags(null);
+	}
+
+	@Test(expected = NullPointerException.class)
+	public void testAddMultiValuedTags_nullMap_invalid()
+	{
+		QueryMetric queryMetric = new QueryMetric("metric");
+
+		queryMetric.addMultiValuedTags(null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -60,7 +68,7 @@ public class QueryMetricTest
 	{
 		QueryMetric queryMetric = new QueryMetric("metric");
 
-		queryMetric.addTag("tag", null);
+		queryMetric.addTag("tag", (String)null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)

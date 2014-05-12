@@ -15,11 +15,13 @@
  */
 package org.kairosdb.client.builder;
 
+import com.google.common.collect.ListMultimap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
 import org.kairosdb.client.builder.aggregator.CustomAggregator;
 import org.kairosdb.client.serializer.CustomAggregatorSerializer;
+import org.kairosdb.client.serializer.ListMultiMapSerializer;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,6 +42,7 @@ import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
  * will be returned. If you specify a relative start time of 30 minutes and a relative end time of 10 minutes, then
  * all matching data points that occurred between the last 30 minutes up to and including the last 10 minutes are returned.
  */
+@SuppressWarnings("UnusedDeclaration")
 public class QueryBuilder
 {
 	@SerializedName("start_absolute")
@@ -62,6 +65,8 @@ public class QueryBuilder
 	{
 		GsonBuilder builder = new GsonBuilder();
 		builder.registerTypeAdapter(CustomAggregator.class, new CustomAggregatorSerializer());
+		builder.registerTypeAdapter(ListMultimap.class, new ListMultiMapSerializer());
+
 		mapper = builder.create();
 	}
 
