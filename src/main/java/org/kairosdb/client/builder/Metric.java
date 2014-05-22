@@ -19,6 +19,8 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.*;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
 
 /**
@@ -59,6 +61,19 @@ public class Metric
 		checkNotNullOrEmpty(name);
 		checkNotNullOrEmpty(value);
 		tags.put(name, value);
+
+		return this;
+	}
+
+	/**
+	 * Adds tags to the data point.
+	 * @param tags map of tags
+	 * @return the metric the tags were added to
+	 */
+	public Metric addTags(Map<String, String> tags)
+	{
+		checkNotNull(tags);
+		tags.putAll(tags);
 
 		return this;
 	}
