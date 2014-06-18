@@ -85,7 +85,7 @@ The Telnet protocol for KairosDB does not support custom types.
 Longs, doubles, and Strings are now supported by default. If,
 however, you want to store and query for other data types, additional work is required.
 
-You must first understand the different custom type value you must specify on the client; group type and registered type.
+You must first understand the different custom type values you must specify on the client; group type and registered type.
 The group type is used for JSON serialization/de-serialization. The registered type is used by the server to identify which
 DataPointFactory it will use to serialize/de-serialize the data to the data store.
 
