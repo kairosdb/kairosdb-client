@@ -94,4 +94,12 @@ public class QueryMetricTest
 
 		queryMetric.addGrouper(null);
 	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void test_setLimit_lessThanZero_invalid()
+	{
+		QueryMetric queryMetric = new QueryMetric("metric");
+
+		queryMetric.setLimit(0);
+	}
 }

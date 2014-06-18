@@ -43,6 +43,25 @@ import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
 @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
 public class QueryMetric
 {
+	public enum Order
+	{
+		ASCENDING("asc"),
+		DESCENDING("desc");
+
+		private String text;
+
+		Order(String text)
+		{
+			this.text = text;
+		}
+
+		@Override
+		public String toString()
+		{
+			return this.text;
+		}
+	}
+
 	@SuppressWarnings({"FieldCanBeLocal", "UnusedDeclaration"})
 	private final String name;
 
@@ -52,6 +71,10 @@ public class QueryMetric
 	private final List<Grouper> groupers = new ArrayList<Grouper>();
 
 	private final List<Aggregator> aggregators = new ArrayList<Aggregator>();
+
+	private Integer limit;
+
+	private Order order;
 
 	QueryMetric(String name)
 	{
@@ -128,6 +151,7 @@ public class QueryMetric
 		aggregators.add(aggregator);
 		return this;
 	}
+
 	/**
 	 * Add a grouper to the metric.
 	 *
@@ -140,5 +164,25 @@ public class QueryMetric
 
 		groupers.add(grouper);
 		return this;
+	}
+
+	/**
+	 * Limits the number of data point returned from the query. The limit is done before aggregators are executed.
+	 * @param limit maximum number of data points to return
+	 */
+	public void setLimit(int limit)
+	{
+		checkArgument(limit > 0, "limit must be greater than 0");
+		this.limit = limit;
+	}
+
+	/**
+	 * Orders the data points. The server default is ascending.
+	 * @param order how data points are sorted
+	 */
+	public void setOrder(Order order)
+	{
+		checkNotNull(order);
+		this.order = order;
 	}
 }

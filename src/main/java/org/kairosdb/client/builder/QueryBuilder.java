@@ -22,6 +22,7 @@ import com.google.gson.annotations.SerializedName;
 import org.kairosdb.client.builder.aggregator.CustomAggregator;
 import org.kairosdb.client.serializer.CustomAggregatorSerializer;
 import org.kairosdb.client.serializer.ListMultiMapSerializer;
+import org.kairosdb.client.serializer.OrderSerializer;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -66,6 +67,7 @@ public class QueryBuilder
 		GsonBuilder builder = new GsonBuilder();
 		builder.registerTypeAdapter(CustomAggregator.class, new CustomAggregatorSerializer());
 		builder.registerTypeAdapter(ListMultimap.class, new ListMultiMapSerializer());
+		builder.registerTypeAdapter(QueryMetric.Order.class, new OrderSerializer());
 
 		mapper = builder.create();
 	}

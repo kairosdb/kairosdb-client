@@ -55,7 +55,7 @@ public class ResultsDeserializer implements JsonDeserializer<Results>
 					type = ((DefaultGroupResult) groupResult).getType();
 				}
 			}
-
+System.out.println("******************* Type=" + type);
 			checkState(type != null, "Missing type");
 
 			// Data points

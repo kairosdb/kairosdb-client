@@ -197,4 +197,18 @@ public class QueryBuilderTest
 
 		assertThat(builder.build(), equalTo(json));
 	}
+
+	@Test
+	public void test_WithLimitAndOrder() throws IOException
+	{
+		String json = Resources.toString(Resources.getResource("query_withLimitAndOrder.json"), Charsets.UTF_8);
+
+		QueryBuilder builder = QueryBuilder.getInstance();
+		builder.setStart(2, TimeUnit.MONTHS);
+		QueryMetric metric = builder.addMetric("metric1");
+		metric.setLimit(10);
+		metric.setOrder(QueryMetric.Order.DESCENDING);
+
+		assertThat(builder.build(), equalTo(json));
+	}
 }

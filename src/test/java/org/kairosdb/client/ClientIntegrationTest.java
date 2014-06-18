@@ -415,6 +415,106 @@ public class ClientIntegrationTest
 	}
 
 	@Test
+	public void test_limit() throws InterruptedException, IOException, URISyntaxException, DataFormatException
+	{
+		HttpClient client = new HttpClient("http://localhost:8080");
+
+		try
+		{
+			MetricBuilder metricBuilder = MetricBuilder.getInstance();
+
+			long time = System.currentTimeMillis();
+			Metric metric = metricBuilder.addMetric("limitMetric").addTag("host", "a");
+			metric.addDataPoint(time - 8, 20);
+			metric.addDataPoint(time - 7, 21);
+			metric.addDataPoint(time - 6, 22);
+			metric.addDataPoint(time - 5, 23);
+			metric.addDataPoint(time - 4, 24);
+			metric.addDataPoint(time - 3, 25);
+			metric.addDataPoint(time - 2, 26);
+			metric.addDataPoint(time - 1, 27);
+			metric.addDataPoint(time - 0, 28);
+
+			// Push Metrics
+			Response pushResponse = client.pushMetrics(metricBuilder);
+
+			assertThat(pushResponse.getStatusCode(), equalTo(204));
+			assertThat(pushResponse.getErrors().size(), equalTo(0));
+
+			// Query metrics
+			QueryBuilder builder = QueryBuilder.getInstance();
+			builder.setStart(1, TimeUnit.MINUTES);
+
+			QueryMetric query = builder.addMetric("limitMetric");
+			query.setLimit(5);
+
+			QueryResponse response = client.query(builder);
+			assertThat(response.getErrors().size(), equalTo(0));
+
+			List<DataPoint> dataPoints = response.getQueries().get(0).getResults().get(0).getDataPoints();
+			assertThat(dataPoints.size(), equalTo(5));
+
+			assertThat(dataPoints.get(0).longValue(), equalTo(20L));
+			assertThat(dataPoints.get(1).longValue(), equalTo(21L));
+			assertThat(dataPoints.get(2).longValue(), equalTo(22L));
+			assertThat(dataPoints.get(3).longValue(), equalTo(23L));
+			assertThat(dataPoints.get(4).longValue(), equalTo(24L));
+		}
+		finally
+		{
+			client.shutdown();
+		}
+	}
+
+	@Test
+	public void test_Order() throws InterruptedException, IOException, URISyntaxException, DataFormatException
+	{
+		HttpClient client = new HttpClient("http://localhost:8080");
+
+		try
+		{
+			MetricBuilder metricBuilder = MetricBuilder.getInstance();
+
+			long time = System.currentTimeMillis();
+			Metric metric = metricBuilder.addMetric("orderMetric").addTag("host", "a");
+			metric.addDataPoint(time - 4, 20);
+			metric.addDataPoint(time - 3, 21);
+			metric.addDataPoint(time - 2, 22);
+			metric.addDataPoint(time - 1, 23);
+			metric.addDataPoint(time - 0, 24);
+
+			// Push Metrics
+			Response pushResponse = client.pushMetrics(metricBuilder);
+
+			assertThat(pushResponse.getStatusCode(), equalTo(204));
+			assertThat(pushResponse.getErrors().size(), equalTo(0));
+
+			// Query metrics
+			QueryBuilder builder = QueryBuilder.getInstance();
+			builder.setStart(1, TimeUnit.MINUTES);
+
+			QueryMetric query = builder.addMetric("orderMetric");
+			query.setOrder(QueryMetric.Order.DESCENDING);
+
+			QueryResponse response = client.query(builder);
+			assertThat(response.getErrors().size(), equalTo(0));
+
+			List<DataPoint> dataPoints = response.getQueries().get(0).getResults().get(0).getDataPoints();
+			assertThat(dataPoints.size(), equalTo(5));
+
+			assertThat(dataPoints.get(0).longValue(), equalTo(24L));
+			assertThat(dataPoints.get(1).longValue(), equalTo(23L));
+			assertThat(dataPoints.get(2).longValue(), equalTo(22L));
+			assertThat(dataPoints.get(3).longValue(), equalTo(21L));
+			assertThat(dataPoints.get(4).longValue(), equalTo(20L));
+		}
+		finally
+		{
+			client.shutdown();
+		}
+	}
+
+	@Test
 	public void test_customDataType() throws IOException, URISyntaxException, InterruptedException
 	{
 		HttpClient client = new HttpClient("http://localhost:8080");
