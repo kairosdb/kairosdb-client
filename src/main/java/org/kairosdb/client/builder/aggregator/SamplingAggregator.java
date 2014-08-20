@@ -15,6 +15,7 @@
  */
 package org.kairosdb.client.builder.aggregator;
 
+import com.google.gson.annotations.SerializedName;
 import org.kairosdb.client.builder.Aggregator;
 import org.kairosdb.client.builder.TimeUnit;
 
@@ -24,6 +25,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class SamplingAggregator extends Aggregator
 {
 	private Sampling sampling;
+
+	@SerializedName("align_start_time")
+	private Boolean alignStartTime;
+
+	@SerializedName("align_sampling")
+	private Boolean alignSampling;
 
 	public SamplingAggregator(String name, int value, TimeUnit unit)
 	{
@@ -41,6 +48,24 @@ public class SamplingAggregator extends Aggregator
 	public TimeUnit getUnit()
 	{
 		return sampling.unit;
+	}
+
+	public SamplingAggregator withAlignment(Boolean alignStartTime, Boolean alignSampling)
+	{
+		this.alignStartTime = alignStartTime;
+		this.alignSampling = alignSampling;
+
+		return this;
+	}
+
+	public Boolean isAlignStartTime()
+	{
+		return alignStartTime;
+	}
+
+	public Boolean isAlignSampling()
+	{
+		return alignSampling;
 	}
 
 	private class Sampling

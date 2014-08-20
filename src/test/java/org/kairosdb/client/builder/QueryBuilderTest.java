@@ -184,6 +184,22 @@ public class QueryBuilderTest
 	}
 
 	@Test
+	public void test_SingleMetricAggregatorWithAlignment() throws IOException
+	{
+		String json = Resources.toString(
+				Resources.getResource("query_single_metric_aggregator_with_alignment.json"), Charsets.UTF_8);
+
+		QueryBuilder builder = QueryBuilder.getInstance();
+		builder.setStart(new Date(1359774127000L))
+				.setEnd(new Date(13597745127000L))
+				.addMetric("metric1")
+				.addAggregator(AggregatorFactory.createMaxAggregator(1, TimeUnit.DAYS)
+						.withAlignment(true, true));
+
+		assertThat(builder.build(), equalTo(json));
+	}
+
+	@Test
 	public void test_WithGroupBy() throws IOException
 	{
 		String json = Resources.toString(Resources.getResource("query_withGroupBys.json"), Charsets.UTF_8);
