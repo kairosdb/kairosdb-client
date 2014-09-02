@@ -10,7 +10,6 @@ import org.kairosdb.core.Main;
 import org.kairosdb.core.exception.DatastoreException;
 import org.kairosdb.core.exception.KairosDBException;
 import sun.reflect.generics.scope.Scope;
-import sun.security.pkcs11.Secmod;
 
 import java.io.File;
 import java.io.IOException;
