@@ -16,21 +16,48 @@
 package org.kairosdb.client.response;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Response returned by KairosDB.
  */
 public class QueryResponse extends Response
 {
-	private List<Queries> queries = new ArrayList<Queries>();
+	private List<Query> queries = new ArrayList<Query>();
+
+	private Map<String, Query> queriesMap = null;
+	private Object queriesMapLock = new Object();
 
 	public QueryResponse()
 	{
 	}
 
-	public List<Queries> getQueries()
+	public List<Query> getQueries()
 	{
 		return queries;
+	}
+
+	private void initializeMap()
+	{
+		synchronized (queriesMapLock)
+		{
+			if (queriesMap == null)
+			{
+				queriesMap = new HashMap<String, Query>();
+				for (Query query : queries)
+				{
+					//there will always be at least one result with the name
+					queriesMap.put(query.getResults().get(0).getName(), query);
+				}
+			}
+		}
+	}
+
+	public Query getQueryResponse(String metricName)
+	{
+		initializeMap();
+		return queriesMap.get(metricName);
 	}
 }

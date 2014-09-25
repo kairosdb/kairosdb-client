@@ -41,14 +41,22 @@ public class TelnetClient
 			StringBuilder tags = new StringBuilder();
 			for (Map.Entry<String, String> tag : metric.getTags().entrySet())
 			{
-				tags.append(tag.getKey()).append("=").append(tag.getValue());
+				tags.append(" ").append(tag.getKey()).append("=").append(tag.getValue());
 			}
 
 			for (DataPoint dataPoint : metric.getDataPoints())
 			{
-				writer.println("put" + " " + metric.getName() + " " + dataPoint.getTimestamp() + " " +
+				StringBuilder sb = new StringBuilder();
+				sb.append("put ").append(metric.getName()).append(" ")
+						.append(dataPoint.getTimestamp()).append(" ")
+						.append(dataPoint.getValue())
+						.append(tags.toString());
+
+				//System.out.println(sb.toString());
+				writer.println(sb.toString());
+				/*writer.println("put" + " " + metric.getName() + " " + dataPoint.getTimestamp() + " " +
 						dataPoint.getValue() +
-						" " + tags.toString());
+						" " + tags.toString());*/
 			}
 		}
 		writer.flush();

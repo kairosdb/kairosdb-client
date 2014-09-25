@@ -60,7 +60,7 @@ public abstract class AbstractClient implements Client
 
 		GsonBuilder builder = new GsonBuilder();
 		builder.registerTypeAdapter(GroupResult.class, new GroupByDeserializer());
-		builder.registerTypeAdapter(Results.class, new ResultsDeserializer(this));
+		builder.registerTypeAdapter(Result.class, new ResultsDeserializer(this));
 		mapper = builder.create();
 
 		customGroupTypes.put("number", Number.class);
