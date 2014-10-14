@@ -1,1 +1,1 @@
-[{"name":"metric1","tags":{"tag2":"tab2value","tag1":"tab1value"},"datapoints":[[1,10],[2,30]]},{"name":"metric2","tags":{"tag3":"tab3value"},"datapoints":[[2,30],[3,2.3]]}]
+[{"name":"metric1","tags":{"tag2":"tab2value","tag1":"tab1value"},"datapoints":[[1,10],[2,30]]},{"name":"metric2","tags":{"tag3":"tab3value"},"datapoints":[[2,30],[3,2.3],[4,0.0]]}]
