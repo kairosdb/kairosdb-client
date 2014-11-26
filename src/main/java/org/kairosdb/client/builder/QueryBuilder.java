@@ -58,7 +58,9 @@ public class QueryBuilder
 	@SerializedName("end_relative")
 	private RelativeTime endRelative;
 
+    @SerializedName("cache_time")
 	private int cacheTime;
+
 	private List<QueryMetric> metrics = new ArrayList<QueryMetric>();
 	private transient Gson mapper;
 
