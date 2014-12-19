@@ -34,11 +34,11 @@ import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
 
 /**
  * Builder used to create the JSON to query KairosDB.
- * <p/>
+ * <p>
  * The query returns the data points for the given metrics for the specified time range. The time range can
  * be specified as absolute or relative. Absolute times are a given point in time. Relative times are relative to now.
  * The end time is not required and defaults to now.
- * <p/>
+ * </p>
  * For example, if you specify a relative start time of 30 minutes, all matching data points for the last 30 minutes
  * will be returned. If you specify a relative start time of 30 minutes and a relative end time of 10 minutes, then
  * all matching data points that occurred between the last 30 minutes up to and including the last 10 minutes are returned.
