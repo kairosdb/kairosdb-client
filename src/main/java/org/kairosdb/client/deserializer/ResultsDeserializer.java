@@ -55,11 +55,9 @@ public class ResultsDeserializer implements JsonDeserializer<Results>
 					type = ((DefaultGroupResult) groupResult).getType();
 				}
 			}
-System.out.println("******************* Type=" + type);
-			checkState(type != null, "Missing type");
 
 			// Data points
-			final Class dataPointValueClass = client.getDataPointValueClass(type);
+			final Class dataPointValueClass = type == null ? Double.class : client.getDataPointValueClass(type);
 			checkState(dataPointValueClass != null, "type: " + type + " is not registered to a custom data type.");
 
 			JsonArray array = (JsonArray) json.getAsJsonObject().get("values");
