@@ -41,7 +41,7 @@ Optionally, tags may be added to narrow down the search.
 You can get a list of all metric names in KairosDB.
 
 	HttpClient client = new HttpClient("http://localhost:8080");
-	GetResponse response = client.getTagNames();
+	GetResponse response = client.getMetricNames();
 
 	System.out.println("Response Code =" + response.getStatusCode());
 	for (String name : response.getResults())
