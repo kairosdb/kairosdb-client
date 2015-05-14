@@ -335,6 +335,11 @@ public class ClientIntegrationTest
 			metric.addAggregator(AggregatorFactory.createMaxAggregator(1, TimeUnit.SECONDS));
 			metric.addAggregator(AggregatorFactory.createMinAggregator(1, TimeUnit.SECONDS));
 
+			metric.addAggregator(AggregatorFactory.createMaxAggregator(1, TimeUnit.SECONDS)
+					.withAlignment(false, false));
+			metric.addAggregator(AggregatorFactory.createMinAggregator(1, TimeUnit.SECONDS)
+					.withAlignment(true, true));
+
 			metric.addGrouper(new TagGrouper(HTTP_TAG_NAME_1, HTTP_TAG_NAME_2));
 			metric.addGrouper(new TimeGrouper(new RelativeTime(1, TimeUnit.MILLISECONDS), 3));
 			metric.addGrouper(new ValueGrouper(4));
