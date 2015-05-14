@@ -98,7 +98,7 @@ public class ClientIntegrationTest
 
 			client.shutdown();
 
-			// Because Telnet is Asynchronous, it take some time before the datapoints get written.
+			// Because Telnet is Asynchronous, it takes some time before the datapoints get written.
 			// Wait for Kairos to notify us that they have been written.
 			verify(dataPointEvent, timeout(5000).times(1)).datapoint(TELNET_METRIC_NAME_1);
 			verify(dataPointEvent, timeout(5000).times(1)).datapoint(TELNET_METRIC_NAME_2);
