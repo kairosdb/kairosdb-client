@@ -73,7 +73,7 @@ public class Metric
 	public Metric addTags(Map<String, String> tags)
 	{
 		checkNotNull(tags);
-		tags.putAll(tags);
+		this.tags.putAll(tags);
 
 		return this;
 	}
