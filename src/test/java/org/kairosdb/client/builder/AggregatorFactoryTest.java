@@ -1,12 +1,13 @@
 package org.kairosdb.client.builder;
 
-import org.junit.Test;
-import org.kairosdb.client.builder.aggregator.CustomAggregator;
-import org.kairosdb.client.builder.aggregator.RateAggregator;
-import org.kairosdb.client.builder.aggregator.SamplingAggregator;
-
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
+
+import org.junit.Test;
+import org.kairosdb.client.builder.aggregator.CustomAggregator;
+import org.kairosdb.client.builder.aggregator.PercentileAggregator;
+import org.kairosdb.client.builder.aggregator.RateAggregator;
+import org.kairosdb.client.builder.aggregator.SamplingAggregator;
 
 public class AggregatorFactoryTest
 {
@@ -72,6 +73,17 @@ public class AggregatorFactoryTest
 		SamplingAggregator aggregator = AggregatorFactory.createCountAggregator(3, TimeUnit.DAYS);
 
 		assertThat(aggregator.getName(), equalTo("count"));
+		assertThat(aggregator.getValue(), equalTo(3));
+		assertThat(aggregator.getUnit(), equalTo(TimeUnit.DAYS));
+	}
+	
+	@Test
+	public void test_createPercentileAggregator()
+	{
+		PercentileAggregator aggregator = AggregatorFactory.createPercentileAggregator(0.5,3, TimeUnit.DAYS);
+
+		assertThat(aggregator.getName(), equalTo("percentile"));
+		assertThat(aggregator.getPercentile(),equalTo(0.5));
 		assertThat(aggregator.getValue(), equalTo(3));
 		assertThat(aggregator.getUnit(), equalTo(TimeUnit.DAYS));
 	}
