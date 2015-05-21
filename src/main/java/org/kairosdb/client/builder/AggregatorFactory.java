@@ -108,7 +108,6 @@ public class AggregatorFactory
 	 * For example, "0.5" and "5 minutes" would returns the median of data points for each 5 minute period.
 	 *
 	 * @param value percentage
-	 * @param value value for time period.
 	 * @param unit unit of time
 	 * @return percentile aggregator
 	 */
