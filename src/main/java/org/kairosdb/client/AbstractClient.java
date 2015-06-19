@@ -15,13 +15,9 @@
  */
 package org.kairosdb.client;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
 import org.kairosdb.client.builder.MetricBuilder;
 import org.kairosdb.client.builder.QueryBuilder;
-import org.kairosdb.client.deserializer.GroupByDeserializer;
-import org.kairosdb.client.deserializer.ResultsDeserializer;
 import org.kairosdb.client.response.*;
 
 import java.io.IOException;
@@ -31,11 +27,8 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
 
@@ -45,8 +38,8 @@ import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
 public abstract class AbstractClient implements Client
 {
 	private String url;
-	private Gson mapper;
-	private Map<String, Class> customGroupTypes = new HashMap<String, Class>();
+	private JsonMapper mapper;
+	private DataPointTypeRegistry typeRegistry;
 
 	/**
 	 * Creates a client
@@ -58,13 +51,8 @@ public abstract class AbstractClient implements Client
 		this.url = checkNotNullOrEmpty(url);
 		new URL(url); // validate url
 
-		GsonBuilder builder = new GsonBuilder();
-		builder.registerTypeAdapter(GroupResult.class, new GroupByDeserializer());
-		builder.registerTypeAdapter(Results.class, new ResultsDeserializer(this));
-		mapper = builder.create();
-
-		customGroupTypes.put("number", Number.class);
-		customGroupTypes.put("text", String.class);
+		typeRegistry = new DataPointTypeRegistry();
+		mapper = new JsonMapper(typeRegistry);
 	}
 
 	@Override
@@ -92,35 +80,7 @@ public abstract class AbstractClient implements Client
 		int responseCode = clientResponse.getStatusCode();
 
 		InputStream stream = clientResponse.getContentStream();
-		if (stream != null)
-		{
-			InputStreamReader reader = new InputStreamReader(stream);
-			try
-			{
-				if (responseCode >= 400)
-				{
-					QueryResponse response = new QueryResponse();
-					response.setStatusCode(responseCode);
-					ErrorResponse errorResponse = mapper.fromJson(reader, ErrorResponse.class);
-					response.addErrors(errorResponse.getErrors());
-					return response;
-				}
-				else
-				{
-					QueryResponse response = mapper.fromJson(reader, QueryResponse.class);
-					response.setStatusCode(responseCode);
-					return response;
-				}
-			}
-			finally
-			{
-				reader.close();
-			}
-		}
-
-		QueryResponse response = new QueryResponse();
-		response.setStatusCode(responseCode);
-		return response;
+		return new QueryResponse(mapper, responseCode, stream);
 	}
 
 	@Override
@@ -153,15 +113,13 @@ public abstract class AbstractClient implements Client
 	@Override
 	public void registerCustomDataType(String groupType, Class dataPointClass)
 	{
-		checkArgument(!customGroupTypes.containsKey(groupType), "Type has already been registered");
-
-		customGroupTypes.put(groupType, dataPointClass);
+		typeRegistry.registerCustomDataType(groupType, dataPointClass);
 	}
 
 	@Override
 	public Class getDataPointValueClass(String groupType)
 	{
-		return customGroupTypes.get(groupType);
+		return typeRegistry.getDataPointValueClass(groupType);
 	}
 
 	private Response getResponse(ClientResponse clientResponse) throws IOException
