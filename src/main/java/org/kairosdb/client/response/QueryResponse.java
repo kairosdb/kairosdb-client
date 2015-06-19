@@ -15,7 +15,6 @@
  */
 package org.kairosdb.client.response;
 
-import com.google.gson.reflect.TypeToken;
 import org.kairosdb.client.JsonMapper;
 
 import java.io.BufferedReader;
@@ -121,8 +120,9 @@ public class QueryResponse extends Response
 				reader.close();
 		}
 
+		json = builder.toString();
 		stream = null;
-		return builder.toString();
+		return json;
 	}
 
 	private class KairosQueryResponse
