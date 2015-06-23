@@ -37,7 +37,7 @@ public class QueryResponseTest
 	public void getJson() throws IOException
 	{
 		String json = Resources.toString(Resources.getResource("response_valid.json"), Charsets.UTF_8);
-		json = json.replaceAll("\n", ""); // remove newlines so strings can compare
+		json = json.replaceAll(System.getProperty("line.separator"), ""); // remove newlines so strings can compare
 
 		QueryResponse response = new QueryResponse(mapper, 200, new ByteArrayInputStream(json.getBytes()));
 
