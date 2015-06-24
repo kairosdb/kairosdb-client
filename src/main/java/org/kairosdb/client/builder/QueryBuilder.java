@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import static com.google.common.base.Preconditions.*;
 import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
@@ -57,7 +58,10 @@ public class QueryBuilder
 
 	@SerializedName("end_relative")
 	private RelativeTime endRelative;
-
+	
+	@SerializedName("time_zone")
+	private String timeZone;
+	
 	@SerializedName("cache_time")
 	private int cacheTime;
 
@@ -140,6 +144,27 @@ public class QueryBuilder
 	}
 
 	/**
+	 * The time zone used for the query.
+	 *
+	 * @param timeZone canonical id of the time zone (see http://joda-time.sourceforge.net/timezones.html)
+	 * @return the builder
+	 */
+	public QueryBuilder setTimeZone(String timeZone)
+	{
+		String[] validIDs = TimeZone.getAvailableIDs();
+		int valid = 0;
+		for (String str : validIDs) {
+		      if (str != null && str.equals(timeZone)) {
+		        valid = 1;
+		        break;
+		      }
+		}
+		checkArgument(valid == 1, "Time zone id is not valid.");
+		this.timeZone = timeZone;
+		return this;
+	}
+	
+	/**
 	 * How long to cache this exact query. The default is to never cache.
 	 *
 	 * @param cacheTime cache time in milliseconds
@@ -215,6 +240,16 @@ public class QueryBuilder
 	public RelativeTime getEndRelative()
 	{
 		return endRelative;
+	}
+	
+	/**
+	 * Returns the time zone id.
+	 *
+	 * @return time zone
+	 */
+	public String getTimeZone()
+	{
+		return timeZone;
 	}
 
 	/**
