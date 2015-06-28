@@ -1,0 +1,1 @@
+{"start_relative":{"value":2,"unit":"MONTHS"},"cache_time":0,"time_zone":"Europe/Vienna","metrics":[{"name":"metric1","tags":{},"group_by":[],"aggregators":[],"limit":10,"order":"desc"}]}

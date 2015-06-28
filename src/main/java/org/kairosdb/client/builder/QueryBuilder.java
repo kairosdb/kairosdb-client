@@ -23,11 +23,13 @@ import org.kairosdb.client.builder.aggregator.CustomAggregator;
 import org.kairosdb.client.serializer.CustomAggregatorSerializer;
 import org.kairosdb.client.serializer.ListMultiMapSerializer;
 import org.kairosdb.client.serializer.OrderSerializer;
+import org.kairosdb.client.serializer.TimeZoneSerializer;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import static com.google.common.base.Preconditions.*;
 import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
@@ -61,6 +63,9 @@ public class QueryBuilder
 	@SerializedName("cache_time")
 	private int cacheTime;
 
+	@SerializedName("time_zone")
+	private TimeZone timeZone;
+
 	private List<QueryMetric> metrics = new ArrayList<QueryMetric>();
 	private transient Gson mapper;
 
@@ -70,6 +75,7 @@ public class QueryBuilder
 		builder.registerTypeAdapter(CustomAggregator.class, new CustomAggregatorSerializer());
 		builder.registerTypeAdapter(ListMultimap.class, new ListMultiMapSerializer());
 		builder.registerTypeAdapter(QueryMetric.Order.class, new OrderSerializer());
+		builder.registerTypeAdapter(TimeZone.class, new TimeZoneSerializer());
 
 		mapper = builder.create();
 	}
@@ -235,6 +241,26 @@ public class QueryBuilder
 	public List<QueryMetric> getMetrics()
 	{
 		return metrics;
+	}
+
+	/**
+	 * Returns the time zone. The default time zone is UTC.
+	 *
+	 * @return time zone
+	 */
+	public TimeZone getTimeZone()
+	{
+		if (timeZone == null)
+			return TimeZone.getTimeZone("UTC");
+		return timeZone;
+	}
+
+	public QueryBuilder setTimeZone(TimeZone timeZone)
+	{
+		checkNotNull(timeZone, "timezone cannot be null");
+
+		this.timeZone = timeZone;
+		return this;
 	}
 
 	/**

@@ -24,6 +24,7 @@ import org.kairosdb.client.builder.grouper.ValueGrouper;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.TimeZone;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -221,6 +222,33 @@ public class QueryBuilderTest
 
 		QueryBuilder builder = QueryBuilder.getInstance();
 		builder.setStart(2, TimeUnit.MONTHS);
+		QueryMetric metric = builder.addMetric("metric1");
+		metric.setLimit(10);
+		metric.setOrder(QueryMetric.Order.DESCENDING);
+
+		assertThat(builder.build(), equalTo(json));
+	}
+
+	@Test
+	public void test_TimeZoneDefault()
+	{
+		assertThat(QueryBuilder.getInstance().getTimeZone(), equalTo(TimeZone.getTimeZone("UTC")));
+	}
+
+	@Test(expected = NullPointerException.class)
+	public void test_setTimeZoneNullInvalid()
+	{
+		QueryBuilder.getInstance().setTimeZone(null);
+	}
+
+	@Test
+	public void testSetTimeZoneValid() throws IOException
+	{
+		String json = Resources.toString(Resources.getResource("query_withTimeZone.json"), Charsets.UTF_8);
+
+		QueryBuilder builder = QueryBuilder.getInstance();
+		builder.setStart(2, TimeUnit.MONTHS);
+		builder.setTimeZone(TimeZone.getTimeZone("Europe/Vienna"));
 		QueryMetric metric = builder.addMetric("metric1");
 		metric.setLimit(10);
 		metric.setOrder(QueryMetric.Order.DESCENDING);
