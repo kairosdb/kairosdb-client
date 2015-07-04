@@ -32,7 +32,7 @@ Optionally, tags may be added to narrow down the search.
            .setEnd(1, TimeUnit.MONTHS)
            .addMetric("metric1")
            .addAggregator(AggregatorFactory.createSumAggregator(5, TimeUnit.MINUTES));
-    HttpClient client = new HttpClient("http://localhost", 8080);
+    HttpClient client = new HttpClient("http://localhost:8080");
     QueryResponse response = client.query(builder);
    	client.shutdown();
 
