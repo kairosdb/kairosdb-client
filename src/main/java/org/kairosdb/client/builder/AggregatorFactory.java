@@ -16,6 +16,7 @@
 package org.kairosdb.client.builder;
 
 import org.kairosdb.client.builder.aggregator.CustomAggregator;
+import org.kairosdb.client.builder.aggregator.PercentileAggregator;
 import org.kairosdb.client.builder.aggregator.RateAggregator;
 import org.kairosdb.client.builder.aggregator.SamplingAggregator;
 
@@ -103,6 +104,19 @@ public class AggregatorFactory
 	}
 
 	/**
+	 * Creates an aggregator that returns the percentile value for a given percentage of all values over each time period as specified.
+	 * For example, "0.5" and "5 minutes" would returns the median of data points for each 5 minute period.
+	 *
+	 * @param value percentage
+	 * @param unit unit of time
+	 * @return percentile aggregator
+	 */
+	public static PercentileAggregator createPercentileAggregator(double percentile, int value, TimeUnit unit)
+	{
+		return new PercentileAggregator(percentile, value, unit);
+	}
+	
+	/**
 	 * Creates an aggregator that divides each value by the divisor.
 	 *
 	 * @param divisor divisor.
@@ -124,7 +138,7 @@ public class AggregatorFactory
 	 * </p>
 	 *
 	 * <pre>
-	 *      Aggregator aggregator = AggregatorFactory.createCustomAggregator("histogram", "\"percentile\": 0.75");
+	 *      Aggregator aggregator = AggregatorFactory.createCustomAggregator("scale", "\"factor\": 0.75");
 	 * </pre>
 	 *
 	 * <p>
@@ -132,8 +146,8 @@ public class AggregatorFactory
 	 * </p>
 	 *
 	 * <pre>
-	 *      "name":"histogram",
-	 *      "percentile": 0.75
+	 *      "name":"scale",
+	 *      "factor": 0.75
 	 * </pre>
 	 *
 	 * @param name name of the aggregator.

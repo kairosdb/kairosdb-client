@@ -27,7 +27,7 @@ import static org.junit.Assert.assertThat;
 public class MetricBuilderTest
 {
 	@Test
-	public void test() throws IOException
+	public void testBuild() throws IOException
 	{
 		String json = Resources.toString(Resources.getResource("multiple_metrics.json"), Charsets.UTF_8);
 
@@ -57,70 +57,63 @@ public class MetricBuilderTest
 		builder.build();
 	}
 
-	public static class DataPointTest
+	@Test(expected = IllegalArgumentException.class)
+	public void test_timestampNegative_invalid()
 	{
-
-		@Test(expected = IllegalArgumentException.class)
-		public void test_timestampNegative_invalid()
-		{
-			MetricBuilder.getInstance().addMetric("metric").addDataPoint(-1, 3);
-		}
-
-		@Test(expected = IllegalArgumentException.class)
-		public void test_timestampZero_invalid()
-		{
-			MetricBuilder.getInstance().addMetric("metric").addDataPoint(0, 3);
-		}
+		MetricBuilder.getInstance().addMetric("metric").addDataPoint(-1, 3);
 	}
 
-	public static class MetricTest
+	@Test(expected = IllegalArgumentException.class)
+	public void test_timestampZero_invalid()
 	{
-		@Test(expected = NullPointerException.class)
-		public void test_nullMetricName_invalid()
-		{
-			MetricBuilder builder = MetricBuilder.getInstance();
+		MetricBuilder.getInstance().addMetric("metric").addDataPoint(0, 3);
+	}
 
-			builder.addMetric(null);
-		}
+	@Test(expected = NullPointerException.class)
+	public void test_nullMetricName_invalid()
+	{
+		MetricBuilder builder = MetricBuilder.getInstance();
 
-		@Test(expected = IllegalArgumentException.class)
-		public void test_emptyMetricName_invalid()
-		{
-			MetricBuilder builder = MetricBuilder.getInstance();
+		builder.addMetric(null);
+	}
 
-			builder.addMetric("");
-		}
+	@Test(expected = IllegalArgumentException.class)
+	public void test_emptyMetricName_invalid()
+	{
+		MetricBuilder builder = MetricBuilder.getInstance();
 
-		@Test(expected = NullPointerException.class)
-		public void test_nullTagName_invalid()
-		{
-			MetricBuilder builder = MetricBuilder.getInstance();
+		builder.addMetric("");
+	}
 
-			builder.addMetric("metric1").addTag(null, "value");
-		}
+	@Test(expected = NullPointerException.class)
+	public void test_nullTagName_invalid()
+	{
+		MetricBuilder builder = MetricBuilder.getInstance();
 
-		@Test(expected = IllegalArgumentException.class)
-		public void test_emptyTagName_invalid()
-		{
-			MetricBuilder builder = MetricBuilder.getInstance();
+		builder.addMetric("metric1").addTag(null, "value");
+	}
 
-			builder.addMetric("metric1").addTag("", "value");
-		}
+	@Test(expected = IllegalArgumentException.class)
+	public void test_emptyTagName_invalid()
+	{
+		MetricBuilder builder = MetricBuilder.getInstance();
 
-		@Test(expected = NullPointerException.class)
-		public void test_nullTagValue_invalid()
-		{
-			MetricBuilder builder = MetricBuilder.getInstance();
+		builder.addMetric("metric1").addTag("", "value");
+	}
 
-			builder.addMetric("metric1").addTag("tag", null);
-		}
+	@Test(expected = NullPointerException.class)
+	public void test_nullTagValue_invalid()
+	{
+		MetricBuilder builder = MetricBuilder.getInstance();
 
-		@Test(expected = IllegalArgumentException.class)
-		public void test_emptyTagValue_invalid()
-		{
-			MetricBuilder builder = MetricBuilder.getInstance();
+		builder.addMetric("metric1").addTag("tag", null);
+	}
 
-			builder.addMetric("metric1").addTag("tag", "");
-		}
+	@Test(expected = IllegalArgumentException.class)
+	public void test_emptyTagValue_invalid()
+	{
+		MetricBuilder builder = MetricBuilder.getInstance();
+
+		builder.addMetric("metric1").addTag("tag", "");
 	}
 }

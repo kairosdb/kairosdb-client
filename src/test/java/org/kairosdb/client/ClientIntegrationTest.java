@@ -98,7 +98,7 @@ public class ClientIntegrationTest
 
 			client.shutdown();
 
-			// Because Telnet is Asynchronous, it take some time before the datapoints get written.
+			// Because Telnet is Asynchronous, it takes some time before the datapoints get written.
 			// Wait for Kairos to notify us that they have been written.
 			verify(dataPointEvent, timeout(5000).times(1)).datapoint(TELNET_METRIC_NAME_1);
 			verify(dataPointEvent, timeout(5000).times(1)).datapoint(TELNET_METRIC_NAME_2);
@@ -334,6 +334,11 @@ public class ClientIntegrationTest
 			metric.addAggregator(AggregatorFactory.createAverageAggregator(1, TimeUnit.SECONDS));
 			metric.addAggregator(AggregatorFactory.createMaxAggregator(1, TimeUnit.SECONDS));
 			metric.addAggregator(AggregatorFactory.createMinAggregator(1, TimeUnit.SECONDS));
+
+			metric.addAggregator(AggregatorFactory.createMaxAggregator(1, TimeUnit.SECONDS)
+					.withAlignment(false, false));
+			metric.addAggregator(AggregatorFactory.createMinAggregator(1, TimeUnit.SECONDS)
+					.withAlignment(true, true));
 
 			metric.addGrouper(new TagGrouper(HTTP_TAG_NAME_1, HTTP_TAG_NAME_2));
 			metric.addGrouper(new TimeGrouper(new RelativeTime(1, TimeUnit.MILLISECONDS), 3));

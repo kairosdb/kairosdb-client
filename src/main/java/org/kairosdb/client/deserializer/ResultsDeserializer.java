@@ -2,7 +2,7 @@ package org.kairosdb.client.deserializer;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
-import org.kairosdb.client.Client;
+import org.kairosdb.client.DataPointTypeRegistry;
 import org.kairosdb.client.builder.DataPoint;
 import org.kairosdb.client.response.GroupResult;
 import org.kairosdb.client.response.Results;
@@ -18,11 +18,11 @@ import static com.google.common.base.Preconditions.checkState;
 
 public class ResultsDeserializer implements JsonDeserializer<Results>
 {
-	private Client client;
+	private DataPointTypeRegistry typeRegistry;
 
-	public ResultsDeserializer(Client client)
+	public ResultsDeserializer(DataPointTypeRegistry typeRegistry)
 	{
-		this.client = checkNotNull(client);
+		this.typeRegistry = checkNotNull(typeRegistry);
 	}
 
 	@Override
@@ -55,11 +55,10 @@ public class ResultsDeserializer implements JsonDeserializer<Results>
 					type = ((DefaultGroupResult) groupResult).getType();
 				}
 			}
-System.out.println("******************* Type=" + type);
 			checkState(type != null, "Missing type");
 
 			// Data points
-			final Class dataPointValueClass = client.getDataPointValueClass(type);
+			final Class dataPointValueClass = typeRegistry.getDataPointValueClass(type);
 			checkState(dataPointValueClass != null, "type: " + type + " is not registered to a custom data type.");
 
 			JsonArray array = (JsonArray) json.getAsJsonObject().get("values");
