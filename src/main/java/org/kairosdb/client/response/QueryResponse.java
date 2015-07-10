@@ -29,25 +29,22 @@ import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
 
 /**
  * Response returned by KairosDB.
- * <p/>
- * You can call getQueries() or getJson() but not both because the input stream
- * from the server is read. Once read, it cannot be read again.
  */
 public class QueryResponse extends Response
 {
 	private final int responseCode;
 	private final JsonMapper mapper;
 
-	private InputStream stream;
-	private KairosQueryResponse response;
+	private List<Queries> queries;
 	private String json;
 
-	public QueryResponse(JsonMapper mapper, int responseCode, InputStream stream)
+	public QueryResponse(JsonMapper mapper, int responseCode, InputStream stream) throws IOException
 	{
 		super(responseCode);
 		this.mapper = checkNotNull(mapper);
 		this.responseCode = responseCode;
-		this.stream = stream;
+		this.json = getJson(stream);
+		this.queries = getQueries();
 	}
 
 	/**
@@ -59,30 +56,21 @@ public class QueryResponse extends Response
 	 */
 	public List<Queries> getQueries() throws IOException
 	{
-		if (response != null)
-			return response.getQueries();
+		if (queries != null)
+			return queries;
 
-		if (stream != null)
+		if (getJson() != null)
 		{
-			InputStreamReader reader = new InputStreamReader(stream);
-			try
+			if (responseCode >= 400)
 			{
-				if (responseCode >= 400)
-				{
-					ErrorResponse errorResponse = mapper.fromJson(reader, ErrorResponse.class);
-					addErrors(errorResponse.getErrors());
-					return Collections.emptyList();
-				}
-				else
-				{
-					response = mapper.fromJson(reader, KairosQueryResponse.class);
-					return response.getQueries();
-				}
+				ErrorResponse errorResponse = mapper.fromJson(json, ErrorResponse.class);
+				addErrors(errorResponse.getErrors());
+				return Collections.emptyList();
 			}
-			finally
+			else
 			{
-				reader.close();
-				stream = null;
+				KairosQueryResponse response = mapper.fromJson(json, KairosQueryResponse.class);
+				return response.getQueries();
 			}
 		}
 
@@ -93,13 +81,14 @@ public class QueryResponse extends Response
 	 * Returns the json response as a string.
 	 *
 	 * @return json as a string or empty string.
-	 * @throws IOException
 	 */
-	public String getJson() throws IOException
+	public String getJson()
 	{
-		if (json != null)
-			return json;
+		return json;
+	}
 
+	public String getJson(InputStream stream) throws IOException
+	{
 		if (stream == null)
 			return "";
 
@@ -121,7 +110,6 @@ public class QueryResponse extends Response
 		}
 
 		json = builder.toString();
-		stream = null;
 		return json;
 	}
 

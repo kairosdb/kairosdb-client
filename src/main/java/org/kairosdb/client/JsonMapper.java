@@ -29,4 +29,9 @@ public class JsonMapper
 		return mapper.fromJson(json, typeOfT);
 	}
 
+	public <T> T fromJson(String json, Type typeOfT)
+	{
+		return mapper.fromJson(json, typeOfT);
+	}
+
 }

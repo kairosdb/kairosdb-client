@@ -28,7 +28,7 @@ public class QueryResponseTest
 	}
 
 	@Test(expected = NullPointerException.class)
-	public void testConstructorNullMapperInvalid()
+	public void testConstructorNullMapperInvalid() throws IOException
 	{
 		new QueryResponse(null, 200, new ByteArrayInputStream("bogus".getBytes()));
 	}
@@ -42,15 +42,10 @@ public class QueryResponseTest
 		QueryResponse response = new QueryResponse(mapper, 200, new ByteArrayInputStream(json.getBytes()));
 
 		assertThat(response.getJson(), equalTo(json));
-		assertThat(response.getJson(), equalTo(json)); // Verify that called twice it still works
 		assertThat(response.getStatusCode(), equalTo(200));
 		assertThat(response.getErrors().size(), equalTo(0));
-		assertThat(response.getQueries(), equalTo(Collections.<Queries>emptyList()));
 	}
 
-	/**
-	 * Does not popuplate the errors list but returns json instead
-	 */
 	@Test
 	public void getJsonWithErrors() throws IOException
 	{
@@ -59,9 +54,9 @@ public class QueryResponseTest
 		QueryResponse response = new QueryResponse(mapper, 400, new ByteArrayInputStream(json.getBytes()));
 
 		assertThat(response.getJson(), equalTo(json));
-		assertThat(response.getJson(), equalTo(json)); // Verify that called twice it still works
 		assertThat(response.getStatusCode(), equalTo(400));
-		assertThat(response.getErrors().size(), equalTo(0));
+		assertThat(response.getErrors().size(), equalTo(1));
+		assertThat(response.getErrors().get(0), equalTo("query.start_time relative or absolute time must be set"));
 	}
 
 	@Test
@@ -72,7 +67,7 @@ public class QueryResponseTest
 		QueryResponse response = new QueryResponse(mapper, 400, new ByteArrayInputStream(json.getBytes()));
 
 		assertThat(response.getQueries(), equalTo(Collections.<Queries>emptyList()));
-		assertThat(response.getJson(), equalTo(""));
+		assertThat(response.getJson(), equalTo(json));
 		assertThat(response.getStatusCode(), equalTo(400));
 		assertThat(response.getErrors().size(), equalTo(1));
 		assertThat(response.getErrors().get(0), equalTo("query.start_time relative or absolute time must be set"));
@@ -82,11 +77,12 @@ public class QueryResponseTest
 	public void getQueries() throws IOException, DataFormatException
 	{
 		String json = Resources.toString(Resources.getResource("response_valid.json"), Charsets.UTF_8);
+		json = json.replaceAll(System.getProperty("line.separator"), ""); // remove newlines so strings can compare
 
 		QueryResponse response = new QueryResponse(mapper, 200, new ByteArrayInputStream(json.getBytes()));
 
 		List<Queries> queries = response.getQueries();
-		assertThat(response.getJson(), equalTo(""));
+		assertThat(response.getJson(), equalTo(json));
 		assertThat(response.getStatusCode(), equalTo(200));
 		assertThat(response.getErrors().size(), equalTo(0));
 		assertThat(queries.get(0).getResults().get(0).getDataPoints().get(0).getTimestamp(), equalTo(1362034800000L));
