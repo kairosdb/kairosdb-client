@@ -83,7 +83,7 @@
         <dependency>
             <groupId>org.kairosdb</groupId>
             <artifactId>kairosdb</artifactId>
-            <version>0.9.4-5</version>
+            <version>1.0.0-1</version>
             <scope>test</scope>
         </dependency>
 

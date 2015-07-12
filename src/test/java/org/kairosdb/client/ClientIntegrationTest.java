@@ -78,7 +78,7 @@ public class ClientIntegrationTest
 		DataPointEvent dataPointEvent = mock(DataPointEvent.class);
 		kairos.getDataPointListener().setEvent(dataPointEvent);
 
-		TelnetClient client = new TelnetClient("localhost", 4242);
+		TelnetClient client = new TelnetClient("localhost", 4243);
 
 		try
 		{
@@ -340,6 +340,15 @@ public class ClientIntegrationTest
 			metric.addAggregator(AggregatorFactory.createMinAggregator(1, TimeUnit.SECONDS)
 					.withAlignment(true, true));
 
+			metric.addAggregator(AggregatorFactory.createPercentileAggregator(0.3, 1, TimeUnit.SECONDS));
+			metric.addAggregator(AggregatorFactory.createLastAggregator(1, TimeUnit.SECONDS));
+			metric.addAggregator(AggregatorFactory.createFirstAggregator(1, TimeUnit.SECONDS));
+			metric.addAggregator(AggregatorFactory.createDataGapsMarkingAggregator(1, TimeUnit.SECONDS));
+			metric.addAggregator(AggregatorFactory.createDiffAggregator());
+			metric.addAggregator(AggregatorFactory.createLeastSquaresAggregator(1, TimeUnit.SECONDS));
+			metric.addAggregator(AggregatorFactory.createSamplerAggregator());
+			metric.addAggregator(AggregatorFactory.createScaleAggregator(.05));
+
 			metric.addGrouper(new TagGrouper(HTTP_TAG_NAME_1, HTTP_TAG_NAME_2));
 			metric.addGrouper(new TimeGrouper(new RelativeTime(1, TimeUnit.MILLISECONDS), 3));
 			metric.addGrouper(new ValueGrouper(4));
@@ -419,6 +428,7 @@ public class ClientIntegrationTest
 		}
 	}
 
+	@SuppressWarnings("PointlessArithmeticExpression")
 	@Test
 	public void test_limit() throws InterruptedException, IOException, URISyntaxException, DataFormatException
 	{
@@ -471,6 +481,7 @@ public class ClientIntegrationTest
 		}
 	}
 
+	@SuppressWarnings("PointlessArithmeticExpression")
 	@Test
 	public void test_Order() throws InterruptedException, IOException, URISyntaxException, DataFormatException
 	{

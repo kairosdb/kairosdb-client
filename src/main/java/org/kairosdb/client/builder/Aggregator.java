@@ -20,7 +20,7 @@ import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
 /**
  * An aggregator manipulates data points. For example, a sum aggregator would add data points together.
  */
-public abstract class Aggregator
+public class Aggregator
 {
 	private String name;
 
