@@ -34,6 +34,8 @@ public class ClientIntegrationTest
 
 	public static final String TELNET_METRIC_NAME_1 = "telnetMetric1";
 	public static final String TELNET_METRIC_NAME_2 = "telnetMetric2";
+	public static final String TELNET_METRIC_NAME_3 = "telnetMetric3";
+	public static final String TELNET_METRIC_NAME_4 = "telnetMetric4";
 	public static final String TELNET_TAG_NAME_1 = "telnetTag1";
 	public static final String TELNET_TAG_NAME_2 = "telnetTag2";
 	public static final String TELNET_TAG_VALUE_1 = "telnetTag1";
@@ -72,6 +74,7 @@ public class ClientIntegrationTest
 		kairos.getDataPointListener().setEvent(null);
 	}
 
+	@SuppressWarnings("deprecation")
 	@Test
 	public void test_telnetClient() throws IOException, URISyntaxException, DataFormatException
 	{
@@ -115,7 +118,66 @@ public class ClientIntegrationTest
 
 			assertThat(query.getQueries().get(0).getResults().size(), equalTo(1));
 			List<DataPoint> dataPoints = query.getQueries().get(0).getResults().get(0).getDataPoints();
-			System.out.println(timestamp1);
+			assertThat(dataPoints.size(), equalTo(1));
+			assertThat(dataPoints.get(0).getTimestamp(), equalTo(timestamp1));
+			assertThat(dataPoints.get(0).longValue(), equalTo(20L));
+
+			assertThat(query.getQueries().get(1).getResults().size(), equalTo(1));
+			dataPoints = query.getQueries().get(1).getResults().get(0).getDataPoints();
+			assertThat(dataPoints.size(), equalTo(1));
+			assertThat(dataPoints.get(0).getTimestamp(), equalTo(timestamp2));
+			assertThat(dataPoints.get(0).longValue(), equalTo(40L));
+		}
+		finally
+		{
+			client.shutdown();
+		}
+	}
+
+
+	@Test
+	public void test_telnetClientPutMetrics() throws IOException, URISyntaxException, DataFormatException
+	{
+		DataPointEvent dataPointEvent = mock(DataPointEvent.class);
+		kairos.getDataPointListener().setEvent(dataPointEvent);
+
+		TelnetClient client = new TelnetClient("localhost", 4243);
+
+		try
+		{
+			MetricBuilder metricBuilder = MetricBuilder.getInstance();
+
+			Metric metric1 = metricBuilder.addMetric(TELNET_METRIC_NAME_3);
+			metric1.addTag(TELNET_TAG_NAME_1, TELNET_TAG_VALUE_1);
+			long timestamp1 = System.currentTimeMillis();
+			metric1.addDataPoint(timestamp1, 20);
+
+			Metric metric2 = metricBuilder.addMetric(TELNET_METRIC_NAME_4);
+			metric2.addTag(TELNET_TAG_NAME_2, TELNET_TAG_VALUE_2);
+			long timestamp2 = System.currentTimeMillis();
+			metric2.addDataPoint(timestamp2, 40);
+
+			client.putMetrics(metricBuilder);
+
+			client.shutdown();
+
+			// Because Telnet is Asynchronous, it takes some time before the datapoints get written.
+			// Wait for Kairos to notify us that they have been written.
+			verify(dataPointEvent, timeout(5000).times(1)).datapoint(TELNET_METRIC_NAME_3);
+			verify(dataPointEvent, timeout(5000).times(1)).datapoint(TELNET_METRIC_NAME_4);
+
+			// Query metrics
+			QueryBuilder builder = QueryBuilder.getInstance();
+			builder.setStart(1, TimeUnit.MINUTES);
+			builder.addMetric(TELNET_METRIC_NAME_3);
+			builder.addMetric(TELNET_METRIC_NAME_4);
+
+			HttpClient httpClient = new HttpClient("http://localhost:8080");
+			QueryResponse query = httpClient.query(builder);
+			assertThat(query.getQueries().size(), equalTo(2));
+
+			assertThat(query.getQueries().get(0).getResults().size(), equalTo(1));
+			List<DataPoint> dataPoints = query.getQueries().get(0).getResults().get(0).getDataPoints();
 			assertThat(dataPoints.size(), equalTo(1));
 			assertThat(dataPoints.get(0).getTimestamp(), equalTo(timestamp1));
 			assertThat(dataPoints.get(0).longValue(), equalTo(20L));

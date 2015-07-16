@@ -29,10 +29,14 @@ public class TelnetClient
 	}
 
 	/**
+	 * @deprecated As of KairosDB 1.0, use putMetrics. PutMetrics uses putm rather
+	 * than put.
+	 *
 	 * Sends metrics from the builder to the Kairos server.
 	 *
 	 * @param builder metrics builder
 	 */
+	@Deprecated
 	public void pushMetrics(MetricBuilder builder)
 	{
 		List<Metric> metrics = builder.getMetrics();
@@ -47,6 +51,27 @@ public class TelnetClient
 			for (DataPoint dataPoint : metric.getDataPoints())
 			{
 				writer.println("put" + " " + metric.getName() + " " + dataPoint.getTimestamp() + " " +
+						dataPoint.getValue() +
+						" " + tags.toString());
+			}
+		}
+		writer.flush();
+	}
+
+	public void putMetrics(MetricBuilder builder)
+	{
+		List<Metric> metrics = builder.getMetrics();
+		for (Metric metric : metrics)
+		{
+			StringBuilder tags = new StringBuilder();
+			for (Map.Entry<String, String> tag : metric.getTags().entrySet())
+			{
+				tags.append(tag.getKey()).append("=").append(tag.getValue());
+			}
+
+			for (DataPoint dataPoint : metric.getDataPoints())
+			{
+				writer.println("putm" + " " + metric.getName() + " " + dataPoint.getTimestamp() + " " +
 						dataPoint.getValue() +
 						" " + tags.toString());
 			}
