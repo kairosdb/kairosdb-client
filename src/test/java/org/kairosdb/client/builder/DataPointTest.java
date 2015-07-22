@@ -24,16 +24,20 @@ import static org.junit.Assert.assertThat;
 public class DataPointTest
 {
 
-	@Test(expected = IllegalArgumentException.class)
-	public void test_timestampNegative_invalid()
+	@Test
+	public void test_timestampNegative_valid()
 	{
-		MetricBuilder.getInstance().addMetric("metric").addDataPoint(-1, 3);
+		DataPoint dataPoint = new DataPoint(-1, 3);
+
+		assertThat(dataPoint.getTimestamp(), equalTo(-1L));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void test_timestampZero_invalid()
+	@Test
+	public void test_timestampZero_valid()
 	{
-		MetricBuilder.getInstance().addMetric("metric").addDataPoint(0, 3);
+		DataPoint dataPoint = new DataPoint(0, 3);
+
+		assertThat(dataPoint.getTimestamp(), equalTo(0L));
 	}
 
 	@Test

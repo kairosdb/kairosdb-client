@@ -57,14 +57,14 @@ public class MetricBuilderTest
 		builder.build();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void test_timestampNegative_invalid()
+	@Test
+	public void test_timestampNegative_valid()
 	{
 		MetricBuilder.getInstance().addMetric("metric").addDataPoint(-1, 3);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void test_timestampZero_invalid()
+	@Test
+	public void test_timestampZero_valid()
 	{
 		MetricBuilder.getInstance().addMetric("metric").addDataPoint(0, 3);
 	}
