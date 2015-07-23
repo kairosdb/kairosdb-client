@@ -32,6 +32,9 @@ public class SamplingAggregator extends Aggregator
 	@SerializedName("align_sampling")
 	private Boolean alignSampling;
 
+	@SerializedName("start_time")
+	private Long startTime;
+
 	public SamplingAggregator(String name, int value, TimeUnit unit)
 	{
 		super(name);
@@ -50,6 +53,67 @@ public class SamplingAggregator extends Aggregator
 		return sampling.unit;
 	}
 
+	/**
+	 * <p>
+	 * Alignment based on the sampling size. For example if your sample size is either milliseconds,
+	 * seconds, minutes or hours then the start of the range will always be at the top
+	 * of the hour.  The effect of setting this to true is that your data will
+	 * take the same shape when graphed as you refresh the data.
+	 * </p>
+	 * <p/>
+	 * <p>
+	 * Only one alignment type can be used.
+	 * </p>
+	 */
+	public SamplingAggregator withSamplingAlignment()
+	{
+		alignSampling = true;
+
+		return this;
+	}
+
+	/**
+	 * <p>
+	 * Alignment based on the aggregation range rather than the value of the first
+	 * data point within that range.
+	 * </p>
+	 * <p/>
+	 * <p>
+	 * Only one alignment type can be used.
+	 * </p>
+	 */
+	public SamplingAggregator withStartTimeAlignment()
+	{
+		alignStartTime = true;
+
+		return this;
+	}
+
+	/**
+	 * <p>
+	 * Alignment that starts based on the specified time. For example, if startTime
+	 * is set to noon today,then alignment starts at noon today.
+	 * </p>
+	 * <p/>
+	 * <p>
+	 * Only one alignment type can be used.
+	 * </p>
+	 *
+	 * @param startTime the alignment start time
+	 */
+	public SamplingAggregator withStartTimeAlignment(long startTime)
+	{
+		checkArgument(startTime >= 0, "startTime cannot be negative");
+		alignStartTime = true;
+		this.startTime = startTime;
+
+		return this;
+	}
+
+	@Deprecated
+	/**
+	 * @deprecated Use withSamplingAlignment() and withStartTimeAlignment()
+	 */
 	public SamplingAggregator withAlignment(Boolean alignStartTime, Boolean alignSampling)
 	{
 		this.alignStartTime = alignStartTime;
@@ -60,12 +124,17 @@ public class SamplingAggregator extends Aggregator
 
 	public Boolean isAlignStartTime()
 	{
-		return alignStartTime;
+		return alignStartTime != null ? alignStartTime : false;
 	}
 
 	public Boolean isAlignSampling()
 	{
-		return alignSampling;
+		return alignSampling != null ? alignSampling : false;
+	}
+
+	public long getStartTimeAlignmentStartTime()
+	{
+		return startTime != null ? startTime : 0;
 	}
 
 	private class Sampling

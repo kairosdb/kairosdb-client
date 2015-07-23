@@ -18,6 +18,11 @@ package org.kairosdb.client.builder;
 import org.junit.Test;
 import org.kairosdb.client.builder.aggregator.SamplingAggregator;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
 public class SamplingAggregatorTest
 {
 
@@ -49,5 +54,40 @@ public class SamplingAggregatorTest
 	public void test_unitNull_invalid()
 	{
 		new SamplingAggregator("sum", 1, null);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testWithStartTimeAlignmentNegativeStartTimeInvalid()
+	{
+		new SamplingAggregator("sum", 1, TimeUnit.DAYS).withStartTimeAlignment(-1);
+	}
+
+	@Test
+	public void testWithSamplingAlignment()
+	{
+		SamplingAggregator aggregator = new SamplingAggregator("sum", 1, TimeUnit.DAYS).withSamplingAlignment();
+
+		assertFalse(aggregator.isAlignStartTime());
+		assertTrue(aggregator.isAlignSampling());
+	}
+
+	@Test
+	public void testWithStartTimeAlignment()
+	{
+		SamplingAggregator aggregator = new SamplingAggregator("sum", 1, TimeUnit.DAYS).withStartTimeAlignment();
+
+		assertFalse(aggregator.isAlignSampling());
+		assertTrue(aggregator.isAlignStartTime());
+		assertThat(aggregator.getStartTimeAlignmentStartTime(), equalTo(0L));
+	}
+
+	@Test
+	public void testWithStartTimeAlignmentWithStartTime()
+	{
+		SamplingAggregator aggregator = new SamplingAggregator("sum", 1, TimeUnit.DAYS).withStartTimeAlignment(444);
+
+		assertFalse(aggregator.isAlignSampling());
+		assertTrue(aggregator.isAlignStartTime());
+		assertThat(aggregator.getStartTimeAlignmentStartTime(), equalTo(444L));
 	}
 }
