@@ -15,6 +15,7 @@
  */
 package org.kairosdb.client.response;
 
+import com.google.gson.JsonSyntaxException;
 import org.kairosdb.client.JsonMapper;
 
 import java.io.BufferedReader;
@@ -36,14 +37,14 @@ public class QueryResponse extends Response
 	private final JsonMapper mapper;
 
 	private List<Queries> queries;
-	private String json;
+	private String body;
 
 	public QueryResponse(JsonMapper mapper, int responseCode, InputStream stream) throws IOException
 	{
 		super(responseCode);
 		this.mapper = checkNotNull(mapper);
 		this.responseCode = responseCode;
-		this.json = getJson(stream);
+		this.body = getBody(stream);
 		this.queries = getQueries();
 	}
 
@@ -52,24 +53,26 @@ public class QueryResponse extends Response
 	 * successful, call getErrors to get errors returned.
 	 *
 	 * @return list of query results or empty list of no data or if an error is returned.
-	 * @throws IOException if could not map response to Queries object
+	 * @throws IOException         if could not map response to Queries object
+	 * @throws JsonSyntaxException if the response is not JSON or is invalid JSON
 	 */
 	public List<Queries> getQueries() throws IOException
 	{
 		if (queries != null)
 			return queries;
 
-		if (getJson() != null)
+		if (getBody() != null)
 		{
-			if (responseCode >= 400)
+			// We only get JSON if the response is a 200, 400 or 500 error
+			if (responseCode == 400 || responseCode == 500)
 			{
-				ErrorResponse errorResponse = mapper.fromJson(json, ErrorResponse.class);
+				ErrorResponse errorResponse = mapper.fromJson(body, ErrorResponse.class);
 				addErrors(errorResponse.getErrors());
 				return Collections.emptyList();
 			}
-			else
+			else if (responseCode == 200)
 			{
-				KairosQueryResponse response = mapper.fromJson(json, KairosQueryResponse.class);
+				KairosQueryResponse response = mapper.fromJson(body, KairosQueryResponse.class);
 				return response.getQueries();
 			}
 		}
@@ -78,16 +81,16 @@ public class QueryResponse extends Response
 	}
 
 	/**
-	 * Returns the json response as a string.
+	 * Returns the body response as a string.
 	 *
-	 * @return json as a string or empty string.
+	 * @return body as a string or empty string.
 	 */
-	public String getJson()
+	public String getBody()
 	{
-		return json;
+		return body;
 	}
 
-	public String getJson(InputStream stream) throws IOException
+	public String getBody(InputStream stream) throws IOException
 	{
 		if (stream == null)
 			return "";
@@ -109,8 +112,8 @@ public class QueryResponse extends Response
 				reader.close();
 		}
 
-		json = builder.toString();
-		return json;
+		body = builder.toString();
+		return body;
 	}
 
 	private class KairosQueryResponse
