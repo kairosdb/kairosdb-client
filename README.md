@@ -31,7 +31,7 @@ Optionally, tags may be added to narrow down the search.
     builder.setStart(2, TimeUnit.MONTHS)
            .setEnd(1, TimeUnit.MONTHS)
            .addMetric("metric1")
-           .addAggregator(AggregatorFactory.sumAggregator(5, TimeUnit.MINUTES));
+           .addAggregator(AggregatorFactory.createAverageAggregator(5, TimeUnit.MINUTES));
     HttpClient client = new HttpClient("http://localhost:8080");
     QueryResponse response = client.query(builder);
    	client.shutdown();
