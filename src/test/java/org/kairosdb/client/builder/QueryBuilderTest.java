@@ -195,7 +195,7 @@ public class QueryBuilderTest
 				.setEnd(new Date(13597745127000L))
 				.addMetric("metric1")
 				.addAggregator(AggregatorFactory.createMaxAggregator(1, TimeUnit.DAYS)
-						.withAlignment(true, true));
+						.withSamplingAlignment());
 
 		assertThat(builder.build(), equalTo(json));
 	}

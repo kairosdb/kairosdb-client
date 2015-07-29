@@ -1,1 +1,1 @@
-{"start_absolute":1359774127000,"end_absolute":13597745127000,"cache_time":0,"metrics":[{"name":"metric1","tags":{},"group_by":[],"aggregators":[{"sampling":{"value":1,"unit":"DAYS"},"align_start_time":true,"align_sampling":true,"name":"max"}]}]}
+{"start_absolute":1359774127000,"end_absolute":13597745127000,"cache_time":0,"metrics":[{"name":"metric1","tags":{},"group_by":[],"aggregators":[{"sampling":{"value":1,"unit":"DAYS"},"align_sampling":true,"name":"max"}]}]}
