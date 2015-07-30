@@ -82,7 +82,7 @@ public class HttpClient extends AbstractClient
 	{
 		HttpResponse response;
 
-		int tries = ++retries;
+		int tries = retries + 1;
 		while (true)
 		{
 			tries--;
