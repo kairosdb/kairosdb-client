@@ -21,6 +21,7 @@ import org.junit.Test;
 import org.kairosdb.client.builder.grouper.TagGrouper;
 import org.kairosdb.client.builder.grouper.TimeGrouper;
 import org.kairosdb.client.builder.grouper.ValueGrouper;
+import org.kairosdb.client.testUtils.QueryParser;
 
 import java.io.IOException;
 import java.util.Date;
@@ -31,6 +32,8 @@ import static org.junit.Assert.assertThat;
 
 public class QueryBuilderTest
 {
+	private QueryParser parser = new QueryParser();
+
 	@Test(expected = NullPointerException.class)
 	public void test_MetricNameNull_Invalid()
 	{
@@ -167,7 +170,7 @@ public class QueryBuilderTest
 		builder.addMetric("metric2")
 				.addTag("curly", "joe");
 
-		assertThat(builder.build(), equalTo(json));
+		assertThat(parser.parse(builder.build()), equalTo(parser.parse(json)));
 	}
 
 	@Test
@@ -181,7 +184,7 @@ public class QueryBuilderTest
 				.addAggregator(AggregatorFactory.createMaxAggregator(1, TimeUnit.DAYS))
 				.addAggregator(AggregatorFactory.createRateAggregator(TimeUnit.MINUTES));
 
-		assertThat(builder.build(), equalTo(json));
+		assertThat(parser.parse(builder.build()), equalTo(parser.parse(json)));
 	}
 
 	@Test
@@ -197,7 +200,7 @@ public class QueryBuilderTest
 				.addAggregator(AggregatorFactory.createMaxAggregator(1, TimeUnit.DAYS)
 						.withSamplingAlignment());
 
-		assertThat(builder.build(), equalTo(json));
+		assertThat(parser.parse(builder.build()), equalTo(parser.parse(json)));
 	}
 
 	@Test
@@ -212,7 +215,7 @@ public class QueryBuilderTest
 		metric.addGrouper(new TagGrouper("tag1", "tag2"));
 		metric.addGrouper(new TimeGrouper(new RelativeTime(2, TimeUnit.HOURS), 3));
 
-		assertThat(builder.build(), equalTo(json));
+		assertThat(parser.parse(builder.build()), equalTo(parser.parse(json)));
 	}
 
 	@Test
@@ -226,7 +229,7 @@ public class QueryBuilderTest
 		metric.setLimit(10);
 		metric.setOrder(QueryMetric.Order.DESCENDING);
 
-		assertThat(builder.build(), equalTo(json));
+		assertThat(parser.parse(builder.build()), equalTo(parser.parse(json)));
 	}
 
 	@Test
@@ -253,6 +256,6 @@ public class QueryBuilderTest
 		metric.setLimit(10);
 		metric.setOrder(QueryMetric.Order.DESCENDING);
 
-		assertThat(builder.build(), equalTo(json));
+		assertThat(parser.parse(builder.build()), equalTo(parser.parse(json)));
 	}
 }

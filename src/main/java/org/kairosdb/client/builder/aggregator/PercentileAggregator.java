@@ -39,4 +39,27 @@ public class PercentileAggregator extends SamplingAggregator
 		return percentile;
 	}
 
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		if (!super.equals(o))
+			return false;
+
+		PercentileAggregator that = (PercentileAggregator) o;
+		return Double.compare(that.percentile, percentile) == 0;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		int result = super.hashCode();
+		long temp;
+		temp = Double.doubleToLongBits(percentile);
+		result = 31 * result + (int) (temp ^ (temp >>> 32));
+		return result;
+	}
 }

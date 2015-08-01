@@ -40,4 +40,26 @@ public class ValueGrouper extends Grouper
 	{
 		return rangeSize;
 	}
+
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		if (!super.equals(o))
+			return false;
+
+		ValueGrouper that = (ValueGrouper) o;
+		return rangeSize == that.rangeSize;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		int result = super.hashCode();
+		result = 31 * result + rangeSize;
+		return result;
+	}
 }

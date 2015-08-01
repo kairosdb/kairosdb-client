@@ -26,4 +26,26 @@ public class CustomAggregator extends Aggregator
 	{
 		return "{\"name\":\"" + getName() + "\"," +  json + "}";
 	}
+
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		if (!super.equals(o))
+			return false;
+
+		CustomAggregator that = (CustomAggregator) o;
+		return json.equals(that.json);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		int result = super.hashCode();
+		result = 31 * result + json.hashCode();
+		return result;
+	}
 }

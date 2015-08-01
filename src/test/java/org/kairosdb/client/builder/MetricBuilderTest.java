@@ -18,6 +18,7 @@ package org.kairosdb.client.builder;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import org.junit.Test;
+import org.kairosdb.client.testUtils.MetricParser;
 
 import java.io.IOException;
 
@@ -29,6 +30,7 @@ public class MetricBuilderTest
 	@Test
 	public void testBuild() throws IOException
 	{
+		MetricParser parser = new MetricParser();
 		String json = Resources.toString(Resources.getResource("multiple_metrics.json"), Charsets.UTF_8);
 
 		MetricBuilder builder = MetricBuilder.getInstance();
@@ -44,7 +46,7 @@ public class MetricBuilderTest
 				.addDataPoint(3, 2.3)
 				.addTag("tag3", "tab3value");
 
-		assertThat(builder.build(), equalTo(json));
+		assertThat(parser.parse(builder.build()), equalTo(parser.parse(json)));
 	}
 
 	@Test(expected = IllegalStateException.class)

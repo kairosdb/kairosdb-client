@@ -295,4 +295,43 @@ public class QueryBuilder
 				TimeValidator.validateEndTimeLaterThanStartTime(startRelative, endRelative);
 		}
 	}
+
+	@SuppressWarnings("SimplifiableIfStatement")
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+
+		QueryBuilder that = (QueryBuilder) o;
+
+		if (cacheTime != that.cacheTime)
+			return false;
+		if (startAbsolute != null ? !startAbsolute.equals(that.startAbsolute) : that.startAbsolute != null)
+			return false;
+		if (endAbsolute != null ? !endAbsolute.equals(that.endAbsolute) : that.endAbsolute != null)
+			return false;
+		if (startRelative != null ? !startRelative.equals(that.startRelative) : that.startRelative != null)
+			return false;
+		if (endRelative != null ? !endRelative.equals(that.endRelative) : that.endRelative != null)
+			return false;
+		if (timeZone != null ? !timeZone.equals(that.timeZone) : that.timeZone != null)
+			return false;
+		return !(metrics != null ? !metrics.equals(that.metrics) : that.metrics != null);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		int result = startAbsolute != null ? startAbsolute.hashCode() : 0;
+		result = 31 * result + (endAbsolute != null ? endAbsolute.hashCode() : 0);
+		result = 31 * result + (startRelative != null ? startRelative.hashCode() : 0);
+		result = 31 * result + (endRelative != null ? endRelative.hashCode() : 0);
+		result = 31 * result + cacheTime;
+		result = 31 * result + (timeZone != null ? timeZone.hashCode() : 0);
+		result = 31 * result + (metrics != null ? metrics.hashCode() : 0);
+		return result;
+	}
 }

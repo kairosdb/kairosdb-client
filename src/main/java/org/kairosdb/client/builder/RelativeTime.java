@@ -99,4 +99,24 @@ public class RelativeTime
 
 		return calendar.getTime().getTime();
 	}
+
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+
+		RelativeTime that = (RelativeTime) o;
+		return value == that.value && unit == that.unit;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		int result = value;
+		result = 31 * result + (unit != null ? unit.hashCode() : 0);
+		return result;
+	}
 }

@@ -38,5 +38,22 @@ public class Aggregator
 		return name;
 	}
 
-	// todo add align_sampling - aligns to the next biggest unit base on the unit
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+
+		Aggregator that = (Aggregator) o;
+
+		return name.equals(that.name);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return name.hashCode();
+	}
 }

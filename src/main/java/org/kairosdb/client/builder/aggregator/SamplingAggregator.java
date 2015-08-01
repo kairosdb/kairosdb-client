@@ -148,4 +148,37 @@ public class SamplingAggregator extends Aggregator
 		private int value;
 		private TimeUnit unit;
 	}
+
+	@SuppressWarnings("SimplifiableIfStatement")
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		if (!super.equals(o))
+			return false;
+
+		SamplingAggregator that = (SamplingAggregator) o;
+
+		if (sampling != null ? !sampling.equals(that.sampling) : that.sampling != null)
+			return false;
+		if (alignStartTime != null ? !alignStartTime.equals(that.alignStartTime) : that.alignStartTime != null)
+			return false;
+		if (alignSampling != null ? !alignSampling.equals(that.alignSampling) : that.alignSampling != null)
+			return false;
+		return !(startTime != null ? !startTime.equals(that.startTime) : that.startTime != null);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		int result = super.hashCode();
+		result = 31 * result + (sampling != null ? sampling.hashCode() : 0);
+		result = 31 * result + (alignStartTime != null ? alignStartTime.hashCode() : 0);
+		result = 31 * result + (alignSampling != null ? alignSampling.hashCode() : 0);
+		result = 31 * result + (startTime != null ? startTime.hashCode() : 0);
+		return result;
+	}
 }
