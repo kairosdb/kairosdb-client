@@ -37,4 +37,22 @@ public abstract class Grouper
 	{
 		return name;
 	}
+
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+
+		Grouper grouper = (Grouper) o;
+		return name.equals(grouper.name);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return name.hashCode();
+	}
 }

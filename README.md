@@ -17,7 +17,7 @@ the data points.
 			.addTag("customer", "Acme")
 			.addDataPoint(System.currentTimeMillis(), 10)
 			.addDataPoint(System.currentTimeMillis(), 30L);
-    HttpClient client = new HttpClient("localhost", 8080);
+    HttpClient client = new HttpClient("http://localhost:8080");
 	Response response = client.pushMetrics(builder);
 	client.shutdown();
 
@@ -31,8 +31,8 @@ Optionally, tags may be added to narrow down the search.
     builder.setStart(2, TimeUnit.MONTHS)
            .setEnd(1, TimeUnit.MONTHS)
            .addMetric("metric1")
-           .addAggregator(AggregatorFactory.sumAggregator(5, TimeUnit.MINUTES));
-    HttpClient client = new HttpClient("localhost", 8080);
+           .addAggregator(AggregatorFactory.createAverageAggregator(5, TimeUnit.MINUTES));
+    HttpClient client = new HttpClient("http://localhost:8080");
     QueryResponse response = client.query(builder);
    	client.shutdown();
 
@@ -40,8 +40,8 @@ Optionally, tags may be added to narrow down the search.
 
 You can get a list of all metric names in KairosDB.
 
-	HttpClient client = new HttpClient("localhost", 8080);
-	GetResponse response = client.getTagNames();
+	HttpClient client = new HttpClient("http://localhost:8080");
+	GetResponse response = client.getMetricNames();
 
 	System.out.println("Response Code =" + response.getStatusCode());
 	for (String name : response.getResults())
@@ -53,7 +53,7 @@ You can get a list of all metric names in KairosDB.
 ## Querying Tag Names
 Similarly you can get a list of all tag names in KairosDB.
 
-	HttpClient client = new HttpClient("localhost", 8080);
+	HttpClient client = new HttpClient("http://localhost:8080");
 	GetResponse response = client.getTagNames();
 
 	System.out.println("response=" + response.getStatusCode());
@@ -66,7 +66,7 @@ Similarly you can get a list of all tag names in KairosDB.
 ## Querying Tag Values
 And a list of all tag values.
 
-	HttpClient client = new HttpClient("localhost", 8080);
+	HttpClient client = new HttpClient("http://localhost:8080");
 	GetResponse response = client.getTagValues();
 
 	System.out.println("response=" + response.getStatusCode());

@@ -23,11 +23,13 @@ import org.kairosdb.client.builder.aggregator.CustomAggregator;
 import org.kairosdb.client.serializer.CustomAggregatorSerializer;
 import org.kairosdb.client.serializer.ListMultiMapSerializer;
 import org.kairosdb.client.serializer.OrderSerializer;
+import org.kairosdb.client.serializer.TimeZoneSerializer;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import static com.google.common.base.Preconditions.*;
 import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
@@ -58,7 +60,12 @@ public class QueryBuilder
 	@SerializedName("end_relative")
 	private RelativeTime endRelative;
 
+	@SerializedName("cache_time")
 	private int cacheTime;
+
+	@SerializedName("time_zone")
+	private TimeZone timeZone;
+
 	private List<QueryMetric> metrics = new ArrayList<QueryMetric>();
 	private transient Gson mapper;
 
@@ -68,6 +75,7 @@ public class QueryBuilder
 		builder.registerTypeAdapter(CustomAggregator.class, new CustomAggregatorSerializer());
 		builder.registerTypeAdapter(ListMultimap.class, new ListMultiMapSerializer());
 		builder.registerTypeAdapter(QueryMetric.Order.class, new OrderSerializer());
+		builder.registerTypeAdapter(TimeZone.class, new TimeZoneSerializer());
 
 		mapper = builder.create();
 	}
@@ -236,6 +244,26 @@ public class QueryBuilder
 	}
 
 	/**
+	 * Returns the time zone. The default time zone is UTC.
+	 *
+	 * @return time zone
+	 */
+	public TimeZone getTimeZone()
+	{
+		if (timeZone == null)
+			return TimeZone.getTimeZone("UTC");
+		return timeZone;
+	}
+
+	public QueryBuilder setTimeZone(TimeZone timeZone)
+	{
+		checkNotNull(timeZone, "timezone cannot be null");
+
+		this.timeZone = timeZone;
+		return this;
+	}
+
+	/**
 	 * Returns the JSON string built by the builder. This is the JSON that can be used by the client to query KairosDB
 	 *
 	 * @return JSON
@@ -266,5 +294,44 @@ public class QueryBuilder
 			else
 				TimeValidator.validateEndTimeLaterThanStartTime(startRelative, endRelative);
 		}
+	}
+
+	@SuppressWarnings("SimplifiableIfStatement")
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+
+		QueryBuilder that = (QueryBuilder) o;
+
+		if (cacheTime != that.cacheTime)
+			return false;
+		if (startAbsolute != null ? !startAbsolute.equals(that.startAbsolute) : that.startAbsolute != null)
+			return false;
+		if (endAbsolute != null ? !endAbsolute.equals(that.endAbsolute) : that.endAbsolute != null)
+			return false;
+		if (startRelative != null ? !startRelative.equals(that.startRelative) : that.startRelative != null)
+			return false;
+		if (endRelative != null ? !endRelative.equals(that.endRelative) : that.endRelative != null)
+			return false;
+		if (timeZone != null ? !timeZone.equals(that.timeZone) : that.timeZone != null)
+			return false;
+		return !(metrics != null ? !metrics.equals(that.metrics) : that.metrics != null);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		int result = startAbsolute != null ? startAbsolute.hashCode() : 0;
+		result = 31 * result + (endAbsolute != null ? endAbsolute.hashCode() : 0);
+		result = 31 * result + (startRelative != null ? startRelative.hashCode() : 0);
+		result = 31 * result + (endRelative != null ? endRelative.hashCode() : 0);
+		result = 31 * result + cacheTime;
+		result = 31 * result + (timeZone != null ? timeZone.hashCode() : 0);
+		result = 31 * result + (metrics != null ? metrics.hashCode() : 0);
+		return result;
 	}
 }

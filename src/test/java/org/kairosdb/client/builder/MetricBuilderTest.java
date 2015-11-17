@@ -18,6 +18,7 @@ package org.kairosdb.client.builder;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import org.junit.Test;
+import org.kairosdb.client.testUtils.MetricParser;
 
 import java.io.IOException;
 
@@ -27,8 +28,9 @@ import static org.junit.Assert.assertThat;
 public class MetricBuilderTest
 {
 	@Test
-	public void test() throws IOException
+	public void testBuild() throws IOException
 	{
+		MetricParser parser = new MetricParser();
 		String json = Resources.toString(Resources.getResource("multiple_metrics.json"), Charsets.UTF_8);
 
 		MetricBuilder builder = MetricBuilder.getInstance();
@@ -45,7 +47,7 @@ public class MetricBuilderTest
 				.addDataPoint(4, 0.0)
 				.addTag("tag3", "tab3value");
 
-		assertThat(builder.build(), equalTo(json));
+		assertThat(parser.parse(builder.build()), equalTo(parser.parse(json)));
 	}
 
 	@Test(expected = IllegalStateException.class)
@@ -58,70 +60,63 @@ public class MetricBuilderTest
 		builder.build();
 	}
 
-	public static class DataPointTest
+	@Test
+	public void test_timestampNegative_valid()
 	{
-
-		@Test(expected = IllegalArgumentException.class)
-		public void test_timestampNegative_invalid()
-		{
-			MetricBuilder.getInstance().addMetric("metric").addDataPoint(-1, 3);
-		}
-
-		@Test(expected = IllegalArgumentException.class)
-		public void test_timestampZero_invalid()
-		{
-			MetricBuilder.getInstance().addMetric("metric").addDataPoint(0, 3);
-		}
+		MetricBuilder.getInstance().addMetric("metric").addDataPoint(-1, 3);
 	}
 
-	public static class MetricTest
+	@Test
+	public void test_timestampZero_valid()
 	{
-		@Test(expected = NullPointerException.class)
-		public void test_nullMetricName_invalid()
-		{
-			MetricBuilder builder = MetricBuilder.getInstance();
+		MetricBuilder.getInstance().addMetric("metric").addDataPoint(0, 3);
+	}
 
-			builder.addMetric(null);
-		}
+	@Test(expected = NullPointerException.class)
+	public void test_nullMetricName_invalid()
+	{
+		MetricBuilder builder = MetricBuilder.getInstance();
 
-		@Test(expected = IllegalArgumentException.class)
-		public void test_emptyMetricName_invalid()
-		{
-			MetricBuilder builder = MetricBuilder.getInstance();
+		builder.addMetric(null);
+	}
 
-			builder.addMetric("");
-		}
+	@Test(expected = IllegalArgumentException.class)
+	public void test_emptyMetricName_invalid()
+	{
+		MetricBuilder builder = MetricBuilder.getInstance();
 
-		@Test(expected = NullPointerException.class)
-		public void test_nullTagName_invalid()
-		{
-			MetricBuilder builder = MetricBuilder.getInstance();
+		builder.addMetric("");
+	}
 
-			builder.addMetric("metric1").addTag(null, "value");
-		}
+	@Test(expected = NullPointerException.class)
+	public void test_nullTagName_invalid()
+	{
+		MetricBuilder builder = MetricBuilder.getInstance();
 
-		@Test(expected = IllegalArgumentException.class)
-		public void test_emptyTagName_invalid()
-		{
-			MetricBuilder builder = MetricBuilder.getInstance();
+		builder.addMetric("metric1").addTag(null, "value");
+	}
 
-			builder.addMetric("metric1").addTag("", "value");
-		}
+	@Test(expected = IllegalArgumentException.class)
+	public void test_emptyTagName_invalid()
+	{
+		MetricBuilder builder = MetricBuilder.getInstance();
 
-		@Test(expected = NullPointerException.class)
-		public void test_nullTagValue_invalid()
-		{
-			MetricBuilder builder = MetricBuilder.getInstance();
+		builder.addMetric("metric1").addTag("", "value");
+	}
 
-			builder.addMetric("metric1").addTag("tag", null);
-		}
+	@Test(expected = NullPointerException.class)
+	public void test_nullTagValue_invalid()
+	{
+		MetricBuilder builder = MetricBuilder.getInstance();
 
-		@Test(expected = IllegalArgumentException.class)
-		public void test_emptyTagValue_invalid()
-		{
-			MetricBuilder builder = MetricBuilder.getInstance();
+		builder.addMetric("metric1").addTag("tag", null);
+	}
 
-			builder.addMetric("metric1").addTag("tag", "");
-		}
+	@Test(expected = IllegalArgumentException.class)
+	public void test_emptyTagValue_invalid()
+	{
+		MetricBuilder builder = MetricBuilder.getInstance();
+
+		builder.addMetric("metric1").addTag("tag", "");
 	}
 }

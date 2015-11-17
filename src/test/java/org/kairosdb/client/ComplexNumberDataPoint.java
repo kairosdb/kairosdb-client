@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import org.json.JSONException;
 import org.json.JSONWriter;
 import org.kairosdb.core.DataPoint;
+import org.kairosdb.core.datastore.DataPointGroup;
 
 import java.io.DataOutput;
 import java.io.IOException;
@@ -86,6 +87,17 @@ public class ComplexNumberDataPoint implements DataPoint
 	public double getDoubleValue()
 	{
 		return 0;
+	}
+
+	@Override
+	public DataPointGroup getDataPointGroup()
+	{
+		return null;
+	}
+
+	@Override
+	public void setDataPointGroup(DataPointGroup dataPointGroup)
+	{
 	}
 
 	@Override

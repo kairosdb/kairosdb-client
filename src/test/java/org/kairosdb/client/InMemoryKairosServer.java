@@ -1,19 +1,12 @@
 package org.kairosdb.client;
 
-import com.google.inject.Binder;
-import com.google.inject.Module;
-import com.google.inject.Singleton;
 import org.apache.commons.io.FileUtils;
-import org.kairosdb.core.DataPoint;
-import org.kairosdb.core.DataPointListener;
 import org.kairosdb.core.Main;
 import org.kairosdb.core.exception.DatastoreException;
 import org.kairosdb.core.exception.KairosDBException;
-import sun.reflect.generics.scope.Scope;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.SortedMap;
 
 public class InMemoryKairosServer extends Thread
 {

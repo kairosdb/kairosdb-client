@@ -16,6 +16,7 @@
 package org.kairosdb.client.builder;
 
 import org.kairosdb.client.builder.aggregator.CustomAggregator;
+import org.kairosdb.client.builder.aggregator.PercentileAggregator;
 import org.kairosdb.client.builder.aggregator.RateAggregator;
 import org.kairosdb.client.builder.aggregator.SamplingAggregator;
 
@@ -103,6 +104,19 @@ public class AggregatorFactory
 	}
 
 	/**
+	 * Creates an aggregator that returns the percentile value for a given percentage of all values over each time period as specified.
+	 * For example, "0.5" and "5 minutes" would returns the median of data points for each 5 minute period.
+	 *
+	 * @param value percentage
+	 * @param unit unit of time
+	 * @return percentile aggregator
+	 */
+	public static PercentileAggregator createPercentileAggregator(double percentile, int value, TimeUnit unit)
+	{
+		return new PercentileAggregator(percentile, value, unit);
+	}
+	
+	/**
 	 * Creates an aggregator that divides each value by the divisor.
 	 *
 	 * @param divisor divisor.
@@ -115,6 +129,85 @@ public class AggregatorFactory
 	}
 
 	/**
+	 * Creates an aggregator that returns the last data point for the time range.
+	 *
+	 * @param value value for time period.
+	 * @param unit unit of time
+	 * @return last aggregator
+	 */
+	public static SamplingAggregator createLastAggregator(int value, TimeUnit unit)
+	{
+		return new SamplingAggregator("last", value, unit);
+	}
+
+	/**
+	 * Creates an aggregator that returns the first data point for the time range.
+	 *
+	 * @param value value for time period.
+	 * @param unit unit of time
+	 * @return first aggregator
+	 */
+	public static SamplingAggregator createFirstAggregator(int value, TimeUnit unit)
+	{
+		return new SamplingAggregator("first", value, unit);
+	}
+
+	/**
+	 * Creates an aggregator that marks gaps in data according to sampling rate with a null data point.
+	 *
+	 * @param value value for time period.
+	 * @param unit unit of time
+	 * @return gap marking aggregator
+	 */
+	public static SamplingAggregator createDataGapsMarkingAggregator(int value, TimeUnit unit)
+	{
+		return new SamplingAggregator("gaps", value, unit);
+	}
+
+	/**
+	 * Creates an aggregator that returns a best fit line through the datapoints using the least squares algorithm..
+	 *
+	 * @param value value for time period.
+	 * @param unit unit of time
+	 * @return least squares aggregator
+	 */
+	public static SamplingAggregator createLeastSquaresAggregator(int value, TimeUnit unit)
+	{
+		return new SamplingAggregator("least_squares", value, unit);
+	}
+
+	/**
+	 * Creates an aggregator that computes the difference between successive data points.
+	 *
+	 * @return diff aggregator
+	 */
+	public static Aggregator createDiffAggregator()
+	{
+		return new Aggregator("diff");
+	}
+
+	/**
+	 * Creates an aggregator that computes the sampling rate of change for the data points.
+	 *
+	 * @return sampler aggregator
+	 */
+	public static Aggregator createSamplerAggregator()
+	{
+		return new Aggregator("sampler");
+	}
+
+	/**
+	 * Creates an aggregator that scales each data point by a factor.
+	 *
+	 * @param factor factor to scale by
+	 * @return sampler aggregator
+	 */
+	public static CustomAggregator createScaleAggregator(double factor)
+	{
+		return new CustomAggregator("scale", "\"factor\":" + factor);
+	}
+
+	/**
 	 * Creates an aggregator with a custom json fragment. This method is used for custom aggregators that have been added to
 	 * KairosDB. This does not create an aggregator on the server. The name must match the custom aggregator on the
 	 * server.
@@ -124,7 +217,7 @@ public class AggregatorFactory
 	 * </p>
 	 *
 	 * <pre>
-	 *      Aggregator aggregator = AggregatorFactory.createCustomAggregator("histogram", "\"percentile\": 0.75");
+	 *      Aggregator aggregator = AggregatorFactory.createCustomAggregator("scale", "\"factor\": 0.75");
 	 * </pre>
 	 *
 	 * <p>
@@ -132,8 +225,8 @@ public class AggregatorFactory
 	 * </p>
 	 *
 	 * <pre>
-	 *      "name":"histogram",
-	 *      "percentile": 0.75
+	 *      "name":"scale",
+	 *      "factor": 0.75
 	 * </pre>
 	 *
 	 * @param name name of the aggregator.

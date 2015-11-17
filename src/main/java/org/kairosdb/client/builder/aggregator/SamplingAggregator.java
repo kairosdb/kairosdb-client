@@ -15,6 +15,7 @@
  */
 package org.kairosdb.client.builder.aggregator;
 
+import com.google.gson.annotations.SerializedName;
 import org.kairosdb.client.builder.Aggregator;
 import org.kairosdb.client.builder.TimeUnit;
 
@@ -24,6 +25,15 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class SamplingAggregator extends Aggregator
 {
 	private Sampling sampling;
+
+	@SerializedName("align_start_time")
+	private Boolean alignStartTime;
+
+	@SerializedName("align_sampling")
+	private Boolean alignSampling;
+
+	@SerializedName("start_time")
+	private Long startTime;
 
 	public SamplingAggregator(String name, int value, TimeUnit unit)
 	{
@@ -43,6 +53,90 @@ public class SamplingAggregator extends Aggregator
 		return sampling.unit;
 	}
 
+	/**
+	 * <p>
+	 * Alignment based on the sampling size. For example if your sample size is either milliseconds,
+	 * seconds, minutes or hours then the start of the range will always be at the top
+	 * of the hour.  The effect of setting this to true is that your data will
+	 * take the same shape when graphed as you refresh the data.
+	 * </p>
+	 * <p/>
+	 * <p>
+	 * Only one alignment type can be used.
+	 * </p>
+	 */
+	public SamplingAggregator withSamplingAlignment()
+	{
+		alignSampling = true;
+
+		return this;
+	}
+
+	/**
+	 * <p>
+	 * Alignment based on the aggregation range rather than the value of the first
+	 * data point within that range.
+	 * </p>
+	 * <p/>
+	 * <p>
+	 * Only one alignment type can be used.
+	 * </p>
+	 */
+	public SamplingAggregator withStartTimeAlignment()
+	{
+		alignStartTime = true;
+
+		return this;
+	}
+
+	/**
+	 * <p>
+	 * Alignment that starts based on the specified time. For example, if startTime
+	 * is set to noon today,then alignment starts at noon today.
+	 * </p>
+	 * <p/>
+	 * <p>
+	 * Only one alignment type can be used.
+	 * </p>
+	 *
+	 * @param startTime the alignment start time
+	 */
+	public SamplingAggregator withStartTimeAlignment(long startTime)
+	{
+		checkArgument(startTime >= 0, "startTime cannot be negative");
+		alignStartTime = true;
+		this.startTime = startTime;
+
+		return this;
+	}
+
+	@Deprecated
+	/**
+	 * @deprecated Use withSamplingAlignment() and withStartTimeAlignment()
+	 */
+	public SamplingAggregator withAlignment(Boolean alignStartTime, Boolean alignSampling)
+	{
+		this.alignStartTime = alignStartTime;
+		this.alignSampling = alignSampling;
+
+		return this;
+	}
+
+	public Boolean isAlignStartTime()
+	{
+		return alignStartTime != null ? alignStartTime : false;
+	}
+
+	public Boolean isAlignSampling()
+	{
+		return alignSampling != null ? alignSampling : false;
+	}
+
+	public long getStartTimeAlignmentStartTime()
+	{
+		return startTime != null ? startTime : 0;
+	}
+
 	private class Sampling
 	{
 		private Sampling(int value, TimeUnit unit)
@@ -53,5 +147,38 @@ public class SamplingAggregator extends Aggregator
 
 		private int value;
 		private TimeUnit unit;
+	}
+
+	@SuppressWarnings("SimplifiableIfStatement")
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		if (!super.equals(o))
+			return false;
+
+		SamplingAggregator that = (SamplingAggregator) o;
+
+		if (sampling != null ? !sampling.equals(that.sampling) : that.sampling != null)
+			return false;
+		if (alignStartTime != null ? !alignStartTime.equals(that.alignStartTime) : that.alignStartTime != null)
+			return false;
+		if (alignSampling != null ? !alignSampling.equals(that.alignSampling) : that.alignSampling != null)
+			return false;
+		return !(startTime != null ? !startTime.equals(that.startTime) : that.startTime != null);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		int result = super.hashCode();
+		result = 31 * result + (sampling != null ? sampling.hashCode() : 0);
+		result = 31 * result + (alignStartTime != null ? alignStartTime.hashCode() : 0);
+		result = 31 * result + (alignSampling != null ? alignSampling.hashCode() : 0);
+		result = 31 * result + (startTime != null ? startTime.hashCode() : 0);
+		return result;
 	}
 }

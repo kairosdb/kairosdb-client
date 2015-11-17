@@ -54,4 +54,26 @@ public class TagGrouper extends Grouper
 	{
 		return tagNames;
 	}
+
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		if (!super.equals(o))
+			return false;
+
+		TagGrouper that = (TagGrouper) o;
+		return !(tagNames != null ? !tagNames.equals(that.tagNames) : that.tagNames != null);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		int result = super.hashCode();
+		result = 31 * result + (tagNames != null ? tagNames.hashCode() : 0);
+		return result;
+	}
 }

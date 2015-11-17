@@ -13,32 +13,30 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.kairosdb.client.builder.grouper;
-
-import com.google.gson.annotations.SerializedName;
-import org.kairosdb.client.builder.Grouper;
+package org.kairosdb.client.builder.aggregator;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-/**
- * Grouper used to group by metric value. Groups are a range of values specified by range size. For example,
- * if rangeSize is 10, then all values between 0 and 9 are put into the first group, 10-19 in the second group, etc.
- */
-public class ValueGrouper extends Grouper
-{
-	@SerializedName("range_size")
-	private int rangeSize;
+import org.kairosdb.client.builder.TimeUnit;
 
-	public ValueGrouper(int rangeSize)
+public class PercentileAggregator extends SamplingAggregator
+{
+	private double percentile;
+
+	public PercentileAggregator(double percentile, int value, TimeUnit unit)
 	{
-		super("value");
-		checkArgument(rangeSize > 0);
-		this.rangeSize = rangeSize;
+		super("percentile", value, unit);
+		
+		checkArgument(percentile >= 0, "value must be greater than or equal to 0.");
+		checkArgument(percentile <= 1, "value must be less than or equal to 1.");
+		
+		this.percentile = percentile;
+
 	}
 
-	public int getRangeSize()
+	public double getPercentile()
 	{
-		return rangeSize;
+		return percentile;
 	}
 
 	@Override
@@ -51,15 +49,17 @@ public class ValueGrouper extends Grouper
 		if (!super.equals(o))
 			return false;
 
-		ValueGrouper that = (ValueGrouper) o;
-		return rangeSize == that.rangeSize;
+		PercentileAggregator that = (PercentileAggregator) o;
+		return Double.compare(that.percentile, percentile) == 0;
 	}
 
 	@Override
 	public int hashCode()
 	{
 		int result = super.hashCode();
-		result = 31 * result + rangeSize;
+		long temp;
+		temp = Double.doubleToLongBits(percentile);
+		result = 31 * result + (int) (temp ^ (temp >>> 32));
 		return result;
 	}
 }

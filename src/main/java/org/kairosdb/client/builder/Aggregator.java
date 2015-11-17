@@ -20,7 +20,7 @@ import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
 /**
  * An aggregator manipulates data points. For example, a sum aggregator would add data points together.
  */
-public abstract class Aggregator
+public class Aggregator
 {
 	private String name;
 
@@ -38,5 +38,22 @@ public abstract class Aggregator
 		return name;
 	}
 
-	// todo add align_sampling - aligns to the next biggest unit base on the unit
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+
+		Aggregator that = (Aggregator) o;
+
+		return name.equals(that.name);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return name.hashCode();
+	}
 }

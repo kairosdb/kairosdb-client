@@ -1,1 +1,1 @@
-{"start_absolute":1359774127000,"cacheTime":0,"metrics":[{"name":"metric1","tags":{},"group_by":[],"aggregators":[{"sampling":{"value":1,"unit":"DAYS"},"name":"max"},{"unit":"MINUTES","name":"rate"}]}]}
+{"start_absolute":1359774127000,"cache_time":0,"metrics":[{"name":"metric1","tags":{},"group_by":[],"aggregators":[{"sampling":{"value":1,"unit":"DAYS"},"name":"max"},{"unit":"MINUTES","name":"rate"}]}]}

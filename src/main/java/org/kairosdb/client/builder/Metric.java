@@ -73,7 +73,7 @@ public class Metric
 	public Metric addTags(Map<String, String> tags)
 	{
 		checkNotNull(tags);
-		tags.putAll(tags);
+		this.tags.putAll(tags);
 
 		return this;
 	}
@@ -165,5 +165,35 @@ public class Metric
 	public String getType()
 	{
 		return type;
+	}
+
+	@SuppressWarnings("SimplifiableIfStatement")
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+
+		Metric metric = (Metric) o;
+
+		if (name != null ? !name.equals(metric.name) : metric.name != null)
+			return false;
+		if (tags != null ? !tags.equals(metric.tags) : metric.tags != null)
+			return false;
+		if (type != null ? !type.equals(metric.type) : metric.type != null)
+			return false;
+		return !(dataPoints != null ? !dataPoints.equals(metric.dataPoints) : metric.dataPoints != null);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		int result = name != null ? name.hashCode() : 0;
+		result = 31 * result + (tags != null ? tags.hashCode() : 0);
+		result = 31 * result + (type != null ? type.hashCode() : 0);
+		result = 31 * result + (dataPoints != null ? dataPoints.hashCode() : 0);
+		return result;
 	}
 }

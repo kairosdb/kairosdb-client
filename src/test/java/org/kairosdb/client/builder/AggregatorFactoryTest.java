@@ -1,12 +1,13 @@
 package org.kairosdb.client.builder;
 
-import org.junit.Test;
-import org.kairosdb.client.builder.aggregator.CustomAggregator;
-import org.kairosdb.client.builder.aggregator.RateAggregator;
-import org.kairosdb.client.builder.aggregator.SamplingAggregator;
-
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
+
+import org.junit.Test;
+import org.kairosdb.client.builder.aggregator.CustomAggregator;
+import org.kairosdb.client.builder.aggregator.PercentileAggregator;
+import org.kairosdb.client.builder.aggregator.RateAggregator;
+import org.kairosdb.client.builder.aggregator.SamplingAggregator;
 
 public class AggregatorFactoryTest
 {
@@ -75,6 +76,17 @@ public class AggregatorFactoryTest
 		assertThat(aggregator.getValue(), equalTo(3));
 		assertThat(aggregator.getUnit(), equalTo(TimeUnit.DAYS));
 	}
+	
+	@Test
+	public void test_createPercentileAggregator()
+	{
+		PercentileAggregator aggregator = AggregatorFactory.createPercentileAggregator(0.5, 3, TimeUnit.DAYS);
+
+		assertThat(aggregator.getName(), equalTo("percentile"));
+		assertThat(aggregator.getPercentile(),equalTo(0.5));
+		assertThat(aggregator.getValue(), equalTo(3));
+		assertThat(aggregator.getUnit(), equalTo(TimeUnit.DAYS));
+	}
 
 	@Test
 	public void test_createRateAggregator()
@@ -103,4 +115,48 @@ public class AggregatorFactoryTest
 		assertThat(aggregator.toJson(), equalTo("{\"name\":\"div\",\"divisor\":60.0}"));
 	}
 
+	@Test
+	public void test_createLastAggregator()
+	{
+		SamplingAggregator aggregator = AggregatorFactory.createLastAggregator(3, TimeUnit.DAYS);
+
+		assertThat(aggregator.getName(), equalTo("last"));
+		assertThat(aggregator.getValue(), equalTo(3));
+		assertThat(aggregator.getUnit(), equalTo(TimeUnit.DAYS));
+	}
+
+	@Test
+	public void test_createLeastSquaresAggregator()
+	{
+		SamplingAggregator aggregator = AggregatorFactory.createLeastSquaresAggregator(3, TimeUnit.DAYS);
+
+		assertThat(aggregator.getName(), equalTo("least_squares"));
+		assertThat(aggregator.getValue(), equalTo(3));
+		assertThat(aggregator.getUnit(), equalTo(TimeUnit.DAYS));
+	}
+
+	@Test
+	public void test_createDiffAggregator()
+	{
+		Aggregator aggregator = AggregatorFactory.createDiffAggregator();
+
+		assertThat(aggregator.getName(), equalTo("diff"));
+	}
+
+	@Test
+	public void test_createSamplerAggregator()
+	{
+		Aggregator aggregator = AggregatorFactory.createSamplerAggregator();
+
+		assertThat(aggregator.getName(), equalTo("sampler"));
+	}
+
+	@Test
+	public void test_createScaleAggregator()
+	{
+		CustomAggregator aggregator = AggregatorFactory.createScaleAggregator(0.5);
+
+		assertThat(aggregator.getName(), equalTo("scale"));
+		assertThat(aggregator.toJson(), equalTo("{\"name\":\"scale\",\"factor\":0.5}"));
+	}
 }

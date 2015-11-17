@@ -187,4 +187,40 @@ public class QueryMetric
 		this.order = order;
 		return this;
 	}
+
+	@SuppressWarnings("SimplifiableIfStatement")
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+
+		QueryMetric that = (QueryMetric) o;
+
+		if (!name.equals(that.name))
+			return false;
+		if (tags != null ? !tags.equals(that.tags) : that.tags != null)
+			return false;
+		if (groupers != null ? !groupers.equals(that.groupers) : that.groupers != null)
+			return false;
+		if (aggregators != null ? !aggregators.equals(that.aggregators) : that.aggregators != null)
+			return false;
+		if (limit != null ? !limit.equals(that.limit) : that.limit != null)
+			return false;
+		return order == that.order;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		int result = name.hashCode();
+		result = 31 * result + (tags != null ? tags.hashCode() : 0);
+		result = 31 * result + (groupers != null ? groupers.hashCode() : 0);
+		result = 31 * result + (aggregators != null ? aggregators.hashCode() : 0);
+		result = 31 * result + (limit != null ? limit.hashCode() : 0);
+		result = 31 * result + (order != null ? order.hashCode() : 0);
+		return result;
+	}
 }

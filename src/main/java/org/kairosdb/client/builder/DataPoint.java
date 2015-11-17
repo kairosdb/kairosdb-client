@@ -28,7 +28,6 @@ public class DataPoint
 
 	public DataPoint(long timestamp, Object value)
 	{
-		checkArgument(timestamp > 0);
 		this.timestamp = timestamp;
 		this.value = checkNotNull(value);
 	}
