@@ -57,28 +57,4 @@ public class TagGroupResult extends GroupResult
 	{
 		return group;
 	}
-
-	@Override
-	public boolean equals(Object o)
-	{
-		if (this == o) return true;
-		if (!(o instanceof TagGroupResult)) return false;
-		if (!super.equals(o)) return false;
-
-		TagGroupResult that = (TagGroupResult) o;
-
-		if (!group.equals(that.group)) return false;
-		if (!tags.equals(that.tags)) return false;
-
-		return true;
-	}
-
-	@Override
-	public int hashCode()
-	{
-		int result = super.hashCode();
-		result = 31 * result + tags.hashCode();
-		result = 31 * result + group.hashCode();
-		return result;
-	}
 }

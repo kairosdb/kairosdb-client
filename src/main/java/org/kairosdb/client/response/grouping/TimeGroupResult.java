@@ -74,30 +74,4 @@ public class TimeGroupResult extends GroupResult
 	{
 		return group;
 	}
-
-	@Override
-	public boolean equals(Object o)
-	{
-		if (this == o) return true;
-		if (!(o instanceof TimeGroupResult)) return false;
-		if (!super.equals(o)) return false;
-
-		TimeGroupResult that = (TimeGroupResult) o;
-
-		if (groupCount != that.groupCount) return false;
-		if (!group.equals(that.group)) return false;
-		if (!rangeSize.equals(that.rangeSize)) return false;
-
-		return true;
-	}
-
-	@Override
-	public int hashCode()
-	{
-		int result = super.hashCode();
-		result = 31 * result + rangeSize.hashCode();
-		result = 31 * result + groupCount;
-		result = 31 * result + group.hashCode();
-		return result;
-	}
 }

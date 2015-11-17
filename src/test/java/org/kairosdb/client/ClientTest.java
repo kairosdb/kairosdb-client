@@ -69,8 +69,8 @@ public class ClientTest
 
 		QueryResponse response = client.query(builder);
 
-		List<Query> queries = response.getQueries();
-		List<Result> results = queries.get(0).getResults();
+		List<Queries> queries = response.getQueries();
+		List<Results> results = queries.get(0).getResults();
 
 		assertThat(results.size(), equalTo(1));
 

@@ -170,22 +170,20 @@ public class QueryMetric
 	 * Limits the number of data point returned from the query. The limit is done before aggregators are executed.
 	 * @param limit maximum number of data points to return
 	 */
-	public QueryMetric setLimit(int limit)
+	public void setLimit(int limit)
 	{
 		checkArgument(limit > 0, "limit must be greater than 0");
 		this.limit = limit;
-		return this;
 	}
 
 	/**
 	 * Orders the data points. The server default is ascending.
 	 * @param order how data points are sorted
 	 */
-	public QueryMetric setOrder(Order order)
+	public void setOrder(Order order)
 	{
 		checkNotNull(order);
 		this.order = order;
-		return this;
 	}
 
 	@SuppressWarnings("SimplifiableIfStatement")

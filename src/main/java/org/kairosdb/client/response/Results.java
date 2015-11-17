@@ -23,7 +23,7 @@ import java.util.Map;
 /**
  * Query Results. This is the results of a single query.
  */
-public class Result
+public class Results
 {
 	private String name;
 	private Map<String, List<String>> tags;
@@ -34,10 +34,10 @@ public class Result
 	@SerializedName("group_by")
 	private List<GroupResult> groupResults;
 
-	public Result(String name,
-			Map<String, List<String>> tags,
-			List<DataPoint> dataPoints,
-			List<GroupResult> groupResults)
+	public Results(String name,
+	               Map<String, List<String>> tags,
+	               List<DataPoint> dataPoints,
+	               List<GroupResult> groupResults)
 	{
 		this.name = name;
 		this.tags = tags;

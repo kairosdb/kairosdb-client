@@ -61,28 +61,4 @@ public class ValueGroupResult extends GroupResult
 	{
 		return group;
 	}
-
-	@Override
-	public boolean equals(Object o)
-	{
-		if (this == o) return true;
-		if (!(o instanceof ValueGroupResult)) return false;
-		if (!super.equals(o)) return false;
-
-		ValueGroupResult that = (ValueGroupResult) o;
-
-		if (rangeSize != that.rangeSize) return false;
-		if (!group.equals(that.group)) return false;
-
-		return true;
-	}
-
-	@Override
-	public int hashCode()
-	{
-		int result = super.hashCode();
-		result = 31 * result + rangeSize;
-		result = 31 * result + group.hashCode();
-		return result;
-	}
 }

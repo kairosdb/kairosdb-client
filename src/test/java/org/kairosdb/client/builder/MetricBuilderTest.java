@@ -44,7 +44,6 @@ public class MetricBuilderTest
 		builder.addMetric("metric2")
 				.addDataPoint(2, 30L)
 				.addDataPoint(3, 2.3)
-				.addDataPoint(4, 0.0)
 				.addTag("tag3", "tab3value");
 
 		assertThat(parser.parse(builder.build()), equalTo(parser.parse(json)));

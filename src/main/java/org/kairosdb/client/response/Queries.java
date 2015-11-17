@@ -22,20 +22,20 @@ import java.util.List;
 /**
  * Resulting object from a Query.
  */
-public class Query
+public class Queries
 {
-	private List<Result> results;
+	private List<Results> results;
 
 	@SerializedName("sample_size")
 	private long sampleSize;
 
-	public Query(List<Result> results, long sampleSize)
+	public Queries(List<Results> results, long sampleSize)
 	{
 		this.results = results;
 		this.sampleSize = sampleSize;
 	}
 
-	public List<Result> getResults()
+	public List<Results> getResults()
 	{
 		return results;
 	}
@@ -49,22 +49,5 @@ public class Query
 	public long getSampleSize()
 	{
 		return sampleSize;
-	}
-
-	public Result getFirstResultByGroup(GroupResult matchingGroup)
-	{
-		for (Result result : results)
-		{
-			if (result != null)
-			{
-				for (GroupResult groupResult : result.getGroupResults())
-				{
-					if (matchingGroup.equals(groupResult))
-						return (result);
-				}
-			}
-		}
-
-		return null;
 	}
 }
