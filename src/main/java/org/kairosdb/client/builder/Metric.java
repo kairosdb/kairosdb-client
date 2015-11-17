@@ -19,6 +19,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.*;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
@@ -34,6 +35,7 @@ public class Metric
 	private String name;
 	private Map<String, String> tags = new HashMap<String, String>();
 	private String type;
+	private int ttl;
 
 	@SerializedName("datapoints")
 	private List<DataPoint> dataPoints = new ArrayList<DataPoint>();
@@ -130,6 +132,28 @@ public class Metric
 	public Metric addDataPoint(double value)
 	{
 		return addDataPoint(System.currentTimeMillis(), value);
+	}
+
+	/**
+	 * Adds a time-to-live for this metric specified in seconds.
+	 *
+	 * @param ttl number of seconds that the metric will live
+	 * @return the metric
+	 */
+	public Metric addTtl(int ttl)
+	{
+		checkArgument(ttl > 0, "tll must be greater than zero");
+		this.ttl = ttl;
+		return this;
+	}
+
+	/**
+	 * Returns the time-to-live. If zero, the metric lives forever.
+	 * @return time to live
+	 */
+	public int getTtl()
+	{
+		return ttl;
 	}
 
 	public List<DataPoint> getDataPoints()

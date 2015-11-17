@@ -66,4 +66,20 @@ public class MetricTest
 
 		builder.addMetric("metric1").addTag("tag", "");
 	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void test_ttl_zero_invalid()
+	{
+		MetricBuilder builder = MetricBuilder.getInstance();
+
+		builder.addMetric("metric1").addTtl(0);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void test_ttl_less_than_zero_invalid()
+	{
+		MetricBuilder builder = MetricBuilder.getInstance();
+
+		builder.addMetric("metric1").addTtl(-1);
+	}
 }
