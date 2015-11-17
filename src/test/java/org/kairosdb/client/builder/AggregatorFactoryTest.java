@@ -159,4 +159,42 @@ public class AggregatorFactoryTest
 		assertThat(aggregator.getName(), equalTo("scale"));
 		assertThat(aggregator.toJson(), equalTo("{\"name\":\"scale\",\"factor\":0.5}"));
 	}
+
+	@Test (expected = NullPointerException.class)
+	public void test_createSaveAsAggregator_null_metricName_invalid()
+	{
+		AggregatorFactory.createSaveAsAggregator(null);
+	}
+
+	@Test (expected = IllegalArgumentException.class)
+	public void test_createSaveAsAggregator_empty_metricName_invalid()
+	{
+		AggregatorFactory.createSaveAsAggregator("");
+	}
+
+	@Test
+	public void test_createSaveAsAggregator()
+	{
+		CustomAggregator aggregator = AggregatorFactory.createSaveAsAggregator("newMetric");
+
+		assertThat(aggregator.getName(), equalTo("save_as"));
+		assertThat(aggregator.toJson(), equalTo("{\"name\":\"save_as\",\"metricName\":\"newMetric\"}"));
+
+	}
+
+	@Test (expected = NullPointerException.class)
+	public void test_createTrimAggregator_null_trim_invalid()
+	{
+		AggregatorFactory.createTrimAggregator(null);
+	}
+
+	@Test
+	public void test_createTrimAggregator()
+	{
+		CustomAggregator aggregator = AggregatorFactory.createTrimAggregator(AggregatorFactory.Trim.BOTH);
+
+		assertThat(aggregator.getName(), equalTo("trim"));
+		assertThat(aggregator.toJson(), equalTo("{\"name\":\"trim\",\"trim\":\"BOTH\"}"));
+
+	}
 }

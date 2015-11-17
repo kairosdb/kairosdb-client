@@ -21,9 +21,15 @@ import org.kairosdb.client.builder.aggregator.RateAggregator;
 import org.kairosdb.client.builder.aggregator.SamplingAggregator;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
 
 public class AggregatorFactory
 {
+	public enum Trim
+	{
+		FIRST, LAST, BOTH
+	};
 
 	/**
 	 * Creates an aggregator that returns the minimum values for each time period as specified.
@@ -247,5 +253,29 @@ public class AggregatorFactory
 	public static RateAggregator createRateAggregator(TimeUnit unit)
 	{
 		return new RateAggregator(unit);
+	}
+
+	/**
+	 * Creates an aggregator that saves the results of the query to a new metric.
+	 *
+	 * @param newMetricName metric to save results to
+	 * @return save as aggregator
+	 */
+	public static CustomAggregator createSaveAsAggregator(String newMetricName)
+	{
+		checkNotNullOrEmpty(newMetricName, "newMetricName cannot be null or empty");
+		return new CustomAggregator("save_as", "\"metricName\":\"" + newMetricName + "\"");
+	}
+
+	/**
+	 * Creates an aggregator that trim of the first, last, or both data points returned by the query.
+	 *
+	 * @param trim what to trim
+	 * @return trim aggregator
+	 */
+	public static CustomAggregator createTrimAggregator(Trim trim)
+	{
+		checkNotNull(trim, "trim cannot be null");
+		return new CustomAggregator("trim", "\"trim\":\"" + trim + "\"");
 	}
 }
