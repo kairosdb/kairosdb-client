@@ -81,7 +81,7 @@ public class ClientIntegrationTest
 		DataPointEvent dataPointEvent = mock(DataPointEvent.class);
 		kairos.getDataPointListener().setEvent(dataPointEvent);
 
-		TelnetClient client = new TelnetClient("localhost", 4243);
+		TelnetClient client = new TelnetClient("localhost", 4244);
 
 		try
 		{
@@ -112,7 +112,7 @@ public class ClientIntegrationTest
 			builder.addMetric(TELNET_METRIC_NAME_1);
 			builder.addMetric(TELNET_METRIC_NAME_2);
 
-			HttpClient httpClient = new HttpClient("http://localhost:8080");
+			HttpClient httpClient = new HttpClient("http://localhost:8081");
 			QueryResponse query = httpClient.query(builder);
 			assertThat(query.getQueries().size(), equalTo(2));
 
@@ -141,7 +141,7 @@ public class ClientIntegrationTest
 		DataPointEvent dataPointEvent = mock(DataPointEvent.class);
 		kairos.getDataPointListener().setEvent(dataPointEvent);
 
-		TelnetClient client = new TelnetClient("localhost", 4243);
+		TelnetClient client = new TelnetClient("localhost", 4244);
 
 		try
 		{
@@ -172,7 +172,7 @@ public class ClientIntegrationTest
 			builder.addMetric(TELNET_METRIC_NAME_3);
 			builder.addMetric(TELNET_METRIC_NAME_4);
 
-			HttpClient httpClient = new HttpClient("http://localhost:8080");
+			HttpClient httpClient = new HttpClient("http://localhost:8081");
 			QueryResponse query = httpClient.query(builder);
 			assertThat(query.getQueries().size(), equalTo(2));
 
@@ -198,7 +198,7 @@ public class ClientIntegrationTest
 	public void test_httpClient_no_results_from_query()
 			throws InterruptedException, IOException, URISyntaxException, DataFormatException
 	{
-		HttpClient client = new HttpClient("http://localhost:8080");
+		HttpClient client = new HttpClient("http://localhost:8081");
 
 		try
 		{
@@ -242,7 +242,7 @@ public class ClientIntegrationTest
 	@Test
 	public void test_httpClient() throws InterruptedException, IOException, URISyntaxException, DataFormatException
 	{
-		HttpClient client = new HttpClient("http://localhost:8080");
+		HttpClient client = new HttpClient("http://localhost:8081");
 
 		try
 		{
@@ -306,7 +306,7 @@ public class ClientIntegrationTest
 	@Test
 	public void test_httpClient_multiTagValues() throws InterruptedException, IOException, URISyntaxException, DataFormatException
 	{
-		HttpClient client = new HttpClient("http://localhost:8080");
+		HttpClient client = new HttpClient("http://localhost:8081");
 
 		try
 		{
@@ -367,7 +367,7 @@ public class ClientIntegrationTest
 	@Test
 	public void test_aggregatorsAndGroupBy() throws InterruptedException, IOException, URISyntaxException
 	{
-		HttpClient client = new HttpClient("http://localhost:8080");
+		HttpClient client = new HttpClient("http://localhost:8081");
 
 		try
 		{
@@ -497,7 +497,7 @@ public class ClientIntegrationTest
 	@Test
 	public void test_limit() throws InterruptedException, IOException, URISyntaxException, DataFormatException
 	{
-		HttpClient client = new HttpClient("http://localhost:8080");
+		HttpClient client = new HttpClient("http://localhost:8081");
 
 		try
 		{
@@ -550,7 +550,7 @@ public class ClientIntegrationTest
 	@Test
 	public void test_Order() throws InterruptedException, IOException, URISyntaxException, DataFormatException
 	{
-		HttpClient client = new HttpClient("http://localhost:8080");
+		HttpClient client = new HttpClient("http://localhost:8081");
 
 		try
 		{
@@ -598,7 +598,7 @@ public class ClientIntegrationTest
 	@Test
 	public void test_customDataType() throws IOException, URISyntaxException, InterruptedException
 	{
-		HttpClient client = new HttpClient("http://localhost:8080");
+		HttpClient client = new HttpClient("http://localhost:8081");
 		client.registerCustomDataType("complex", Complex.class);
 
 		try
