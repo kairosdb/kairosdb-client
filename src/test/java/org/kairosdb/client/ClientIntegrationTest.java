@@ -213,6 +213,7 @@ public class ClientIntegrationTest
 			metric2.addTag(HTTP_TAG_NAME_2, HTTP_TAG_VALUE_2);
 			long timestamp2 = System.currentTimeMillis();
 			metric2.addDataPoint(timestamp2, 40);
+			metric2.addTtl(1000);
 
 			// Push Metrics
 			Response response = client.pushMetrics(metricBuilder);
@@ -235,7 +236,8 @@ public class ClientIntegrationTest
 		finally
 		{
 			client.shutdown();
-		}}
+		}
+	}
 
 	@Test
 	public void test_httpClient() throws InterruptedException, IOException, URISyntaxException, DataFormatException
@@ -298,7 +300,8 @@ public class ClientIntegrationTest
 		finally
 		{
 			client.shutdown();
-		}}
+		}
+	}
 
 	@Test
 	public void test_httpClient_multiTagValues() throws InterruptedException, IOException, URISyntaxException, DataFormatException
@@ -398,10 +401,8 @@ public class ClientIntegrationTest
 			metric.addAggregator(AggregatorFactory.createMinAggregator(1, TimeUnit.SECONDS));
 
 			metric.addAggregator(AggregatorFactory.createMaxAggregator(1, TimeUnit.SECONDS)
-					.withAlignment(false, false));
-			metric.addAggregator(AggregatorFactory.createMinAggregator(1, TimeUnit.SECONDS)
-					.withAlignment(true, true));
-
+					.withSamplingAlignment().withStartTimeAlignment());
+			metric.addAggregator(AggregatorFactory.createMinAggregator(1, TimeUnit.SECONDS));
 			metric.addAggregator(AggregatorFactory.createPercentileAggregator(0.3, 1, TimeUnit.SECONDS));
 			metric.addAggregator(AggregatorFactory.createLastAggregator(1, TimeUnit.SECONDS));
 			metric.addAggregator(AggregatorFactory.createFirstAggregator(1, TimeUnit.SECONDS));
@@ -410,13 +411,15 @@ public class ClientIntegrationTest
 			metric.addAggregator(AggregatorFactory.createLeastSquaresAggregator(1, TimeUnit.SECONDS));
 			metric.addAggregator(AggregatorFactory.createSamplerAggregator());
 			metric.addAggregator(AggregatorFactory.createScaleAggregator(.05));
+			metric.addAggregator(AggregatorFactory.createSaveAsAggregator("newMetricName"));
+			metric.addAggregator(AggregatorFactory.createTrimAggregator(AggregatorFactory.Trim.BOTH));
 
 			metric.addGrouper(new TagGrouper(HTTP_TAG_NAME_1, HTTP_TAG_NAME_2));
 			metric.addGrouper(new TimeGrouper(new RelativeTime(1, TimeUnit.MILLISECONDS), 3));
 			metric.addGrouper(new ValueGrouper(4));
 
-			QueryResponse query = client.query(builder);
-			assertThat(query.getErrors().size(), equalTo(0));
+			response = client.query(builder);
+			assertThat(response.getErrors().size(), equalTo(0));
 		}
 		finally
 		{
@@ -626,7 +629,7 @@ public class ClientIntegrationTest
 		}
 		finally
 		{
-            client.shutdown();
+			client.shutdown();
 		}
 
 	}

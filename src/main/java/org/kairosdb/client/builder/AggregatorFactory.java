@@ -28,8 +28,24 @@ public class AggregatorFactory
 {
 	public enum Trim
 	{
-		FIRST, LAST, BOTH
-	};
+		FIRST ("first"),
+		LAST ("last"),
+		BOTH ("both");
+
+		private String text;
+
+		Trim(String text)
+		{
+			this.text = text;
+		}
+
+		@Override
+		public String toString()
+		{
+			return this.text;
+		}
+
+		};
 
 	/**
 	 * Creates an aggregator that returns the minimum values for each time period as specified.
@@ -264,7 +280,7 @@ public class AggregatorFactory
 	public static CustomAggregator createSaveAsAggregator(String newMetricName)
 	{
 		checkNotNullOrEmpty(newMetricName, "newMetricName cannot be null or empty");
-		return new CustomAggregator("save_as", "\"metricName\":\"" + newMetricName + "\"");
+		return new CustomAggregator("save_as", "\"metric_name\":\"" + newMetricName + "\"");
 	}
 
 	/**

@@ -178,7 +178,7 @@ public class AggregatorFactoryTest
 		CustomAggregator aggregator = AggregatorFactory.createSaveAsAggregator("newMetric");
 
 		assertThat(aggregator.getName(), equalTo("save_as"));
-		assertThat(aggregator.toJson(), equalTo("{\"name\":\"save_as\",\"metricName\":\"newMetric\"}"));
+		assertThat(aggregator.toJson(), equalTo("{\"name\":\"save_as\",\"metric_name\":\"newMetric\"}"));
 
 	}
 
@@ -194,7 +194,7 @@ public class AggregatorFactoryTest
 		CustomAggregator aggregator = AggregatorFactory.createTrimAggregator(AggregatorFactory.Trim.BOTH);
 
 		assertThat(aggregator.getName(), equalTo("trim"));
-		assertThat(aggregator.toJson(), equalTo("{\"name\":\"trim\",\"trim\":\"BOTH\"}"));
+		assertThat(aggregator.toJson(), equalTo("{\"name\":\"trim\",\"trim\":\"both\"}"));
 
 	}
 }
