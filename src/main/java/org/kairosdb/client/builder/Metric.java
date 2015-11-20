@@ -135,14 +135,15 @@ public class Metric
 	}
 
 	/**
-	 * Adds a time-to-live for this metric specified in seconds.
+	 * Adds a time-to-live for this metric specified in seconds. TTL is off by
+	 * default. Setting ttl to 0 turns it off.
 	 *
 	 * @param ttl number of seconds that the metric will live
 	 * @return the metric
 	 */
 	public Metric addTtl(int ttl)
 	{
-		checkArgument(ttl > 0, "tll must be greater than zero");
+		checkArgument(ttl >= 0, "tll must be greater than or equal to zero");
 		this.ttl = ttl;
 		return this;
 	}
