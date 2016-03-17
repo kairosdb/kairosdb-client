@@ -15,8 +15,6 @@
  */
 package org.kairosdb.client.builder;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * A measurement. Contains the time when the measurement occurred and its value.
@@ -29,7 +27,7 @@ public class DataPoint
 	public DataPoint(long timestamp, Object value)
 	{
 		this.timestamp = timestamp;
-		this.value = checkNotNull(value);
+		this.value = value;
 	}
 
 	/**
