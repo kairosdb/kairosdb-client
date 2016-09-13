@@ -24,6 +24,6 @@ public class CustomGrouperTest
 	{
 		CustomGrouper grouper = new CustomGrouper("group1", "{\"foo\": 120}");
 
-		assertThat(grouper.toJson(), equalTo("\"name\": \"group1\", {\"foo\": 120}"));
+		assertThat(grouper.toJson(), equalTo("{\"name\": \"group1\", {\"foo\": 120}}"));
 	}
 }

@@ -1,13 +1,12 @@
 package org.kairosdb.client.deserializer;
 
 import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
 import org.kairosdb.client.response.GroupResult;
-import org.kairosdb.client.response.grouping.DefaultGroupResult;
-import org.kairosdb.client.response.grouping.TagGroupResult;
-import org.kairosdb.client.response.grouping.TimeGroupResult;
-import org.kairosdb.client.response.grouping.ValueGroupResult;
+import org.kairosdb.client.response.grouping.*;
 
 import java.lang.reflect.Type;
+import java.util.Map;
 
 /**
  * Called by the JSON parser to deserialize groub-by.
@@ -45,7 +44,8 @@ public class GroupByDeserializer implements JsonDeserializer<GroupResult>
 		}
 		else
 		{
-			throw new JsonParseException("Invalid group_by: " + name);
+			Map<String, Object> result = jsonDeserializationContext.deserialize(jsGroupBy, new TypeToken<Map<String, Object>>(){}.getType());
+			return new CustomGroupResult(result);
 		}
 	}
 }
