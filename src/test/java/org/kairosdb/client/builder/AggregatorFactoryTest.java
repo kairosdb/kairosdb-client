@@ -1,13 +1,13 @@
 package org.kairosdb.client.builder;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
-
 import org.junit.Test;
 import org.kairosdb.client.builder.aggregator.CustomAggregator;
 import org.kairosdb.client.builder.aggregator.PercentileAggregator;
 import org.kairosdb.client.builder.aggregator.RateAggregator;
 import org.kairosdb.client.builder.aggregator.SamplingAggregator;
+
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertThat;
 
 public class AggregatorFactoryTest
 {
@@ -195,6 +195,14 @@ public class AggregatorFactoryTest
 
 		assertThat(aggregator.getName(), equalTo("trim"));
 		assertThat(aggregator.toJson(), equalTo("{\"name\":\"trim\",\"trim\":\"both\"}"));
+	}
 
+	@Test
+	public void test_createSimpleMovingAggregator()
+	{
+		CustomAggregator aggregator = AggregatorFactory.createSimpleMovingAverage(5);
+
+		assertThat(aggregator.getName(), equalTo("sma"));
+		assertThat(aggregator.toJson(), equalTo("{\"name\":\"sma\",'size':5}"));
 	}
 }

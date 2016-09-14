@@ -28,9 +28,9 @@ public class AggregatorFactory
 {
 	public enum Trim
 	{
-		FIRST ("first"),
-		LAST ("last"),
-		BOTH ("both");
+		FIRST("first"),
+		LAST("last"),
+		BOTH("both");
 
 		private String text;
 
@@ -44,15 +44,14 @@ public class AggregatorFactory
 		{
 			return this.text;
 		}
-
-		};
+	}
 
 	/**
 	 * Creates an aggregator that returns the minimum values for each time period as specified.
 	 * For example, "5 minutes" would returns the minimum value for each 5 minute period.
 	 *
 	 * @param value value for time period.
-	 * @param unit unit of time
+	 * @param unit  unit of time
 	 * @return min aggregator
 	 */
 	public static SamplingAggregator createMinAggregator(int value, TimeUnit unit)
@@ -65,7 +64,7 @@ public class AggregatorFactory
 	 * For example, "5 minutes" would returns the maximum value for each 5 minute period.
 	 *
 	 * @param value value for time period.
-	 * @param unit unit of time
+	 * @param unit  unit of time
 	 * @return max aggregator
 	 */
 	public static SamplingAggregator createMaxAggregator(int value, TimeUnit unit)
@@ -78,7 +77,7 @@ public class AggregatorFactory
 	 * For example, "5 minutes" would returns the average value for each 5 minute period.
 	 *
 	 * @param value value for time period.
-	 * @param unit unit of time
+	 * @param unit  unit of time
 	 * @return average aggregator
 	 */
 	public static SamplingAggregator createAverageAggregator(int value, TimeUnit unit)
@@ -91,7 +90,7 @@ public class AggregatorFactory
 	 * For example, "5 minutes" would returns the standard deviation for each 5 minute period.
 	 *
 	 * @param value value for time period.
-	 * @param unit unit of time
+	 * @param unit  unit of time
 	 * @return standard deviation aggregator
 	 */
 	public static SamplingAggregator createStandardDeviationAggregator(int value, TimeUnit unit)
@@ -104,7 +103,7 @@ public class AggregatorFactory
 	 * For example, "5 minutes" would returns the sum of data points for each 5 minute period.
 	 *
 	 * @param value value for time period.
-	 * @param unit unit of time
+	 * @param unit  unit of time
 	 * @return sum aggregator
 	 */
 	public static SamplingAggregator createSumAggregator(int value, TimeUnit unit)
@@ -117,7 +116,7 @@ public class AggregatorFactory
 	 * For example, "5 minutes" would returns the count of data points for each 5 minute period.
 	 *
 	 * @param value value for time period.
-	 * @param unit unit of time
+	 * @param unit  unit of time
 	 * @return count aggregator
 	 */
 	public static SamplingAggregator createCountAggregator(int value, TimeUnit unit)
@@ -130,14 +129,14 @@ public class AggregatorFactory
 	 * For example, "0.5" and "5 minutes" would returns the median of data points for each 5 minute period.
 	 *
 	 * @param value percentage
-	 * @param unit unit of time
+	 * @param unit  unit of time
 	 * @return percentile aggregator
 	 */
 	public static PercentileAggregator createPercentileAggregator(double percentile, int value, TimeUnit unit)
 	{
 		return new PercentileAggregator(percentile, value, unit);
 	}
-	
+
 	/**
 	 * Creates an aggregator that divides each value by the divisor.
 	 *
@@ -154,7 +153,7 @@ public class AggregatorFactory
 	 * Creates an aggregator that returns the last data point for the time range.
 	 *
 	 * @param value value for time period.
-	 * @param unit unit of time
+	 * @param unit  unit of time
 	 * @return last aggregator
 	 */
 	public static SamplingAggregator createLastAggregator(int value, TimeUnit unit)
@@ -166,7 +165,7 @@ public class AggregatorFactory
 	 * Creates an aggregator that returns the first data point for the time range.
 	 *
 	 * @param value value for time period.
-	 * @param unit unit of time
+	 * @param unit  unit of time
 	 * @return first aggregator
 	 */
 	public static SamplingAggregator createFirstAggregator(int value, TimeUnit unit)
@@ -178,7 +177,7 @@ public class AggregatorFactory
 	 * Creates an aggregator that marks gaps in data according to sampling rate with a null data point.
 	 *
 	 * @param value value for time period.
-	 * @param unit unit of time
+	 * @param unit  unit of time
 	 * @return gap marking aggregator
 	 */
 	public static SamplingAggregator createDataGapsMarkingAggregator(int value, TimeUnit unit)
@@ -190,7 +189,7 @@ public class AggregatorFactory
 	 * Creates an aggregator that returns a best fit line through the datapoints using the least squares algorithm..
 	 *
 	 * @param value value for time period.
-	 * @param unit unit of time
+	 * @param unit  unit of time
 	 * @return least squares aggregator
 	 */
 	public static SamplingAggregator createLeastSquaresAggregator(int value, TimeUnit unit)
@@ -219,6 +218,18 @@ public class AggregatorFactory
 	}
 
 	/**
+	 * Creates an aggregator that calculates a simple moving average for the number of
+	 * specified periods.
+	 *
+	 * @param numPeriods number of periods
+	 * @return simple moving average aggregator
+	 */
+	public static CustomAggregator createSimpleMovingAverage(int numPeriods)
+	{
+		return new CustomAggregator("sma", "'size':" + numPeriods);
+	}
+
+	/**
 	 * Creates an aggregator that scales each data point by a factor.
 	 *
 	 * @param factor factor to scale by
@@ -233,19 +244,19 @@ public class AggregatorFactory
 	 * Creates an aggregator with a custom json fragment. This method is used for custom aggregators that have been added to
 	 * KairosDB. This does not create an aggregator on the server. The name must match the custom aggregator on the
 	 * server.
-	 *
+	 * <p>
 	 * <p>
 	 * Example:
 	 * </p>
-	 *
+	 * <p>
 	 * <pre>
 	 *      Aggregator aggregator = AggregatorFactory.createCustomAggregator("scale", "\"factor\": 0.75");
 	 * </pre>
-	 *
 	 * <p>
-	 *      This produces aggregator JSON that looks like this:
+	 * <p>
+	 * This produces aggregator JSON that looks like this:
 	 * </p>
-	 *
+	 * <p>
 	 * <pre>
 	 *      "name":"scale",
 	 *      "factor": 0.75
