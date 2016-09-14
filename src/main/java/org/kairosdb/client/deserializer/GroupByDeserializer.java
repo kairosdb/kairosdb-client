@@ -30,6 +30,10 @@ public class GroupByDeserializer implements JsonDeserializer<GroupResult>
 		{
 			return jsonDeserializationContext.deserialize(jsonElement, DefaultGroupResult.class);
 		}
+		else if (name.equals("bin"))
+		{
+			return jsonDeserializationContext.deserialize(jsonElement, BinGroupResult.class);
+		}
 		else if (name.equals("tag"))
 		{
 			return jsonDeserializationContext.deserialize(jsonElement, TagGroupResult.class);

@@ -7,10 +7,7 @@ import org.junit.Test;
 import org.kairosdb.client.builder.RelativeTime;
 import org.kairosdb.client.builder.TimeUnit;
 import org.kairosdb.client.response.GroupResult;
-import org.kairosdb.client.response.grouping.CustomGroupResult;
-import org.kairosdb.client.response.grouping.TagGroupResult;
-import org.kairosdb.client.response.grouping.TimeGroupResult;
-import org.kairosdb.client.response.grouping.ValueGroupResult;
+import org.kairosdb.client.response.grouping.*;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.Matchers.hasItems;
@@ -73,6 +70,18 @@ public class GroupByDeserializerTest
 		assertThat(result.getName(), equalTo("value"));
 		assertThat(result.getGroup().getGroupNumber(), equalTo(0));
 		assertThat(result.getRangeSize(), equalTo(100));
+	}
+
+	@Test
+	public void test_bin_grouper()
+	{
+		String json =  "{'name': 'bin', 'bins': [5, 10, 20],'group': {'bin_number': 1}}";
+		BinGroupResult result = (BinGroupResult) gson.fromJson(json, GroupResult.class);
+
+		assertThat(result, instanceOf(BinGroupResult.class));
+		assertThat(result.getName(), equalTo("bin"));
+		assertThat(result.getBinNumber(), equalTo(1));
+		assertThat(result.getBins(), hasItems(5.0, 10.0, 20.0));
 	}
 
 	@Test
