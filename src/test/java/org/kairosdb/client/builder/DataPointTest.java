@@ -62,6 +62,17 @@ public class DataPointTest
 		assertThat(dataPoint.isDoubleValue(), equalTo(true));
 	}
 
+	@Test
+	public void test_constructor_integerValue() throws DataFormatException
+	{
+		DataPoint dataPoint = new DataPoint(93939393, 30);
+
+		assertThat(dataPoint.longValue(), equalTo(30L));
+		assertThat(dataPoint.getValue(), instanceOf(Integer.class));
+		assertThat(dataPoint.isIntegerValue(), equalTo(true));
+		assertThat(dataPoint.isDoubleValue(), equalTo(false));
+	}
+
 	@Test(expected = DataFormatException.class)
 	public void test_longValue_wrong_type_invalid() throws DataFormatException
 	{
@@ -76,5 +87,16 @@ public class DataPointTest
 		DataPoint dataPoint = new DataPoint(388383, "foo");
 
 		dataPoint.doubleValue();
+	}
+
+	@Test
+	public void test_constructor_wholeValueIsDouble() throws DataFormatException
+	{
+		DataPoint dataPoint = new DataPoint(93939393, 5.0);
+
+		assertThat(dataPoint.longValue(), equalTo(5L));
+		assertThat(dataPoint.getValue(), instanceOf(Double.class));
+		assertThat(dataPoint.isIntegerValue(), equalTo(false));
+		assertThat(dataPoint.isDoubleValue(), equalTo(true));
 	}
 }

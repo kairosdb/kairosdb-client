@@ -78,12 +78,12 @@ public class DataPoint
 
 	public boolean isDoubleValue()
 	{
-		return !(((Number) value).doubleValue() == Math.floor(((Number) value).doubleValue()));
+		return value instanceof Double;
 	}
 
 	public boolean isIntegerValue()
 	{
-		return ((Number) value).doubleValue() == Math.floor(((Number) value).doubleValue());
+		return value instanceof Long || value instanceof Integer;
 	}
 
 	@Override
