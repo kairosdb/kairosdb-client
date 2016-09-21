@@ -42,6 +42,7 @@ public class HttpClient extends AbstractClient
 	 * Creates a client to talk to the host on the specified port.
 	 *
 	 * @param url url to KairosDB server
+	 * @throws MalformedURLException if url is malformed
 	 */
 	public HttpClient(String url) throws MalformedURLException
 	{
@@ -121,6 +122,7 @@ public class HttpClient extends AbstractClient
 
 	/**
 	 * Used for testing only
+	 * @param client underlying client
 	 */
 	protected void setClient(CloseableHttpClient client)
 	{

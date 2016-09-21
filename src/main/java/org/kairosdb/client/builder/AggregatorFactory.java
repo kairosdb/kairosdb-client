@@ -128,7 +128,8 @@ public class AggregatorFactory
 	 * Creates an aggregator that returns the percentile value for a given percentage of all values over each time period as specified.
 	 * For example, "0.5" and "5 minutes" would returns the median of data points for each 5 minute period.
 	 *
-	 * @param value percentage
+	 * @param percentile percentage
+	 * @param value value for time period
 	 * @param unit  unit of time
 	 * @return percentile aggregator
 	 */
@@ -244,19 +245,17 @@ public class AggregatorFactory
 	 * Creates an aggregator with a custom json fragment. This method is used for custom aggregators that have been added to
 	 * KairosDB. This does not create an aggregator on the server. The name must match the custom aggregator on the
 	 * server.
-	 * <p>
-	 * <p>
+	 * <br>
 	 * Example:
-	 * </p>
-	 * <p>
+	 * <br><br>
 	 * <pre>
 	 *      Aggregator aggregator = AggregatorFactory.createCustomAggregator("scale", "\"factor\": 0.75");
 	 * </pre>
-	 * <p>
-	 * <p>
+	 * <br>
+	 * <br>
 	 * This produces aggregator JSON that looks like this:
-	 * </p>
-	 * <p>
+	 * <br>
+	 * <br>
 	 * <pre>
 	 *      "name":"scale",
 	 *      "factor": 0.75

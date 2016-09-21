@@ -5,6 +5,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.kairosdb.client.builder.*;
+import org.kairosdb.client.builder.grouper.BinGrouper;
 import org.kairosdb.client.builder.grouper.TagGrouper;
 import org.kairosdb.client.builder.grouper.TimeGrouper;
 import org.kairosdb.client.builder.grouper.ValueGrouper;
@@ -130,6 +131,7 @@ public class ClientIntegrationTest
 		}
 		finally
 		{
+			//noinspection ThrowFromFinallyBlock
 			client.shutdown();
 		}
 	}
@@ -190,6 +192,7 @@ public class ClientIntegrationTest
 		}
 		finally
 		{
+			//noinspection ThrowFromFinallyBlock
 			client.shutdown();
 		}
 	}
@@ -235,6 +238,7 @@ public class ClientIntegrationTest
 		}
 		finally
 		{
+			//noinspection ThrowFromFinallyBlock
 			client.shutdown();
 		}
 	}
@@ -299,6 +303,7 @@ public class ClientIntegrationTest
 		}
 		finally
 		{
+			//noinspection ThrowFromFinallyBlock
 			client.shutdown();
 		}
 	}
@@ -356,6 +361,7 @@ public class ClientIntegrationTest
 		}
 		finally
 		{
+			//noinspection ThrowFromFinallyBlock
 			client.shutdown();
 		}
 	}
@@ -413,16 +419,19 @@ public class ClientIntegrationTest
 			metric.addAggregator(AggregatorFactory.createScaleAggregator(.05));
 			metric.addAggregator(AggregatorFactory.createSaveAsAggregator("newMetricName"));
 			metric.addAggregator(AggregatorFactory.createTrimAggregator(AggregatorFactory.Trim.BOTH));
+			metric.addAggregator(AggregatorFactory.createSimpleMovingAverage(2));
 
 			metric.addGrouper(new TagGrouper(HTTP_TAG_NAME_1, HTTP_TAG_NAME_2));
 			metric.addGrouper(new TimeGrouper(new RelativeTime(1, TimeUnit.MILLISECONDS), 3));
 			metric.addGrouper(new ValueGrouper(4));
+			metric.addGrouper(new BinGrouper(2.0, 3.0, 4.0));
 
 			response = client.query(builder);
 			assertThat(response.getErrors().size(), equalTo(0));
 		}
 		finally
 		{
+			//noinspection ThrowFromFinallyBlock
 			client.shutdown();
 		}
 	}
@@ -489,6 +498,7 @@ public class ClientIntegrationTest
 		}
 		finally
 		{
+			//noinspection ThrowFromFinallyBlock
 			client.shutdown();
 		}
 	}
@@ -542,6 +552,7 @@ public class ClientIntegrationTest
 		}
 		finally
 		{
+			//noinspection ThrowFromFinallyBlock
 			client.shutdown();
 		}
 	}
@@ -591,6 +602,7 @@ public class ClientIntegrationTest
 		}
 		finally
 		{
+			//noinspection ThrowFromFinallyBlock
 			client.shutdown();
 		}
 	}
@@ -629,6 +641,7 @@ public class ClientIntegrationTest
 		}
 		finally
 		{
+			//noinspection ThrowFromFinallyBlock
 			client.shutdown();
 		}
 

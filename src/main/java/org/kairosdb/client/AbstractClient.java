@@ -18,7 +18,10 @@ package org.kairosdb.client;
 import com.google.gson.stream.JsonReader;
 import org.kairosdb.client.builder.MetricBuilder;
 import org.kairosdb.client.builder.QueryBuilder;
-import org.kairosdb.client.response.*;
+import org.kairosdb.client.response.ErrorResponse;
+import org.kairosdb.client.response.GetResponse;
+import org.kairosdb.client.response.QueryResponse;
+import org.kairosdb.client.response.Response;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,6 +48,7 @@ public abstract class AbstractClient implements Client
 	 * Creates a client
 	 *
 	 * @param url url to the KairosDB server
+	 * @throws MalformedURLException if url is malformed
 	 */
 	protected AbstractClient(String url) throws MalformedURLException
 	{

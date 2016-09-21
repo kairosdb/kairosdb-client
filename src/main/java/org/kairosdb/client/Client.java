@@ -75,6 +75,7 @@ public interface Client
 	 *
 	 * @param name the metric to delete
 	 * @throws IOException        problem occurred sending to the server
+	 * @return response from the server
 	 */
 	Response deleteMetric(String name) throws IOException;
 
@@ -94,10 +95,11 @@ public interface Client
 	 * @return number of retries
 	 */
 	@SuppressWarnings("UnusedDeclaration")
-	public int getRetryCount();
+	int getRetryCount();
 
 	/**
 	 * Shuts down the client. Should be called when done using the client.
+	 * @throws IOException if could not shutdown the client
 	 */
 	void shutdown() throws IOException;
 

@@ -60,10 +60,11 @@ public class SamplingAggregator extends Aggregator
 	 * of the hour.  The effect of setting this to true is that your data will
 	 * take the same shape when graphed as you refresh the data.
 	 * </p>
-	 * <p/>
 	 * <p>
 	 * Only one alignment type can be used.
 	 * </p>
+	 *
+	 * @return the SamplingAggregator
 	 */
 	public SamplingAggregator withSamplingAlignment()
 	{
@@ -76,11 +77,10 @@ public class SamplingAggregator extends Aggregator
 	 * <p>
 	 * Alignment based on the aggregation range rather than the value of the first
 	 * data point within that range.
-	 * </p>
-	 * <p/>
-	 * <p>
 	 * Only one alignment type can be used.
 	 * </p>
+	 *
+	 * @return the SamplingAggregator
 	 */
 	public SamplingAggregator withStartTimeAlignment()
 	{
@@ -94,12 +94,12 @@ public class SamplingAggregator extends Aggregator
 	 * Alignment that starts based on the specified time. For example, if startTime
 	 * is set to noon today,then alignment starts at noon today.
 	 * </p>
-	 * <p/>
 	 * <p>
 	 * Only one alignment type can be used.
 	 * </p>
 	 *
 	 * @param startTime the alignment start time
+	 * @return the SamplingAggregator
 	 */
 	public SamplingAggregator withStartTimeAlignment(long startTime)
 	{

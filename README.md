@@ -139,10 +139,11 @@ Last, you must cast to your new type following a query for a metric.
 		System.out.println(complex.real + " + " + complex.imaginary + "i");
 	}
 
+## KairosDB compatibility
+
+Version 2.1.1 of the client was tested with KairosDB version 1.1.2-1.
 
 ## Copyright and License
-
-Copyright 2013 Proofpoint Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
