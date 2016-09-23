@@ -67,7 +67,7 @@ public class QueryResponseTest
 
 		QueryResponse response = new QueryResponse(mapper, 400, new ByteArrayInputStream(json.getBytes()));
 
-		assertThat(response.getQueries(), equalTo(Collections.<Queries>emptyList()));
+		assertThat(response.getQueries(), equalTo(Collections.<Query>emptyList()));
 		assertThat(response.getBody(), equalTo(json));
 		assertThat(response.getStatusCode(), equalTo(400));
 		assertThat(response.getErrors().size(), equalTo(1));
@@ -82,7 +82,7 @@ public class QueryResponseTest
 
 		QueryResponse response = new QueryResponse(mapper, 200, new ByteArrayInputStream(json.getBytes()));
 
-		List<Queries> queries = response.getQueries();
+		List<Query> queries = response.getQueries();
 		assertThat(response.getBody(), equalTo(json));
 		assertThat(response.getStatusCode(), equalTo(200));
 		assertThat(response.getErrors().size(), equalTo(0));
@@ -127,7 +127,7 @@ public class QueryResponseTest
 
 		QueryResponse response = new QueryResponse(mapper, 300, new ByteArrayInputStream(responseBody.getBytes()));
 
-		assertThat(response.getQueries(), equalTo(Collections.<Queries>emptyList()));
+		assertThat(response.getQueries(), equalTo(Collections.<Query>emptyList()));
 		assertThat(response.getBody(), equalTo(responseBody));
 		assertThat(response.getStatusCode(), equalTo(300));
 		assertThat(response.getErrors().size(), equalTo(0));

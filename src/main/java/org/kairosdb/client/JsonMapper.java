@@ -5,7 +5,7 @@ import com.google.gson.GsonBuilder;
 import org.kairosdb.client.deserializer.GroupByDeserializer;
 import org.kairosdb.client.deserializer.ResultsDeserializer;
 import org.kairosdb.client.response.GroupResult;
-import org.kairosdb.client.response.Results;
+import org.kairosdb.client.response.Result;
 
 import java.io.Reader;
 import java.lang.reflect.Type;
@@ -18,7 +18,7 @@ public class JsonMapper
 	{
 		GsonBuilder builder = new GsonBuilder();
 		builder.registerTypeAdapter(GroupResult.class, new GroupByDeserializer());
-		builder.registerTypeAdapter(Results.class, new ResultsDeserializer(typeRegistry));
+		builder.registerTypeAdapter(Result.class, new ResultsDeserializer(typeRegistry));
 		mapper = builder.create();
 
 

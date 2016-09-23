@@ -22,9 +22,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
 
@@ -35,8 +33,10 @@ public class QueryResponse extends Response
 {
 	private final int responseCode;
 	private final JsonMapper mapper;
+	private final Object queriesMapLock = new Object();
 
-	private List<Queries> queries;
+	private Map<String, Query> queriesMap = null;
+	private List<Query> queries;
 	private String body;
 
 	public QueryResponse(JsonMapper mapper, int responseCode, InputStream stream) throws IOException
@@ -56,7 +56,7 @@ public class QueryResponse extends Response
 	 * @throws IOException         if could not map response to Queries object
 	 * @throws JsonSyntaxException if the response is not JSON or is invalid JSON
 	 */
-	public List<Queries> getQueries() throws IOException
+	public List<Query> getQueries() throws IOException
 	{
 		if (queries != null)
 			return queries;
@@ -116,11 +116,33 @@ public class QueryResponse extends Response
 		return body;
 	}
 
+	public Query getQueryResponse(String metricName)
+		{
+		initializeMap();
+		return queriesMap.get(metricName);
+		}
+
+	private void initializeMap()
+		{
+		synchronized (queriesMapLock)
+			{
+			if (queriesMap == null)
+				{
+				queriesMap = new HashMap<String, Query>();
+				for (Query query : queries)
+					{
+					//there will always be at least one result with the name
+					queriesMap.put(query.getResults().get(0).getName(), query);
+					}
+				}
+			}
+		}
+
 	private class KairosQueryResponse
 	{
-		private List<Queries> queries = new ArrayList<Queries>();
+		private List<Query> queries = new ArrayList<Query>();
 
-		public List<Queries> getQueries()
+		public List<Query> getQueries()
 		{
 			return queries;
 		}

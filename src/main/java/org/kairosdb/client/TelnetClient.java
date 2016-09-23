@@ -45,14 +45,18 @@ public class TelnetClient
 			StringBuilder tags = new StringBuilder();
 			for (Map.Entry<String, String> tag : metric.getTags().entrySet())
 			{
-				tags.append(tag.getKey()).append("=").append(tag.getValue());
+				tags.append(" ").append(tag.getKey()).append("=").append(tag.getValue());
 			}
 
 			for (DataPoint dataPoint : metric.getDataPoints())
 			{
-				writer.println("put" + " " + metric.getName() + " " + dataPoint.getTimestamp() + " " +
-						dataPoint.getValue() +
-						" " + tags.toString());
+				StringBuilder sb = new StringBuilder();
+				sb.append("put ").append(metric.getName()).append(" ")
+						.append(dataPoint.getTimestamp()).append(" ")
+						.append(dataPoint.getValue())
+						.append(tags.toString());
+
+				writer.println(sb.toString());
 			}
 		}
 		writer.flush();
@@ -66,14 +70,18 @@ public class TelnetClient
 			StringBuilder tags = new StringBuilder();
 			for (Map.Entry<String, String> tag : metric.getTags().entrySet())
 			{
-				tags.append(tag.getKey()).append("=").append(tag.getValue());
+				tags.append(" ").append(tag.getKey()).append("=").append(tag.getValue());
 			}
 
 			for (DataPoint dataPoint : metric.getDataPoints())
 			{
-				writer.println("putm" + " " + metric.getName() + " " + dataPoint.getTimestamp() + " " +
-						dataPoint.getValue() +
-						" " + tags.toString());
+				StringBuilder sb = new StringBuilder();
+				sb.append("putm ").append(metric.getName()).append(" ")
+						.append(dataPoint.getTimestamp()).append(" ")
+						.append(dataPoint.getValue())
+						.append(tags.toString());
+
+				writer.println(sb.toString());
 			}
 		}
 		writer.flush();

@@ -5,7 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import org.kairosdb.client.DataPointTypeRegistry;
 import org.kairosdb.client.builder.DataPoint;
 import org.kairosdb.client.response.GroupResult;
-import org.kairosdb.client.response.Results;
+import org.kairosdb.client.response.Result;
 import org.kairosdb.client.response.grouping.DefaultGroupResult;
 
 import java.lang.reflect.Type;
@@ -16,7 +16,7 @@ import java.util.Map;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-public class ResultsDeserializer implements JsonDeserializer<Results>
+public class ResultsDeserializer implements JsonDeserializer<Result>
 {
 	private DataPointTypeRegistry typeRegistry;
 
@@ -26,7 +26,7 @@ public class ResultsDeserializer implements JsonDeserializer<Results>
 	}
 
 	@Override
-	public Results deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
+	public Result deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
 	{
 		// Name
 		String name = json.getAsJsonObject().get("name").getAsString();
@@ -69,6 +69,6 @@ public class ResultsDeserializer implements JsonDeserializer<Results>
 			}
 		}
 
-		return new Results(name, tags, dataPoints, groupResults);
+		return new Result(name, tags, dataPoints, groupResults);
 	}
 }
