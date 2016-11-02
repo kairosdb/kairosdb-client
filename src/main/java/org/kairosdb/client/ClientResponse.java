@@ -18,7 +18,7 @@ package org.kairosdb.client;
 import java.io.IOException;
 import java.io.InputStream;
 
-interface ClientResponse
+public interface ClientResponse
 {
 	int getStatusCode();
 

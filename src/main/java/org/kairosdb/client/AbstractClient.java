@@ -15,13 +15,8 @@
  */
 package org.kairosdb.client;
 
-import com.google.gson.stream.JsonReader;
-import org.kairosdb.client.builder.MetricBuilder;
-import org.kairosdb.client.builder.QueryBuilder;
-import org.kairosdb.client.response.ErrorResponse;
-import org.kairosdb.client.response.GetResponse;
-import org.kairosdb.client.response.QueryResponse;
-import org.kairosdb.client.response.Response;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,8 +27,16 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
+import org.kairosdb.client.builder.MetricBuilder;
+import org.kairosdb.client.builder.QueryBuilder;
+import org.kairosdb.client.builder.QueryTagBuilder;
+import org.kairosdb.client.response.ErrorResponse;
+import org.kairosdb.client.response.GetResponse;
+import org.kairosdb.client.response.QueryResponse;
+import org.kairosdb.client.response.QueryTagResponse;
+import org.kairosdb.client.response.Response;
+
+import com.google.gson.stream.JsonReader;
 
 /**
  * Base code used to send metrics to Kairos or query Kairos.
@@ -85,6 +88,16 @@ public abstract class AbstractClient implements Client
 
 		InputStream stream = clientResponse.getContentStream();
 		return new QueryResponse(mapper, responseCode, stream);
+	}
+	
+	@Override
+	public QueryTagResponse queryTag(QueryTagBuilder builder) throws URISyntaxException, IOException
+	{
+		ClientResponse clientResponse = postData(builder.build(), url + "/api/v1/datapoints/query/tags");
+		int responseCode = clientResponse.getStatusCode();
+
+		InputStream stream = clientResponse.getContentStream();
+		return new QueryTagResponse(mapper, responseCode, stream);
 	}
 
 	@Override
