@@ -62,4 +62,48 @@ public class QueryTagBuilder extends AbstractQueryBuilder<QueryTagBuilder>
 	{
 		return metrics;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((metrics == null) ? 0 : metrics.hashCode());
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+		{
+			return true;
+		}
+		if (!super.equals(obj))
+		{
+			return false;
+		}
+		if (getClass() != obj.getClass())
+		{
+			return false;
+		}
+		QueryTagBuilder other = (QueryTagBuilder) obj;
+		if (metrics == null)
+		{
+			if (other.metrics != null)
+			{
+				return false;
+			}
+		} else if (!metrics.equals(other.metrics))
+		{
+			return false;
+		}
+		return true;
+	}
 }
