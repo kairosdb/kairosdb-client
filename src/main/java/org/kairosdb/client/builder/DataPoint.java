@@ -15,9 +15,6 @@
  */
 package org.kairosdb.client.builder;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-
 /**
  * A measurement. Contains the time when the measurement occurred and its value.
  */
@@ -29,7 +26,7 @@ public class DataPoint
 	public DataPoint(long timestamp, Object value)
 	{
 		this.timestamp = timestamp;
-		this.value = checkNotNull(value);
+		this.value = value;
 	}
 
 	/**
@@ -49,6 +46,10 @@ public class DataPoint
 
 	public String stringValue() throws DataFormatException
 	{
+		if (value == null)
+		{
+			throw new DataFormatException("Value is not a string");
+		}
 		return value.toString();
 	}
 
@@ -78,12 +79,12 @@ public class DataPoint
 
 	public boolean isDoubleValue()
 	{
-		return value instanceof Double;
+		return value != null && !(((Number) value).doubleValue() == Math.floor(((Number) value).doubleValue()));
 	}
 
 	public boolean isIntegerValue()
 	{
-		return value instanceof Long || value instanceof Integer;
+		return value != null && ((Number) value).doubleValue() == Math.floor(((Number) value).doubleValue());
 	}
 
 	@Override
