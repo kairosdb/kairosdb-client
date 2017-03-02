@@ -15,6 +15,9 @@
  */
 package org.kairosdb.client.builder;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /**
  * A measurement. Contains the time when the measurement occurred and its value.
  */
@@ -26,7 +29,7 @@ public class DataPoint
 	public DataPoint(long timestamp, Object value)
 	{
 		this.timestamp = timestamp;
-		this.value = value;
+		this.value = checkNotNull(value);
 	}
 
 	/**
@@ -46,10 +49,6 @@ public class DataPoint
 
 	public String stringValue() throws DataFormatException
 	{
-		if (value == null)
-		{
-			throw new DataFormatException("Value is not a string");
-		}
 		return value.toString();
 	}
 
@@ -79,12 +78,12 @@ public class DataPoint
 
 	public boolean isDoubleValue()
 	{
-		return value != null && !(((Number) value).doubleValue() == Math.floor(((Number) value).doubleValue()));
+		return value instanceof Double;
 	}
 
 	public boolean isIntegerValue()
 	{
-		return value != null && ((Number) value).doubleValue() == Math.floor(((Number) value).doubleValue());
+		return value instanceof Long || value instanceof Integer;
 	}
 
 	@Override
@@ -99,12 +98,18 @@ public class DataPoint
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o)
+		{
+			return true;
+		}
+		if (o == null || getClass() != o.getClass())
+		{
+			return false;
+		}
 
 		DataPoint dataPoint = (DataPoint) o;
 
-		return timestamp == dataPoint.timestamp && (value != null ? value.equals(dataPoint.value) : dataPoint.value == null);
+		return timestamp == dataPoint.timestamp && value.equals(dataPoint.value);
 
 	}
 
@@ -112,7 +117,7 @@ public class DataPoint
 	public int hashCode()
 	{
 		int result = (int) (timestamp ^ (timestamp >>> 32));
-		result = 31 * result + (value != null ? value.hashCode() : 0);
+		result = 31 * result + value.hashCode();
 		return result;
 	}
 }
