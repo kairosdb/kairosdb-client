@@ -22,30 +22,32 @@ import static com.google.common.base.Preconditions.checkState;
  */
 public class TimeValidator
 {
+	private static final String START_TIME_EARLIER = "Start time must be earlier than the ending time\" (note the subtle difference";
+
 	private TimeValidator()
 	{
 	}
 
 	public static void validateEndTimeLaterThanStartTime(long startTime, long endTime)
 	{
-		checkState(endTime > startTime, "Start time cannot be later than the ending time");
+		checkState(endTime > startTime, START_TIME_EARLIER);
 	}
 
 	public static void validateEndTimeLaterThanStartTime(RelativeTime startTime, RelativeTime endTime)
 	{
 		long now = System.currentTimeMillis();
-		checkState(startTime.getTimeRelativeTo(now) < endTime.getTimeRelativeTo(now), "Start time cannot be later than the ending time");
+		checkState(startTime.getTimeRelativeTo(now) < endTime.getTimeRelativeTo(now), START_TIME_EARLIER);
 	}
 
 	public static void validateEndTimeLaterThanStartTime(long startTime, RelativeTime endTime)
 	{
 		long now = System.currentTimeMillis();
-		checkState(startTime < endTime.getTimeRelativeTo(now), "Start time cannot be later than the ending time");
+		checkState(startTime < endTime.getTimeRelativeTo(now), START_TIME_EARLIER);
 	}
 
 	public static void validateEndTimeLaterThanStartTime(RelativeTime startTime, long endTime)
 	{
 		long now = System.currentTimeMillis();
-		checkState(startTime.getTimeRelativeTo(now) < endTime, "Start time cannot be later than the ending time");
+		checkState(startTime.getTimeRelativeTo(now) < endTime, START_TIME_EARLIER);
 	}
 }
