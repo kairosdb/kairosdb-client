@@ -15,9 +15,6 @@
  */
 package org.kairosdb.client.builder;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-
 /**
  * A measurement. Contains the time when the measurement occurred and its value.
  */
@@ -29,7 +26,7 @@ public class DataPoint
 	public DataPoint(long timestamp, Object value)
 	{
 		this.timestamp = timestamp;
-		this.value = checkNotNull(value);
+		this.value = value;
 	}
 
 	/**
@@ -49,7 +46,7 @@ public class DataPoint
 
 	public String stringValue() throws DataFormatException
 	{
-		return value.toString();
+		return value == null? null : value.toString();
 	}
 
 	public long longValue() throws DataFormatException
@@ -78,12 +75,14 @@ public class DataPoint
 
 	public boolean isDoubleValue()
 	{
-		return value instanceof Double;
+		return value != null &&
+				!(((Number) value).doubleValue() == Math.floor(((Number) value).doubleValue()));
 	}
 
 	public boolean isIntegerValue()
 	{
-		return value instanceof Long || value instanceof Integer;
+		return value != null &&
+				((Number) value).doubleValue() == Math.floor(((Number) value).doubleValue());
 	}
 
 	@Override
@@ -98,19 +97,12 @@ public class DataPoint
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o)
-		{
-			return true;
-		}
-		if (o == null || getClass() != o.getClass())
-		{
-			return false;
-		}
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
 
 		DataPoint dataPoint = (DataPoint) o;
 
 		return timestamp == dataPoint.timestamp && value.equals(dataPoint.value);
-
 	}
 
 	@Override
