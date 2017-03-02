@@ -96,7 +96,7 @@ public class DataPointTest
 
 		assertThat(dataPoint.longValue(), equalTo(5L));
 		assertThat(dataPoint.getValue(), instanceOf(Double.class));
-		assertThat(dataPoint.isIntegerValue(), equalTo(true));
-		assertThat(dataPoint.isDoubleValue(), equalTo(false));
+		assertThat(dataPoint.isIntegerValue(), equalTo(false));
+		assertThat(dataPoint.isDoubleValue(), equalTo(true));
 	}
 }
