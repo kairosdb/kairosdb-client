@@ -79,7 +79,7 @@ public class HttpClient extends AbstractClient
 		return execute(deleteMethod);
 	}
 
-	private ClientResponse execute(HttpUriRequest request) throws IOException
+	protected ClientResponse execute(HttpUriRequest request) throws IOException
 	{
 		HttpResponse response;
 

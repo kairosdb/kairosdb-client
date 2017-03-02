@@ -15,14 +15,16 @@
  */
 package org.kairosdb.client;
 
-import org.kairosdb.client.builder.MetricBuilder;
-import org.kairosdb.client.builder.QueryBuilder;
-import org.kairosdb.client.response.GetResponse;
-import org.kairosdb.client.response.QueryResponse;
-import org.kairosdb.client.response.Response;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
+
+import org.kairosdb.client.builder.MetricBuilder;
+import org.kairosdb.client.builder.QueryBuilder;
+import org.kairosdb.client.builder.QueryTagBuilder;
+import org.kairosdb.client.response.GetResponse;
+import org.kairosdb.client.response.QueryResponse;
+import org.kairosdb.client.response.QueryTagResponse;
+import org.kairosdb.client.response.Response;
 
 public interface Client
 {
@@ -51,6 +53,16 @@ public interface Client
 	GetResponse getTagValues() throws IOException;
 
 	/**
+	 * Queries KairosDB tags using the query built by the builder.
+	 *
+	 * @param builder query tag builder
+	 * @return response from the server
+	 * @throws URISyntaxException if the host or post is invalid
+	 * @throws IOException        problem occurred querying the server
+	 */
+	QueryTagResponse queryTag(QueryTagBuilder builder) throws URISyntaxException, IOException;
+
+	/**
 	 * Queries KairosDB using the query built by the builder.
 	 *
 	 * @param builder query builder
@@ -59,7 +71,7 @@ public interface Client
 	 * @throws IOException        problem occurred querying the server
 	 */
 	QueryResponse query(QueryBuilder builder) throws URISyntaxException, IOException;
-
+	
 	/**
 	 * Sends metrics from the builder to the KairosDB server.
 	 *
