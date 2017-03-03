@@ -20,8 +20,6 @@ public class JsonMapper
 		builder.registerTypeAdapter(GroupResult.class, new GroupByDeserializer());
 		builder.registerTypeAdapter(Result.class, new ResultsDeserializer(typeRegistry));
 		mapper = builder.create();
-
-
 	}
 
 	public <T> T fromJson(Reader json, Type typeOfT)

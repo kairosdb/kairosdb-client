@@ -1,24 +1,11 @@
-/*
- * Copyright 2013 Proofpoint Inc.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *        http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
- */
 package org.kairosdb.client;
 
 import org.kairosdb.client.builder.MetricBuilder;
 import org.kairosdb.client.builder.QueryBuilder;
+import org.kairosdb.client.builder.QueryTagBuilder;
 import org.kairosdb.client.response.GetResponse;
 import org.kairosdb.client.response.QueryResponse;
+import org.kairosdb.client.response.QueryTagResponse;
 import org.kairosdb.client.response.Response;
 
 import java.io.IOException;
@@ -61,6 +48,17 @@ public interface Client
 	QueryResponse query(QueryBuilder builder) throws URISyntaxException, IOException;
 
 	/**
+	 * Queries KairosDB tags using the query built by the builder.
+	 *
+	 * @param builder query tag builder
+	 * @return response from the server
+	 * @throws URISyntaxException if the host or post is invalid
+	 * @throws IOException        problem occurred querying the server
+	 */
+	QueryTagResponse queryTag(QueryTagBuilder builder) throws URISyntaxException, IOException;
+
+
+	/**
 	 * Sends metrics from the builder to the KairosDB server.
 	 *
 	 * @param builder metrics builder
@@ -74,8 +72,8 @@ public interface Client
 	 * Deletes a metric. This is the metric and all its data points.
 	 *
 	 * @param name the metric to delete
-	 * @throws IOException        problem occurred sending to the server
 	 * @return response from the server
+	 * @throws IOException problem occurred sending to the server
 	 */
 	Response deleteMetric(String name) throws IOException;
 
@@ -99,6 +97,7 @@ public interface Client
 
 	/**
 	 * Shuts down the client. Should be called when done using the client.
+	 *
 	 * @throws IOException if could not shutdown the client
 	 */
 	void shutdown() throws IOException;

@@ -1,18 +1,3 @@
-/*
- * Copyright 2013 Proofpoint Inc.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *        http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
- */
 package org.kairosdb.client.response;
 
 import com.google.gson.JsonSyntaxException;
@@ -22,30 +7,31 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Response returned by KairosDB.
  */
-public class QueryResponse extends Response
+public class QueryTagResponse extends Response
 {
 	private final int responseCode;
 	private final JsonMapper mapper;
-	private final Object queriesMapLock = new Object();
 
-	private Map<String, Query> queriesMap = null;
-	private List<Query> queries;
+	private List<TagQuery> results;
 	private String body;
 
-	public QueryResponse(JsonMapper mapper, int responseCode, InputStream stream) throws IOException
+	@SuppressWarnings("ConstantConditions")
+	public QueryTagResponse(JsonMapper mapper, int responseCode, InputStream stream) throws IOException
 	{
 		super(responseCode);
 		this.mapper = checkNotNull(mapper, "mapper cannot be null");
 		this.responseCode = responseCode;
 		this.body = getBody(stream);
-		this.queries = getQueries();
+		this.results = getQueries();
 	}
 
 	/**
@@ -56,10 +42,10 @@ public class QueryResponse extends Response
 	 * @throws IOException         if could not map response to Queries object
 	 * @throws JsonSyntaxException if the response is not JSON or is invalid JSON
 	 */
-	public List<Query> getQueries() throws IOException
+	public List<TagQuery> getQueries() throws IOException
 	{
-		if (queries != null)
-			return queries;
+		if (results != null)
+			return results;
 
 		if (getBody() != null)
 		{
@@ -72,7 +58,7 @@ public class QueryResponse extends Response
 			}
 			else if (responseCode == 200)
 			{
-				KairosQueryResponse response = mapper.fromJson(body, KairosQueryResponse.class);
+				KairosTagsResponse response = mapper.fromJson(body, KairosTagsResponse.class);
 				return response.getQueries();
 			}
 		}
@@ -116,33 +102,11 @@ public class QueryResponse extends Response
 		return body;
 	}
 
-	public Query getQueryResponse(String metricName)
-		{
-		initializeMap();
-		return queriesMap.get(metricName);
-		}
-
-	private void initializeMap()
-		{
-		synchronized (queriesMapLock)
-			{
-			if (queriesMap == null)
-				{
-				queriesMap = new HashMap<String, Query>();
-				for (Query query : queries)
-					{
-					//there will always be at least one result with the name
-					queriesMap.put(query.getResults().get(0).getName(), query);
-					}
-				}
-			}
-		}
-
-	private class KairosQueryResponse
+	private class KairosTagsResponse
 	{
-		private List<Query> queries = new ArrayList<Query>();
+		private List<TagQuery> queries = new ArrayList<TagQuery>();
 
-		public List<Query> getQueries()
+		public List<TagQuery> getQueries()
 		{
 			return queries;
 		}

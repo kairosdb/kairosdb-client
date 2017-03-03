@@ -10,3 +10,6 @@ out/*
 dependency.txt
 .tablesawcache
 .idea
++.classpath
++.project
++.settings

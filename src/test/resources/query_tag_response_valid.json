@@ -1,0 +1,23 @@
+{
+  "queries": [
+    {
+      "results": [
+        {
+          "name": "kairosdb.datastore.query_time",
+          "tags": {
+            "host": [
+              "localhost",
+              "host2"
+            ],
+            "rollup": [
+              "kairos.import_export_unit_test_rollup"
+            ],
+            "status": [
+              "success"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

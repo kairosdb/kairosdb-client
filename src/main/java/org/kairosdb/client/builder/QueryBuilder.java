@@ -1,18 +1,3 @@
-/*
- * Copyright 2013 Proofpoint Inc.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *        http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
- */
 package org.kairosdb.client.builder;
 
 import com.google.common.collect.ListMultimap;
@@ -23,13 +8,12 @@ import org.kairosdb.client.builder.aggregator.CustomAggregator;
 import org.kairosdb.client.builder.grouper.CustomGrouper;
 import org.kairosdb.client.serializer.*;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-import static com.google.common.base.Preconditions.*;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
 
 /**
@@ -46,20 +30,8 @@ import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
  * all matching data points that occurred between the last 30 minutes up to and including the last 10 minutes are returned.
  */
 @SuppressWarnings("UnusedDeclaration")
-public class QueryBuilder
+public class QueryBuilder extends AbstractQueryBuilder<QueryBuilder>
 {
-	@SerializedName("start_absolute")
-	private Long startAbsolute;
-
-	@SerializedName("end_absolute")
-	private Long endAbsolute;
-
-	@SerializedName("start_relative")
-	private RelativeTime startRelative;
-
-	@SerializedName("end_relative")
-	private RelativeTime endRelative;
-
 	@SerializedName("cache_time")
 	private int cacheTime;
 
@@ -67,9 +39,14 @@ public class QueryBuilder
 	private TimeZone timeZone;
 
 	private List<QueryMetric> metrics = new ArrayList<QueryMetric>();
-	private transient Gson mapper;
 
 	private QueryBuilder()
+	{
+		super();
+	}
+
+	@Override
+	protected Gson buildGson()
 	{
 		GsonBuilder builder = new GsonBuilder();
 		builder.registerTypeAdapter(CustomAggregator.class, new CustomAggregatorSerializer());
@@ -78,72 +55,7 @@ public class QueryBuilder
 		builder.registerTypeAdapter(QueryMetric.Order.class, new OrderSerializer());
 		builder.registerTypeAdapter(TimeZone.class, new TimeZoneSerializer());
 
-		mapper = builder.create();
-	}
-
-	/**
-	 * The beginning time of the time range.
-	 *
-	 * @param start start time
-	 * @return the builder
-	 */
-	public QueryBuilder setStart(Date start)
-	{
-		checkNotNull(start);
-		checkArgument(startRelative == null, "Both relative and absolute start times cannot be set.");
-
-		this.startAbsolute = start.getTime();
-		checkArgument(startAbsolute <= System.currentTimeMillis(), "Start time cannot be in the future.");
-		return this;
-	}
-
-	/**
-	 * The beginning time of the time range relative to now. For example, return all data points that starting 2 days
-	 * ago.
-	 *
-	 * @param duration relative time value
-	 * @param unit     unit of time
-	 * @return the builder
-	 */
-	public QueryBuilder setStart(int duration, TimeUnit unit)
-	{
-		checkArgument(duration > 0);
-		checkNotNull(unit);
-		checkArgument(startAbsolute == null, "Both relative and absolute start times cannot be set.");
-
-		startRelative = new RelativeTime(duration, unit);
-		checkArgument(startRelative.getTimeRelativeTo(System.currentTimeMillis()) <= System.currentTimeMillis(), "Start time cannot be in the future.");
-		return this;
-	}
-
-	/**
-	 * The ending value of the time range. Must be later in time than the start time. An end time is not required
-	 * and default to now.
-	 *
-	 * @param end end time
-	 * @return the builder
-	 */
-	public QueryBuilder setEnd(Date end)
-	{
-		checkArgument(endRelative == null, "Both relative and absolute end times cannot be set.");
-		this.endAbsolute = end.getTime();
-		return this;
-	}
-
-	/**
-	 * The ending time of the time range relative to now.
-	 *
-	 * @param duration relative time value
-	 * @param unit     unit of time
-	 * @return the builder
-	 */
-	public QueryBuilder setEnd(int duration, TimeUnit unit)
-	{
-		checkNotNull(unit);
-		checkArgument(duration > 0);
-		checkArgument(endAbsolute == null, "Both relative and absolute end times cannot be set.");
-		endRelative = new RelativeTime(duration, unit);
-		return this;
+		return builder.create();
 	}
 
 	/**
@@ -185,46 +97,6 @@ public class QueryBuilder
 	}
 
 	/**
-	 * Returns the absolute range start time.
-	 *
-	 * @return absolute range start time
-	 */
-	public Date getStartAbsolute()
-	{
-		return new Date(startAbsolute);
-	}
-
-	/**
-	 * Returns the absolute range end time.
-	 *
-	 * @return absolute range end time
-	 */
-	public Date getEndAbsolute()
-	{
-		return new Date(endAbsolute);
-	}
-
-	/**
-	 * Returns the relative range start time.
-	 *
-	 * @return relative range start time
-	 */
-	public RelativeTime getStartRelative()
-	{
-		return startRelative;
-	}
-
-	/**
-	 * Returns the relative range end time.
-	 *
-	 * @return relative range end time
-	 */
-	public RelativeTime getEndRelative()
-	{
-		return endRelative;
-	}
-
-	/**
 	 * Returns the cache time.
 	 *
 	 * @return cache time
@@ -256,6 +128,7 @@ public class QueryBuilder
 		return timeZone;
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	public QueryBuilder setTimeZone(TimeZone timeZone)
 	{
 		checkNotNull(timeZone, "timezone cannot be null");
@@ -264,75 +137,63 @@ public class QueryBuilder
 		return this;
 	}
 
-	/**
-	 * Returns the JSON string built by the builder. This is the JSON that can be used by the client to query KairosDB
-	 *
-	 * @return JSON
-	 * @throws IOException if the query is invalid and cannot be converted to JSON
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
 	 */
-	public String build() throws IOException
-	{
-		validateTimes();
-
-		return mapper.toJson(this);
-	}
-
-	private void validateTimes()
-	{
-		checkState(startAbsolute != null || startRelative != null, "Start time must be specified");
-
-		if (endAbsolute != null)
-		{
-			if (startAbsolute != null)
-				TimeValidator.validateEndTimeLaterThanStartTime(startAbsolute, endAbsolute);
-			else
-				TimeValidator.validateEndTimeLaterThanStartTime(startRelative, endAbsolute);
-			}
-		else if (endRelative != null)
-		{
-			if (startAbsolute != null)
-				TimeValidator.validateEndTimeLaterThanStartTime(startAbsolute, endRelative);
-			else
-				TimeValidator.validateEndTimeLaterThanStartTime(startRelative, endRelative);
-		}
-	}
-
-	@SuppressWarnings("SimplifiableIfStatement")
-	@Override
-	public boolean equals(Object o)
-	{
-		if (this == o)
-			return true;
-		if (o == null || getClass() != o.getClass())
-			return false;
-
-		QueryBuilder that = (QueryBuilder) o;
-
-		if (cacheTime != that.cacheTime)
-			return false;
-		if (startAbsolute != null ? !startAbsolute.equals(that.startAbsolute) : that.startAbsolute != null)
-			return false;
-		if (endAbsolute != null ? !endAbsolute.equals(that.endAbsolute) : that.endAbsolute != null)
-			return false;
-		if (startRelative != null ? !startRelative.equals(that.startRelative) : that.startRelative != null)
-			return false;
-		if (endRelative != null ? !endRelative.equals(that.endRelative) : that.endRelative != null)
-			return false;
-		if (timeZone != null ? !timeZone.equals(that.timeZone) : that.timeZone != null)
-			return false;
-		return !(metrics != null ? !metrics.equals(that.metrics) : that.metrics != null);
-	}
-
 	@Override
 	public int hashCode()
 	{
-		int result = startAbsolute != null ? startAbsolute.hashCode() : 0;
-		result = 31 * result + (endAbsolute != null ? endAbsolute.hashCode() : 0);
-		result = 31 * result + (startRelative != null ? startRelative.hashCode() : 0);
-		result = 31 * result + (endRelative != null ? endRelative.hashCode() : 0);
-		result = 31 * result + cacheTime;
-		result = 31 * result + (timeZone != null ? timeZone.hashCode() : 0);
-		result = 31 * result + (metrics != null ? metrics.hashCode() : 0);
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + cacheTime;
+		result = prime * result + ((metrics == null) ? 0 : metrics.hashCode());
+		result = prime * result + ((timeZone == null) ? 0 : timeZone.hashCode());
 		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+		{
+			return true;
+		}
+		if (!super.equals(obj))
+		{
+			return false;
+		}
+		if (getClass() != obj.getClass())
+		{
+			return false;
+		}
+		QueryBuilder other = (QueryBuilder) obj;
+		if (cacheTime != other.cacheTime)
+		{
+			return false;
+		}
+		if (metrics == null)
+		{
+			if (other.metrics != null)
+			{
+				return false;
+			}
+		} else if (!metrics.equals(other.metrics))
+		{
+			return false;
+		}
+		if (timeZone == null)
+		{
+			if (other.timeZone != null)
+			{
+				return false;
+			}
+		} else if (!timeZone.equals(other.timeZone))
+		{
+			return false;
+		}
+		return true;
 	}
 }
