@@ -16,7 +16,6 @@
 package org.kairosdb.client;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -42,7 +41,7 @@ public class HttpClient extends AbstractClient
 	/**
 	 * Creates a client to talk to the host on the specified port.
 	 *
-	 * @param url url to KairosDB server
+	 * @param url url to the KairosDB server
 	 * @throws MalformedURLException if url is malformed
 	 */
 	public HttpClient(String url) throws MalformedURLException
@@ -52,14 +51,19 @@ public class HttpClient extends AbstractClient
 		client = builder.build();
 	}
 
-	public HttpClient(HttpConfiguration config, String url) throws MalformedURLException
+	/**
+	 * Creates a client to talk to the host on the specified port. This version
+	 * of the constructor exposes the HttpClientBuilder that can be used to set
+	 * various properties on the client.
+	 *
+	 * @param builder client builder.
+	 * @param url url to the KairosDB server
+	 * @throws MalformedURLException if the url is malformed
+	 */
+	public HttpClient(HttpClientBuilder builder, String url) throws MalformedURLException
 	{
 		super(url);
-		HttpClientBuilder builder = HttpClientBuilder.create();
-		RequestConfig.Builder configBuilder = RequestConfig.custom();
-		configBuilder.setConnectTimeout(config.getConnectionTimeout());
-		configBuilder.setSocketTimeout(config.getSocketTimeout());
-		client = builder.setDefaultRequestConfig(configBuilder.build()).build();
+		client = builder.build();
 	}
 
 	@Override
