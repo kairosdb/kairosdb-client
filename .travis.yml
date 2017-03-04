@@ -6,5 +6,4 @@ jdk:
   - oraclejdk7
   - oraclejdk8
 
-script:
-  - mvn -Dgpg.skip clean test
+script: mvn -Dgpg.skip clean test
