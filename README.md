@@ -157,6 +157,10 @@ Last, you must cast to your new type following a query for a metric.
 
 Version 2.2.0 of the client was tested with KairosDB version 1.1.3-1.
 
+## Contributions
+
+We want your contributions but please do pull requests on the develop branch and not the master.
+
 ## Copyright and License
 
 Licensed under the Apache License, Version 2.0 (the "License");
