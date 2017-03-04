@@ -7,4 +7,4 @@ jdk:
   - oraclejdk8
 
 script:
-  - mvn gpg.skip=true clean test
+  - mvn -Dgpg.skip clean test
