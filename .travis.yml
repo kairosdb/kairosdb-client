@@ -7,3 +7,5 @@ jdk:
   - oraclejdk8
 
 script: mvn -Dgpg.skip clean test
+
+install: /bin/true
