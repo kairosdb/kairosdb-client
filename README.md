@@ -35,6 +35,20 @@ Optionally, tags may be added to narrow down the search.
     HttpClient client = new HttpClient("http://localhost:8080");
     QueryResponse response = client.query(builder);
    	client.shutdown();
+   	
+## Querying Metric Tags
+
+Querying metric tags is done by using the QueryTagBuilder class. A query requires a date range. The start date is
+required, but the end date defaults to NOW if not specified. The metric(s) that you are querying for is also required.
+Optionally, tags may be added to narrow down the search.
+
+	QueryTagBuilder builder = QueryTagBuilder.getInstance();
+    builder.setStart(2, TimeUnit.MONTHS)
+           .setEnd(1, TimeUnit.MONTHS)
+           .addMetric("metric1")
+    HttpClient client = new HttpClient("http://localhost:8080");
+    QueryTagResponse response = client.queryTag(builder);
+   	client.shutdown();
 
 ## Querying Metric Names
 
@@ -141,7 +155,7 @@ Last, you must cast to your new type following a query for a metric.
 
 ## KairosDB compatibility
 
-Version 2.1.1 of the client was tested with KairosDB version 1.1.2-1.
+Version 2.2.0 of the client was tested with KairosDB version 1.1.3-1.
 
 ## Copyright and License
 
