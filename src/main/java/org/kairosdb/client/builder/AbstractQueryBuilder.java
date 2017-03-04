@@ -91,7 +91,6 @@ public abstract class AbstractQueryBuilder<B extends AbstractQueryBuilder<B>>
 		checkArgument(startRelative == null, "Both relative and absolute start times cannot be set.");
 
 		this.startAbsolute = start.getTime();
-		checkArgument(startAbsolute <= System.currentTimeMillis(), "Start time cannot be in the future.");
 		return (B) this;
 	}
 
@@ -111,7 +110,6 @@ public abstract class AbstractQueryBuilder<B extends AbstractQueryBuilder<B>>
 		checkArgument(startAbsolute == null, "Both relative and absolute start times cannot be set.");
 
 		startRelative = new RelativeTime(duration, unit);
-		checkArgument(startRelative.getTimeRelativeTo(System.currentTimeMillis()) <= System.currentTimeMillis(), "Start time cannot be in the future.");
 		return (B) this;
 	}
 
