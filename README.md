@@ -1,5 +1,6 @@
 KairosDB Client
 ================
+[![Build Status](https://travis-ci.org/kairosdb/kairosdb-client.svg?branch=develop)](https://travis-ci.org/kairosdb/kairosdb-client)
 
 The KairosDB client is a Java library that makes sending metrics and querying the KairosDB server simple.
 The HttpClient class is used to push metrics or query the KairosDB server. The library uses the builder pattern to
