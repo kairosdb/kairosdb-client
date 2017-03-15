@@ -1,5 +1,8 @@
 package org.kairosdb.client;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+
 import org.kairosdb.client.builder.MetricBuilder;
 import org.kairosdb.client.builder.QueryBuilder;
 import org.kairosdb.client.builder.QueryTagBuilder;
@@ -7,9 +10,6 @@ import org.kairosdb.client.response.GetResponse;
 import org.kairosdb.client.response.QueryResponse;
 import org.kairosdb.client.response.QueryTagResponse;
 import org.kairosdb.client.response.Response;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
 
 public interface Client
 {
@@ -36,6 +36,14 @@ public interface Client
 	 * @throws IOException if the JSON returned could not be properly processed
 	 */
 	GetResponse getTagValues() throws IOException;
+
+	/**
+	 * Returns status of Kairos Instance.
+	 *
+	 * @return status of Kairos instance
+	 * @throws IOException if the JSON returned could not be properly processed
+	 */
+	GetResponse getStatus() throws IOException;
 
 	/**
 	 * Queries KairosDB using the query built by the builder.
