@@ -8,6 +8,7 @@
 	<version>2.2.0</version>
 	<packaging>jar</packaging>
 
+
 	<name>kairosclient</name>
 	<description>Java client for pushing and querying data to/from KairosDB
 	</description>
