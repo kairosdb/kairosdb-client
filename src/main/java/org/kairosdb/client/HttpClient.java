@@ -16,6 +16,8 @@
 package org.kairosdb.client;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.config.RequestConfig.Builder;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -48,7 +50,10 @@ public class HttpClient extends AbstractClient
 	{
 		super(url);
 		HttpClientBuilder builder = HttpClientBuilder.create();
-		client = builder.build();
+		Builder configBuilder = RequestConfig.custom();
+		configBuilder.setConnectTimeout(3 * 1000);
+		configBuilder.setSocketTimeout(3 * 1000);
+		client = builder.setDefaultRequestConfig(configBuilder.build()).build();
 	}
 
 	/**
