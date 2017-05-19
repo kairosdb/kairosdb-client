@@ -36,6 +36,7 @@ public class MetricBuilder
 {
 	private List<Metric> metrics = new ArrayList<Metric>();
 	private transient Gson mapper;
+	private boolean useCompression = false;
 
 	private MetricBuilder()
 	{
@@ -92,6 +93,22 @@ public class MetricBuilder
 	{
 		return metrics;
 	}
+
+	/**
+	 * Sets the compression flag for http post.
+	 * @param compressionEnabled
+	 */
+	public void setCompression(boolean compressionEnabled)
+	{
+		useCompression = compressionEnabled;
+		return;
+	}
+
+	/**
+	 * Returns the compression flag
+	 * @return
+	 */
+	public boolean isCompressionEnabled() { return useCompression; }
 
 	/**
 	 * Returns the JSON string built by the builder. This is the JSON that can be used by the client add metrics.

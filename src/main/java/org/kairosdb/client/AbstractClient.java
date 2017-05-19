@@ -84,9 +84,16 @@ public abstract class AbstractClient implements Client
 	public Response pushMetrics(MetricBuilder builder) throws URISyntaxException, IOException
 	{
 		checkNotNull(builder);
-		ClientResponse clientResponse = postData(builder.build(), url + "/api/v1/datapoints");
-
-		return getResponse(clientResponse);
+		if(builder.isCompressionEnabled())
+		{
+			ClientResponse clientResponse = postCompressedData(builder.build(), url + "/api/v1/datapoints");
+			return getResponse(clientResponse);
+		}
+		else
+		{
+			ClientResponse clientResponse = postData(builder.build(), url + "/api/v1/datapoints");
+			return getResponse(clientResponse);
+		}
 	}
 
 	@Override
@@ -189,6 +196,8 @@ public abstract class AbstractClient implements Client
 	}
 
 	protected abstract ClientResponse postData(String json, String url) throws IOException;
+
+	protected abstract ClientResponse postCompressedData(String json, String url) throws IOException;
 
 	protected abstract ClientResponse queryData(String url) throws IOException;
 

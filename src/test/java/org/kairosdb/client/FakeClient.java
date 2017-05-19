@@ -39,6 +39,12 @@ public class FakeClient extends AbstractClient
 	}
 
 	@Override
+	protected ClientResponse postCompressedData(String json, String url) throws IOException
+	{
+		return new FakeClientResponse(responseCode, responseJson);
+	}
+
+	@Override
 	protected ClientResponse queryData(String url) throws IOException
 	{
 		return new FakeClientResponse(responseCode, responseJson);

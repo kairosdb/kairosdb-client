@@ -15,7 +15,9 @@
  */
 package org.kairosdb.client;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.entity.EntityBuilder;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -74,6 +76,21 @@ public class HttpClient extends AbstractClient
 		postMethod.setEntity(requestEntity);
 
 		return execute(postMethod);
+	}
+
+	@Override
+	protected ClientResponse postCompressedData(String json, String url) throws IOException
+	{
+		HttpEntity entity = EntityBuilder.create()
+				.setText(json)
+				.setContentType(ContentType.TEXT_PLAIN)
+				.gzipCompress()
+				.build();
+		HttpPost post = new HttpPost(url);
+		post.setEntity(entity);
+		post.setHeader("Content-Type", "application/gzip");
+
+		return execute(post);
 	}
 
 	@Override
