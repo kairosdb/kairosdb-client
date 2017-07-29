@@ -118,4 +118,22 @@ public class MetricBuilderTest
 
 		builder.addMetric("metric1").addTag("tag", "");
 	}
+
+	@Test
+	public void test_compression_flag_set()
+	{
+		MetricBuilder builder = MetricBuilder.getInstance();
+		builder.addMetric("sample");
+		builder.setCompression(true);
+		assert (builder.isCompressionEnabled());
+	}
+
+	@Test
+	public void test_compression_default()
+	{
+		MetricBuilder builder = MetricBuilder.getInstance();
+		builder.addMetric("sample");
+		assert (!builder.isCompressionEnabled());
+	}
+
 }
