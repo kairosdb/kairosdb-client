@@ -1,8 +1,10 @@
 package org.kairosdb.client;
 
-import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
-
-import static com.google.common.base.Preconditions.checkNotNull;
+import com.google.gson.stream.JsonReader;
+import org.kairosdb.client.builder.MetricBuilder;
+import org.kairosdb.client.builder.QueryBuilder;
+import org.kairosdb.client.builder.QueryTagBuilder;
+import org.kairosdb.client.response.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,16 +15,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.kairosdb.client.builder.MetricBuilder;
-import org.kairosdb.client.builder.QueryBuilder;
-import org.kairosdb.client.builder.QueryTagBuilder;
-import org.kairosdb.client.response.ErrorResponse;
-import org.kairosdb.client.response.GetResponse;
-import org.kairosdb.client.response.QueryResponse;
-import org.kairosdb.client.response.QueryTagResponse;
-import org.kairosdb.client.response.Response;
-
-import com.google.gson.stream.JsonReader;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
 
 /**
  * Base code used to send metrics to Kairos or query Kairos.
@@ -64,12 +58,6 @@ public abstract class AbstractClient implements Client
 	public GetResponse getTagValues() throws IOException
 	{
 		return get(url + "/api/v1/tagvalues");
-	}
-
-	@Override
-	public GetResponse getStatus() throws IOException
-	{
-		return get(url + "/api/v1/health/status");
 	}
 
 	@Override
@@ -162,12 +150,6 @@ public abstract class AbstractClient implements Client
 	{
 		ClientResponse clientResponse = queryData(url);
 		int responseCode = clientResponse.getStatusCode();
-
-		if (responseCode == 200) {
-			if (url.contains("health/status")) {
-				return new GetResponse(responseCode);
-			}
-		}
 
 		if (responseCode >= 400)
 		{
