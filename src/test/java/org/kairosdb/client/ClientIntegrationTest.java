@@ -1,10 +1,31 @@
 package org.kairosdb.client;
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasItems;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.List;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.kairosdb.client.builder.*;
+import org.kairosdb.client.builder.AggregatorFactory;
+import org.kairosdb.client.builder.DataFormatException;
+import org.kairosdb.client.builder.DataPoint;
+import org.kairosdb.client.builder.Metric;
+import org.kairosdb.client.builder.MetricBuilder;
+import org.kairosdb.client.builder.QueryBuilder;
+import org.kairosdb.client.builder.QueryMetric;
+import org.kairosdb.client.builder.RelativeTime;
+import org.kairosdb.client.builder.TimeUnit;
 import org.kairosdb.client.builder.grouper.BinGrouper;
 import org.kairosdb.client.builder.grouper.TagGrouper;
 import org.kairosdb.client.builder.grouper.TimeGrouper;
@@ -13,15 +34,6 @@ import org.kairosdb.client.response.GetResponse;
 import org.kairosdb.client.response.QueryResponse;
 import org.kairosdb.client.response.Response;
 import org.kairosdb.core.exception.DatastoreException;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.List;
-
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
 
 public class ClientIntegrationTest
 {
@@ -285,6 +297,11 @@ public class ClientIntegrationTest
 
 			assertThat(tagValues.getStatusCode(), equalTo(200));
 			assertThat(tagValues.getResults(), hasItems(HTTP_TAG_VALUE_1, HTTP_TAG_VALUE_2));
+
+			// Check Status
+			GetResponse status = client.getStatus();
+
+			assertThat(tagValues.getStatusCode(), equalTo(200));
 
 			// Query metrics
 			QueryBuilder builder = QueryBuilder.getInstance();
