@@ -82,7 +82,7 @@ public class QueryMetric
 
 	private Order order;
 
-	QueryMetric(String name)
+	public QueryMetric(String name)
 	{
 		this.name = checkNotNullOrEmpty(name);
 	}
