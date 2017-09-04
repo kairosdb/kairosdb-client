@@ -96,6 +96,12 @@ public class QueryBuilder extends AbstractQueryBuilder<QueryBuilder>
 		return metric;
 	}
 
+	public QueryMetric addMetric(QueryMetric metric)
+	{
+		metrics.add(metric);
+		return metric;
+	}
+
 	/**
 	 * Returns the cache time.
 	 *
