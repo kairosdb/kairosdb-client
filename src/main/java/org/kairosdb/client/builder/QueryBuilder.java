@@ -72,6 +72,20 @@ public class QueryBuilder extends AbstractQueryBuilder<QueryBuilder>
 	}
 
 	/**
+	 * Adds a QueryMetric object to the QueryBuilder
+	 *
+	 * @param metric a QueryMetric object
+	 * @return the builder
+	 */
+	public QueryMetric addMetric(QueryMetric metric)
+	{
+		checkNotNull(metric,"metric cannot be null");
+		metrics.add(metric);
+		return metric;
+	}
+
+
+	/**
 	 * Returns a new query builder.
 	 *
 	 * @return new query builder

@@ -37,7 +37,13 @@ public class QueryBuilderTest
 	@Test(expected = NullPointerException.class)
 	public void test_MetricNameNull_Invalid()
 	{
-		QueryBuilder.getInstance().addMetric(null);
+		QueryBuilder.getInstance().addMetric((String)null);
+	}
+
+	@Test(expected = NullPointerException.class)
+	public void test_addMetricNull_invalid()
+	{
+		QueryBuilder.getInstance().addMetric((QueryMetric) null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
