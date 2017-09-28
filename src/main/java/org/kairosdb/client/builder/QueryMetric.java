@@ -82,6 +82,9 @@ public class QueryMetric
 
 	private Order order;
 
+	@SerializedName("exclude_tags")
+	private boolean excludeTags;
+
 	public QueryMetric(String name)
 	{
 		this.name = checkNotNullOrEmpty(name);
@@ -192,27 +195,47 @@ public class QueryMetric
 		this.order = order;
 	}
 
+	/**
+	 * If true removes tags from the query response. The default is to include tags.
+	 *
+	 * @param exclude exclude tags
+	 */
+	public void setExcludeTags(boolean exclude)
+	{
+		this.excludeTags = exclude;
+	}
+
 	@SuppressWarnings("SimplifiableIfStatement")
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o)
+		if (this == o) {
 			return true;
-		if (o == null || getClass() != o.getClass())
+		}
+		if (o == null || getClass() != o.getClass()) {
 			return false;
+		}
 
 		QueryMetric that = (QueryMetric) o;
 
-		if (!name.equals(that.name))
+		if (excludeTags != that.excludeTags) {
 			return false;
-		if (tags != null ? !tags.equals(that.tags) : that.tags != null)
+		}
+		if (!name.equals(that.name)) {
 			return false;
-		if (groupers != null ? !groupers.equals(that.groupers) : that.groupers != null)
+		}
+		if (tags != null ? !tags.equals(that.tags) : that.tags != null) {
 			return false;
-		if (aggregators != null ? !aggregators.equals(that.aggregators) : that.aggregators != null)
+		}
+		if (groupers != null ? !groupers.equals(that.groupers) : that.groupers != null) {
 			return false;
-		if (limit != null ? !limit.equals(that.limit) : that.limit != null)
+		}
+		if (aggregators != null ? !aggregators.equals(that.aggregators) : that.aggregators != null) {
 			return false;
+		}
+		if (limit != null ? !limit.equals(that.limit) : that.limit != null) {
+			return false;
+		}
 		return order == that.order;
 	}
 
@@ -225,6 +248,7 @@ public class QueryMetric
 		result = 31 * result + (aggregators != null ? aggregators.hashCode() : 0);
 		result = 31 * result + (limit != null ? limit.hashCode() : 0);
 		result = 31 * result + (order != null ? order.hashCode() : 0);
+		result = 31 * result + (excludeTags ? 1 : 0);
 		return result;
 	}
 }

@@ -17,6 +17,8 @@ package org.kairosdb.client.response;
 
 import com.google.gson.annotations.SerializedName;
 import org.kairosdb.client.builder.DataPoint;
+
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -52,16 +54,16 @@ public class Result
 
 	public List<DataPoint> getDataPoints()
 	{
-		return dataPoints;
+		return dataPoints != null ? dataPoints : Collections.EMPTY_LIST;
 	}
 
 	public Map<String, List<String>> getTags()
 	{
-		return tags;
+		return tags != null ? tags : Collections.emptyMap();
 	}
 
 	public List<GroupResult> getGroupResults()
 	{
-		return groupResults;
+		return groupResults != null ? groupResults : Collections.EMPTY_LIST;
 	}
 }
