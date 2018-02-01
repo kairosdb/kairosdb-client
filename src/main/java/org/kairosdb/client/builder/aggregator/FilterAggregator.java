@@ -22,7 +22,7 @@ public class FilterAggregator extends Aggregator {
 
     public enum Operation
     {
-        LTE("lte"), LT("lt"), GTE("gte"), GT("gt"), EQUAL("eq");
+        LTE("lte"), LT("lt"), GTE("gte"), GT("gt"), EQUAL("equal");
 
         private String text;
 
