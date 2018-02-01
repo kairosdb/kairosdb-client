@@ -15,10 +15,9 @@
  */
 package org.kairosdb.client.builder;
 
-import org.kairosdb.client.builder.aggregator.CustomAggregator;
-import org.kairosdb.client.builder.aggregator.PercentileAggregator;
-import org.kairosdb.client.builder.aggregator.RateAggregator;
-import org.kairosdb.client.builder.aggregator.SamplingAggregator;
+import org.kairosdb.client.builder.aggregator.*;
+
+import javax.annotation.Nonnull;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -304,4 +303,10 @@ public class AggregatorFactory
 		checkNotNull(trim, "trim cannot be null");
 		return new CustomAggregator("trim", "\"trim\":\"" + trim + "\"");
 	}
+
+    public static FilterAggregator createFilterAggregator(@Nonnull FilterAggregator.Operation operation, double val) {
+		checkNotNull(operation, "operation cannot be null");
+		return new FilterAggregator(operation, val);
+    }
+
 }

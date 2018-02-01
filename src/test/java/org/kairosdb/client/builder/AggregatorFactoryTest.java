@@ -1,10 +1,7 @@
 package org.kairosdb.client.builder;
 
 import org.junit.Test;
-import org.kairosdb.client.builder.aggregator.CustomAggregator;
-import org.kairosdb.client.builder.aggregator.PercentileAggregator;
-import org.kairosdb.client.builder.aggregator.RateAggregator;
-import org.kairosdb.client.builder.aggregator.SamplingAggregator;
+import org.kairosdb.client.builder.aggregator.*;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -205,4 +202,14 @@ public class AggregatorFactoryTest
 		assertThat(aggregator.getName(), equalTo("sma"));
 		assertThat(aggregator.toJson(), equalTo("{\"name\":\"sma\",'size':5}"));
 	}
+
+	@Test
+	public void test_createFilterAggregator() {
+		FilterAggregator filter = AggregatorFactory.createFilterAggregator(FilterAggregator.Operation.EQUAL, 1d);
+
+		assertThat(filter.getName(), equalTo("filter"));
+		assertThat(filter.getOperation(), equalTo("eq"));
+		assertThat(filter.getThreshold(), equalTo("1.0"));
+	}
+
 }
