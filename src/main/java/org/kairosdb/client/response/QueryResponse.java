@@ -90,32 +90,6 @@ public class QueryResponse extends Response
 		return body;
 	}
 
-	public String getBody(InputStream stream) throws IOException
-	{
-		if (stream == null)
-			return "";
-
-		StringBuilder builder = new StringBuilder();
-		BufferedReader reader = null;
-		try
-		{
-			reader = new BufferedReader(new InputStreamReader(stream));
-			String line;
-			while ((line = reader.readLine()) != null)
-			{
-				builder.append(line);
-			}
-		}
-		finally
-		{
-			if (reader != null)
-				reader.close();
-		}
-
-		body = builder.toString();
-		return body;
-	}
-
 	public Query getQueryResponse(String metricName)
 		{
 		initializeMap();

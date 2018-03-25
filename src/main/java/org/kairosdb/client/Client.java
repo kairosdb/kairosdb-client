@@ -1,18 +1,32 @@
 package org.kairosdb.client;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-
 import org.kairosdb.client.builder.MetricBuilder;
 import org.kairosdb.client.builder.QueryBuilder;
 import org.kairosdb.client.builder.QueryTagBuilder;
+import org.kairosdb.client.builder.RollupBuilder;
 import org.kairosdb.client.response.GetResponse;
 import org.kairosdb.client.response.QueryResponse;
 import org.kairosdb.client.response.QueryTagResponse;
 import org.kairosdb.client.response.Response;
+import org.kairosdb.client.response.RollupResponse;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
 
 public interface Client
 {
+	RollupResponse createRollup(RollupBuilder builder)
+			throws IOException;
+
+	Response deleteRollup(String id)
+			throws IOException;
+
+	RollupResponse getRollupTasks()
+			throws IOException;
+
+	RollupResponse getRollupTask(String id)
+			throws IOException;
+
 	/**
 	 * Returns a list of all metric names.
 	 *

@@ -15,6 +15,10 @@
  */
 package org.kairosdb.client.response;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -54,5 +58,23 @@ public class Response
 	public void setStatusCode(int statusCode)
 	{
 		this.statusCode = statusCode;
+	}
+
+
+	public static String getBody(InputStream stream) throws IOException
+	{
+		if (stream == null)
+			return "";
+
+		StringBuilder builder = new StringBuilder();
+		try(BufferedReader reader = new BufferedReader(new InputStreamReader(stream)))
+		{
+			String line;
+			while ((line = reader.readLine()) != null)
+			{
+				builder.append(line);
+			}
+		}
+		return builder.toString();
 	}
 }

@@ -154,29 +154,13 @@ public abstract class AbstractQueryBuilder<B extends AbstractQueryBuilder<B>>
 	 */
 	public String build() throws IOException
 	{
-		validateTimes();
-
+		validate();
 		return mapper.toJson(this);
 	}
 
-	protected void validateTimes()
+	void validate()
 	{
-		checkState(startAbsolute != null || startRelative != null, "Start time must be specified");
-
-		if (endAbsolute != null)
-		{
-			if (startAbsolute != null)
-				TimeValidator.validateEndTimeLaterThanStartTime(startAbsolute, endAbsolute);
-			else
-				TimeValidator.validateEndTimeLaterThanStartTime(startRelative, endAbsolute);
-		}
-		else if (endRelative != null)
-		{
-			if (startAbsolute != null)
-				TimeValidator.validateEndTimeLaterThanStartTime(startAbsolute, endRelative);
-			else
-				TimeValidator.validateEndTimeLaterThanStartTime(startRelative, endRelative);
-		}
+		BuilderUtils.validateTimes(startAbsolute, endAbsolute, startRelative, endRelative);
 	}
 
 	@SuppressWarnings("SimplifiableIfStatement")

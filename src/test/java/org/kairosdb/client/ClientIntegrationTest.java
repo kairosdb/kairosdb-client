@@ -1,18 +1,5 @@
 package org.kairosdb.client;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasItems;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.List;
-
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -25,6 +12,8 @@ import org.kairosdb.client.builder.MetricBuilder;
 import org.kairosdb.client.builder.QueryBuilder;
 import org.kairosdb.client.builder.QueryMetric;
 import org.kairosdb.client.builder.RelativeTime;
+import org.kairosdb.client.builder.Rollup;
+import org.kairosdb.client.builder.RollupBuilder;
 import org.kairosdb.client.builder.TimeUnit;
 import org.kairosdb.client.builder.grouper.BinGrouper;
 import org.kairosdb.client.builder.grouper.TagGrouper;
@@ -33,7 +22,22 @@ import org.kairosdb.client.builder.grouper.ValueGrouper;
 import org.kairosdb.client.response.GetResponse;
 import org.kairosdb.client.response.QueryResponse;
 import org.kairosdb.client.response.Response;
+import org.kairosdb.client.response.RollupResponse;
 import org.kairosdb.core.exception.DatastoreException;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.List;
+
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasItems;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
 
 public class ClientIntegrationTest
 {
@@ -662,6 +666,32 @@ public class ClientIntegrationTest
 			client.shutdown();
 		}
 
+	}
+
+	@Test
+	public void test_createRollup()
+			throws IOException
+	{
+		HttpClient client = new HttpClient("http://localhost:8081");
+		try {
+			RollupBuilder builder = RollupBuilder.getInstance("rollup1", new RelativeTime(2, TimeUnit.DAYS));
+
+			Rollup rollup = builder.addRollup("rollup1.rollup");
+			QueryBuilder queryBuilder = rollup.addQuery();
+			queryBuilder.setStart(1, TimeUnit.HOURS);
+			queryBuilder.addMetric("foobar").addAggregator(AggregatorFactory.createMaxAggregator(1, TimeUnit.MINUTES));
+
+			RollupResponse rollupResponse = client.createRollup(builder);
+
+			//todo fix
+//			assertThat(rollupResponse.getStatusCode(), equalTo(204));
+//			assertNotNull(rollupResponse.getId());
+//			assertThat(rollupResponse.getName(), equalTo("rollup1"));
+//			assertThat(rollupResponse.getUrl(), equalTo("http://localhost:8081/api/v1/rolllup/" + rollupResponse.getId()));
+		}
+		finally {
+			client.shutdown();
+		}
 	}
 
 	private class Complex

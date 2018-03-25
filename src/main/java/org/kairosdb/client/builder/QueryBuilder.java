@@ -38,7 +38,7 @@ public class QueryBuilder extends AbstractQueryBuilder<QueryBuilder>
 	@SerializedName("time_zone")
 	private TimeZone timeZone;
 
-	private List<QueryMetric> metrics = new ArrayList<QueryMetric>();
+	private List<QueryMetric> metrics = new ArrayList<>();
 
 	private QueryBuilder()
 	{
@@ -151,63 +151,51 @@ public class QueryBuilder extends AbstractQueryBuilder<QueryBuilder>
 		return this;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+		if (!super.equals(o)) {
+			return false;
+		}
+
+		QueryBuilder that = (QueryBuilder) o;
+
+		if (cacheTime != that.cacheTime) {
+			return false;
+		}
+		if (!timeZone.equals(that.timeZone)) {
+			return false;
+		}
+		return metrics.equals(that.metrics);
+	}
+
 	@Override
 	public int hashCode()
 	{
-		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + cacheTime;
-		result = prime * result + ((metrics == null) ? 0 : metrics.hashCode());
-		result = prime * result + ((timeZone == null) ? 0 : timeZone.hashCode());
+		result = 31 * result + cacheTime;
+		result = 31 * result + timeZone.hashCode();
+		result = 31 * result + metrics.hashCode();
 		return result;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
-	public boolean equals(Object obj)
+	public String toString()
 	{
-		if (this == obj)
-		{
-			return true;
-		}
-		if (!super.equals(obj))
-		{
-			return false;
-		}
-		if (getClass() != obj.getClass())
-		{
-			return false;
-		}
-		QueryBuilder other = (QueryBuilder) obj;
-		if (cacheTime != other.cacheTime)
-		{
-			return false;
-		}
-		if (metrics == null)
-		{
-			if (other.metrics != null)
-			{
-				return false;
-			}
-		} else if (!metrics.equals(other.metrics))
-		{
-			return false;
-		}
-		if (timeZone == null)
-		{
-			if (other.timeZone != null)
-			{
-				return false;
-			}
-		} else if (!timeZone.equals(other.timeZone))
-		{
-			return false;
-		}
-		return true;
+		return "QueryBuilder{" +
+				"cacheTime=" + cacheTime +
+				", timeZone=" + timeZone +
+				", metrics=" + metrics +
+				", startAbsolute=" + startAbsolute +
+				", endAbsolute=" + endAbsolute +
+				", startRelative=" + startRelative +
+				", endRelative=" + endRelative +
+				'}';
 	}
 }

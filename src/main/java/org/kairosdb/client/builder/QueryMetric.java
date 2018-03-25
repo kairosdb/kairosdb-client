@@ -195,6 +195,41 @@ public class QueryMetric
 		this.order = order;
 	}
 
+	public String getName()
+	{
+		return name;
+	}
+
+	public ListMultimap<String, String> getTags()
+	{
+		return tags;
+	}
+
+	public List<Grouper> getGroupers()
+	{
+		return groupers;
+	}
+
+	public List<Aggregator> getAggregators()
+	{
+		return aggregators;
+	}
+
+	public Integer getLimit()
+	{
+		return limit;
+	}
+
+	public Order getOrder()
+	{
+		return order;
+	}
+
+	public boolean isExcludeTags()
+	{
+		return excludeTags;
+	}
+
 	/**
 	 * If true removes tags from the query response. The default is to include tags.
 	 *
