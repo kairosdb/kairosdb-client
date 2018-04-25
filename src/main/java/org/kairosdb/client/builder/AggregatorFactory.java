@@ -46,6 +46,11 @@ public class AggregatorFactory
 		}
 	}
 
+	public enum FilterOperation
+	{
+		LTE, LT, GTE, GT, EQUAL
+	}
+
 	/**
 	 * Creates an aggregator that returns the minimum values for each time period as specified.
 	 * For example, "5 minutes" would returns the minimum value for each 5 minute period.
@@ -303,5 +308,19 @@ public class AggregatorFactory
 	{
 		checkNotNull(trim, "trim cannot be null");
 		return new CustomAggregator("trim", "\"trim\":\"" + trim + "\"");
+	}
+
+	/**
+	 * Creates an aggregator that filters datapoints according to the filter operation.
+	 *
+	 * @param operation what to filter on
+	 * @param threshold the value the operation is performed on. If the operation is lt, then a null data point is returned if the data point is less than the threshold.
+	 * @return filter aggregator
+	 */
+	public static CustomAggregator createFilterAggregator(FilterOperation operation, double threshold)
+	{
+		checkNotNull(operation, "operation cannot be null");
+		checkArgument(threshold >= 0.0, "threshold must be greater than or equal to zero");
+		return new CustomAggregator("filter", "\"filter_op\":\"" + operation + "\", \"threshold\":"  + threshold);
 	}
 }

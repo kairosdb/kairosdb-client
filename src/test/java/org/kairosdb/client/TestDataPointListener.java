@@ -1,23 +1,20 @@
 package org.kairosdb.client;
 
-import org.kairosdb.core.DataPoint;
-import org.kairosdb.core.DataPointListener;
+import org.kairosdb.eventbus.Subscribe;
+import org.kairosdb.events.DataPointEvent;
 
-import java.util.SortedMap;
-
-public class TestDataPointListener implements DataPointListener
+public class TestDataPointListener
 {
-	private DataPointEvent event;
+	private org.kairosdb.events.DataPointEvent event;
 
-	public void setEvent(DataPointEvent event)
+	@Subscribe
+	public void dataPoint(org.kairosdb.events.DataPointEvent event)
 	{
 		this.event = event;
 	}
 
-	@Override
-	public void dataPoint(String metricName, SortedMap<String, String> tags, DataPoint dataPoint)
+	public DataPointEvent getEvent()
 	{
-		if (event != null)
-			event.datapoint(metricName);
+		return event;
 	}
 }
