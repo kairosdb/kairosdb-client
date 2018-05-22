@@ -43,7 +43,7 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>14.0</version>
+			<version>19.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.hamcrest</groupId>
@@ -64,7 +64,7 @@
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
-			<version>2.2</version>
+			<version>2.5</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.code.findbugs</groupId>
@@ -86,7 +86,7 @@
 		<dependency>
 			<groupId>org.kairosdb</groupId>
 			<artifactId>kairosdb</artifactId>
-			<version>1.2.0-1</version>
+			<version>1.2.1-1</version>
 			<scope>test</scope>
 		</dependency>
 

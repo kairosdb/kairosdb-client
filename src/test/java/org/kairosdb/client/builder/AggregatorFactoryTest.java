@@ -205,4 +205,14 @@ public class AggregatorFactoryTest
 		assertThat(aggregator.getName(), equalTo("sma"));
 		assertThat(aggregator.toJson(), equalTo("{\"name\":\"sma\",'size':5}"));
 	}
+
+	@Test
+	public void test_createFilterAggregator()
+	{
+		CustomAggregator aggregator = AggregatorFactory.createFilterAggregator(AggregatorFactory.FilterOperation.GT, 3.0);
+
+		assertThat(aggregator.getName(), equalTo("filter"));
+		assertThat(aggregator.toJson(), equalTo("{\"name\":\"filter\",\"filter_op\":\"GT\", \"threshold\":3.0}"));
+	}
+
 }
