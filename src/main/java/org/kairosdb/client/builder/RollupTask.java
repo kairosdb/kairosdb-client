@@ -17,11 +17,11 @@ public class RollupTask
     private final String name;
 
     @SerializedName("execution_interval")
-    private final Duration executionInterval;
+    private final RelativeTime executionInterval;
 
     private final long lastModified;
 
-    public RollupTask(String id, String name, Duration executionInterval, long lastModified)
+    public RollupTask(String id, String name, RelativeTime executionInterval, long lastModified)
     {
         this.id = checkNotNullOrEmpty(id, "id cannot be null or empty");
         this.name = checkNotNullOrEmpty(name, "name cannot be null or empty");
@@ -44,7 +44,7 @@ public class RollupTask
         return name;
     }
 
-    public Duration getExecutionInterval()
+    public RelativeTime getExecutionInterval()
     {
         return executionInterval;
     }

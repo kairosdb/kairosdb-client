@@ -18,41 +18,37 @@ import org.kairosdb.core.exception.DatastoreException;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
 
 import static java.lang.Thread.sleep;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasItems;
-import static org.junit.Assert.assertNotNull;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class ClientIntegrationTest
 {
-	public static final String HTTP_METRIC_NAME_1 = "httpMetric1";
-	public static final String HTTP_METRIC_NAME_2 = "httpMetric2";
-	public static final String HTTP_TAG_NAME_1 = "httpTag1";
-	public static final String HTTP_TAG_NAME_2 = "httpTag2";
-	public static final String HTTP_TAG_VALUE_1 = "httpTagValue1";
-	public static final String HTTP_TAG_VALUE_2 = "httpTagValue2";
-	public static final String HTTP_TAG_VALUE_3 = "httpTagValue3";
+	private static final String HTTP_METRIC_NAME_1 = "httpMetric1";
+	private static final String HTTP_METRIC_NAME_2 = "httpMetric2";
+	private static final String HTTP_TAG_NAME_1 = "httpTag1";
+	private static final String HTTP_TAG_NAME_2 = "httpTag2";
+	private static final String HTTP_TAG_VALUE_1 = "httpTagValue1";
+	private static final String HTTP_TAG_VALUE_2 = "httpTagValue2";
+	private static final String HTTP_TAG_VALUE_3 = "httpTagValue3";
 
-	public static final String TELNET_METRIC_NAME_1 = "telnetMetric1";
-	public static final String TELNET_METRIC_NAME_2 = "telnetMetric2";
-	public static final String TELNET_METRIC_NAME_3 = "telnetMetric3";
-	public static final String TELNET_METRIC_NAME_4 = "telnetMetric4";
-	public static final String TELNET_TAG_NAME_1 = "telnetTag1";
-	public static final String TELNET_TAG_NAME_2 = "telnetTag2";
-	public static final String TELNET_TAG_VALUE_1 = "telnetTag1";
-	public static final String TELNET_TAG_VALUE_2 = "telnetTag2";
+	private static final String TELNET_METRIC_NAME_1 = "telnetMetric1";
+	private static final String TELNET_METRIC_NAME_2 = "telnetMetric2";
+	private static final String TELNET_METRIC_NAME_3 = "telnetMetric3";
+	private static final String TELNET_METRIC_NAME_4 = "telnetMetric4";
+	private static final String TELNET_TAG_NAME_1 = "telnetTag1";
+	private static final String TELNET_TAG_NAME_2 = "telnetTag2";
+	private static final String TELNET_TAG_VALUE_1 = "telnetTag1";
+	private static final String TELNET_TAG_VALUE_2 = "telnetTag2";
 
-	public static final String SSL_METRIC_NAME_1 = "sslMetric1";
-	public static final String SSL_METRIC_NAME_2 = "sslMetric2";
-	public static final String SSL_TAG_NAME_1 = "sslTag1";
-	public static final String SSL_TAG_NAME_2 = "sslTag2";
-	public static final String SSL_TAG_VALUE_1 = "sslTag1";
-	public static final String SSL_TAG_VALUE_2 = "sslTag2";
+	private static final String SSL_METRIC_NAME_1 = "sslMetric1";
+	private static final String SSL_METRIC_NAME_2 = "sslMetric2";
+	private static final String SSL_TAG_NAME_1 = "sslTag1";
+	private static final String SSL_TAG_NAME_2 = "sslTag2";
+	private static final String SSL_TAG_VALUE_1 = "sslTag1";
+	private static final String SSL_TAG_VALUE_2 = "sslTag2";
 
 	private static InMemoryKairosServer kairos;
 
@@ -76,7 +72,7 @@ public class ClientIntegrationTest
 
 	@Test
 	public void test_telnetClient()
-			throws IOException, URISyntaxException, DataFormatException, InterruptedException
+			throws IOException, DataFormatException, InterruptedException
 	{
 		TelnetClient client = new TelnetClient("localhost", 4245);
 
@@ -133,7 +129,7 @@ public class ClientIntegrationTest
 
 	@Test
 	public void test_telnetClientPutMetrics()
-			throws IOException, URISyntaxException, DataFormatException, InterruptedException
+			throws IOException, DataFormatException, InterruptedException
 	{
 		TelnetClient client = new TelnetClient("localhost", 4245);
 
@@ -190,7 +186,7 @@ public class ClientIntegrationTest
 
 	@Test
 	public void test_httpClient_no_results_from_query()
-			throws InterruptedException, IOException, URISyntaxException, DataFormatException
+			throws IOException
 	{
 		HttpClient client = new HttpClient("http://localhost:8082");
 
@@ -235,7 +231,7 @@ public class ClientIntegrationTest
 	}
 
 	@Test
-	public void test_httpClient() throws InterruptedException, IOException, URISyntaxException, DataFormatException
+	public void test_httpClient() throws IOException, DataFormatException
 	{
 		HttpClient client = new HttpClient("http://localhost:8082");
 
@@ -305,7 +301,7 @@ public class ClientIntegrationTest
 	}
 
 	@Test
-	public void test_httpClient_multiTagValues() throws InterruptedException, IOException, URISyntaxException, DataFormatException
+	public void test_httpClient_multiTagValues() throws IOException, DataFormatException
 	{
 		HttpClient client = new HttpClient("http://localhost:8082");
 
@@ -367,7 +363,7 @@ public class ClientIntegrationTest
 	 * return any errors which means that the aggregators and groupBys are all valid.
 	 */
 	@Test
-	public void test_aggregatorsAndGroupBy() throws InterruptedException, IOException, URISyntaxException
+	public void test_aggregatorsAndGroupBy() throws IOException
 	{
 		HttpClient client = new HttpClient("http://localhost:8082");
 
@@ -433,7 +429,7 @@ public class ClientIntegrationTest
 	}
 
 	@Test
-	public void test_ssl() throws IOException, URISyntaxException, DataFormatException
+	public void test_ssl() throws IOException, DataFormatException
 	{
 		System.setProperty("javax.net.ssl.trustStore", "src/test/resources/ssl.jks");
 		System.setProperty("javax.net.ssl.trustStorePassword", "testtest");
@@ -501,7 +497,7 @@ public class ClientIntegrationTest
 
 	@SuppressWarnings("PointlessArithmeticExpression")
 	@Test
-	public void test_limit() throws InterruptedException, IOException, URISyntaxException, DataFormatException
+	public void test_limit() throws IOException, DataFormatException
 	{
 		HttpClient client = new HttpClient("http://localhost:8082");
 
@@ -555,7 +551,7 @@ public class ClientIntegrationTest
 
 	@SuppressWarnings("PointlessArithmeticExpression")
 	@Test
-	public void test_Order() throws InterruptedException, IOException, URISyntaxException, DataFormatException
+	public void test_Order() throws IOException, DataFormatException
 	{
 		HttpClient client = new HttpClient("http://localhost:8082");
 
@@ -604,7 +600,7 @@ public class ClientIntegrationTest
 	}
 
 	@Test
-	public void test_customDataType() throws IOException, URISyntaxException, InterruptedException
+	public void test_customDataType() throws IOException
 	{
 		HttpClient client = new HttpClient("http://localhost:8082");
 		client.registerCustomDataType("complex", Complex.class);
@@ -643,28 +639,86 @@ public class ClientIntegrationTest
 	}
 
 	@Test
-	public void test_createRollup()
+	public void test_rollup()
 			throws IOException
 	{
 		HttpClient client = new HttpClient("http://localhost:8082");
 		try {
-			RollupBuilder builder = RollupBuilder.getInstance("rollup1", new RelativeTime(2, TimeUnit.DAYS));
+			RollupBuilder builder = RollupBuilder.getInstance("rollupTask", new RelativeTime(2, TimeUnit.DAYS));
 
-			Rollup rollup = builder.addRollup("rollup1.rollup");
-			QueryBuilder queryBuilder = rollup.addQuery();
-			queryBuilder.setStart(1, TimeUnit.HOURS);
-			queryBuilder.addMetric("foobar").addAggregator(AggregatorFactory.createMaxAggregator(1, TimeUnit.MINUTES));
+			// Rollup 1
+			Rollup rollup1 = builder.addRollup("rollup1.rollup");
+			QueryBuilder builder1 = rollup1.addQuery();
+			builder1.setStart(1, TimeUnit.HOURS);
+			builder1.addMetric("foobar1").addAggregator(AggregatorFactory.createMaxAggregator(1, TimeUnit.MINUTES));
 
+			Rollup rollup2 = builder.addRollup("rollup2.rollup");
+			QueryBuilder builder2 = rollup2.addQuery();
+			builder2.setStart(1, TimeUnit.MINUTES);
+			builder2.addMetric("foobar2").addAggregator(AggregatorFactory.createSumAggregator(1, TimeUnit.MINUTES));
+
+
+			// when: rollup is create
 			RollupResponse rollupResponse = client.createRollup(builder);
 
-			assertThat(rollupResponse.getStatusCode(), equalTo(200));
+			String id = rollupResponse.getRollupTasks().get(0).getId();
 
+			// then: verify rollup created
+			assertThat(rollupResponse.getStatusCode(), equalTo(200));
 			ImmutableList<RollupTask> rollupTasks = rollupResponse.getRollupTasks();
 			assertThat(rollupTasks.size(), equalTo(1));
+			assertThat(rollupTasks.get(0).getName(), equalTo("rollupTask"));
+			assertThat(rollupTasks.get(0).getExecutionInterval(), equalTo(new RelativeTime(2, TimeUnit.DAYS)));
+			assertThat(rollupTasks.get(0).getRollups().size(), equalTo(2));
+			assertRollup(rollupTasks.get(0).getRollups().get(0), new RelativeTime(1, TimeUnit.HOURS), "rollup1.rollup", "foobar1","max");
+			assertRollup(rollupTasks.get(0).getRollups().get(1), new RelativeTime(1, TimeUnit.MINUTES), "rollup2.rollup", "foobar2","sum");
+
+			// when: get all rollups
+			rollupResponse = client.getRollupTasks();
+
+			// then: verify all rollups
+			assertThat(rollupResponse.getStatusCode(), equalTo(200));
+			rollupTasks = rollupResponse.getRollupTasks();
+			assertThat(rollupTasks.size(), equalTo(1));
+			assertThat(rollupTasks.get(0).getName(), equalTo("rollupTask"));
+			assertThat(rollupTasks.get(0).getExecutionInterval(), equalTo(new RelativeTime(2, TimeUnit.DAYS)));
+			assertThat(rollupTasks.get(0).getRollups().size(), equalTo(2));
+			assertRollup(rollupTasks.get(0).getRollups().get(0), new RelativeTime(1, TimeUnit.HOURS), "rollup1.rollup", "foobar1","max");
+			assertRollup(rollupTasks.get(0).getRollups().get(1), new RelativeTime(1, TimeUnit.MINUTES), "rollup2.rollup", "foobar2","sum");
+
+			// when: get rollup
+			rollupResponse = client.getRollupTask(id);
+
+			// then: verify rollup returned
+			assertThat(rollupResponse.getStatusCode(), equalTo(200));
+			rollupTasks = rollupResponse.getRollupTasks();
+			assertThat(rollupTasks.size(), equalTo(1));
+			assertThat(rollupTasks.get(0).getName(), equalTo("rollupTask"));
+			assertThat(rollupTasks.get(0).getExecutionInterval(), equalTo(new RelativeTime(2, TimeUnit.DAYS)));
+			assertThat(rollupTasks.get(0).getRollups().size(), equalTo(2));
+
+			// when: rollup is deleted
+			Response response = client.deleteRollup(id);
+
+			// then: verify rollup deleted
+			assertThat(response.getStatusCode(), equalTo(204));
+
+			rollupResponse = client.getRollupTask(id);
+			assertThat(rollupResponse.getStatusCode(), equalTo(404));
 		}
 		finally {
 			client.shutdown();
 		}
+	}
+
+	private void assertRollup(Rollup actual, RelativeTime startTime, String saveAs, String metricName, String aggregatorName)
+	{
+		assertThat(actual.getStartRelative(), equalTo(startTime));
+		assertThat(actual.getSaveAs(), equalTo(saveAs));
+		assertThat(actual.getMetrics().size(), equalTo(1));
+		assertThat(actual.getMetrics().get(0).getName(), equalTo(metricName));
+		assertThat(actual.getMetrics().get(0).getAggregators().size(), equalTo(1));
+		assertThat(actual.getMetrics().get(0).getAggregators().get(0).getName(), equalTo(aggregatorName));
 	}
 
 	private void watiForEvent() throws InterruptedException

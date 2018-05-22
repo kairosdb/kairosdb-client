@@ -3,24 +3,14 @@ package org.kairosdb.client;
 import com.google.common.base.Strings;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
-import org.kairosdb.client.builder.MetricBuilder;
-import org.kairosdb.client.builder.QueryBuilder;
-import org.kairosdb.client.builder.QueryTagBuilder;
-import org.kairosdb.client.builder.RollupBuilder;
-import org.kairosdb.client.builder.RollupTask;
-import org.kairosdb.client.response.ErrorResponse;
-import org.kairosdb.client.response.GetResponse;
-import org.kairosdb.client.response.QueryResponse;
-import org.kairosdb.client.response.QueryTagResponse;
-import org.kairosdb.client.response.Response;
-import org.kairosdb.client.response.RollupResponse;
+import org.kairosdb.client.builder.*;
+import org.kairosdb.client.response.*;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -210,7 +200,7 @@ public abstract class AbstractClient implements Client
 
     @Override
     public Response delete(QueryBuilder builder)
-            throws URISyntaxException, IOException
+            throws IOException
     {
         checkNotNull(builder);
         ClientResponse clientResponse = postData(builder.build(), url + "/api/v1/datapoints/delete");
