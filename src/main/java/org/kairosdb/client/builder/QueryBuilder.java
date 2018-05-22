@@ -169,7 +169,14 @@ public class QueryBuilder extends AbstractQueryBuilder<QueryBuilder>
 		if (cacheTime != that.cacheTime) {
 			return false;
 		}
-		if (!timeZone.equals(that.timeZone)) {
+		if (timeZone == null)
+		{
+			if (that.timeZone != null)
+			{
+				return false;
+			}
+		} else if (!timeZone.equals(that.timeZone))
+		{
 			return false;
 		}
 		return metrics.equals(that.metrics);

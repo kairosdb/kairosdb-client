@@ -1,7 +1,6 @@
 package org.kairosdb.client.builder;
 
 import com.google.gson.annotations.SerializedName;
-import com.sun.istack.internal.NotNull;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -15,10 +14,8 @@ public class RollupTask
     private final String id;
     private final List<Rollup> rollups = new ArrayList<>();
 
-    @NotNull
     private final String name;
 
-    @NotNull
     @SerializedName("execution_interval")
     private final Duration executionInterval;
 

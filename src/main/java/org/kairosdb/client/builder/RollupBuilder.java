@@ -4,7 +4,6 @@ import com.google.common.collect.ListMultimap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
-import com.sun.istack.internal.NotNull;
 import org.kairosdb.client.builder.aggregator.CustomAggregator;
 import org.kairosdb.client.builder.grouper.CustomGrouper;
 import org.kairosdb.client.serializer.CustomAggregatorSerializer;
@@ -27,11 +26,9 @@ public class RollupBuilder
     private final transient Gson mapper;
 
     @SuppressWarnings("FieldCanBeLocal")
-    @NotNull
     private final String name;
 
     @SuppressWarnings("FieldCanBeLocal")
-    @NotNull
     @SerializedName("execution_interval")
     private final RelativeTime executionInterval;
 

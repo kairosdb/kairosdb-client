@@ -18,6 +18,7 @@ package org.kairosdb.client.builder;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.gson.annotations.SerializedName;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -285,5 +286,19 @@ public class QueryMetric
 		result = 31 * result + (order != null ? order.hashCode() : 0);
 		result = 31 * result + (excludeTags ? 1 : 0);
 		return result;
+	}
+
+	@Override
+	public String toString()
+	{
+		return new ToStringBuilder(this)
+				.append("name", name)
+				.append("tags", tags)
+				.append("groupers", groupers)
+				.append("aggregators", aggregators)
+				.append("limit", limit)
+				.append("order", order)
+				.append("excludeTags", excludeTags)
+				.toString();
 	}
 }

@@ -81,33 +81,4 @@ public class RollupBuilderTest
 
         assertEquals(mapper.fromJson(expectedJson, RollupTask.class), equalTo(mapper.fromJson(json, RollupTask.class)));
     }
-
-    @Test
-    public void testGetRollups()
-            throws IOException
-    {
-        Client client = new HttpClient("http://localhost:8080");
-        RollupResponse rollupTasks = client.getRollupTasks();
-        System.out.println("here");
-    }
-
-    @Test
-    public void testDelete()
-            throws IOException
-    {
-        Client client = new HttpClient("http://localhost:8080");
-        Response response = client.deleteRollup("b8cfbf01-2e52-4a16-a1af-88f85342237b");
-        System.out.println(response.getStatusCode());
-        for (String error : response.getErrors()) {
-            System.out.println(error);
-        }
-    }
-
-    @Test
-    public void testGetrollup()
-            throws IOException
-    {
-        Client client = new HttpClient("http://localhost:8080");
-        RollupResponse rollup = client.getRollupTask("b8cfbf01-2e52-4a16-a1af-88f85342237b");
-    }
 }

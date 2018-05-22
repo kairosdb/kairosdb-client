@@ -1,20 +1,11 @@
 package org.kairosdb.client;
 
-import org.junit.After;
+import com.google.common.base.Stopwatch;
+import com.google.common.collect.ImmutableList;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.kairosdb.client.builder.AggregatorFactory;
-import org.kairosdb.client.builder.DataFormatException;
-import org.kairosdb.client.builder.DataPoint;
-import org.kairosdb.client.builder.Metric;
-import org.kairosdb.client.builder.MetricBuilder;
-import org.kairosdb.client.builder.QueryBuilder;
-import org.kairosdb.client.builder.QueryMetric;
-import org.kairosdb.client.builder.RelativeTime;
-import org.kairosdb.client.builder.Rollup;
-import org.kairosdb.client.builder.RollupBuilder;
-import org.kairosdb.client.builder.TimeUnit;
+import org.kairosdb.client.builder.*;
 import org.kairosdb.client.builder.grouper.BinGrouper;
 import org.kairosdb.client.builder.grouper.TagGrouper;
 import org.kairosdb.client.builder.grouper.TimeGrouper;
@@ -30,14 +21,12 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 
+import static java.lang.Thread.sleep;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
 
 public class ClientIntegrationTest
 {
@@ -85,20 +74,11 @@ public class ClientIntegrationTest
 		kairos.shutdown();
 	}
 
-	@After
-	public void tearDown()
-	{
-		kairos.getDataPointListener().setEvent(null);
-	}
-
-	@SuppressWarnings("deprecation")
 	@Test
-	public void test_telnetClient() throws IOException, URISyntaxException, DataFormatException
+	public void test_telnetClient()
+			throws IOException, URISyntaxException, DataFormatException, InterruptedException
 	{
-		DataPointEvent dataPointEvent = mock(DataPointEvent.class);
-		kairos.getDataPointListener().setEvent(dataPointEvent);
-
-		TelnetClient client = new TelnetClient("localhost", 4244);
+		TelnetClient client = new TelnetClient("localhost", 4245);
 
 		try
 		{
@@ -114,14 +94,13 @@ public class ClientIntegrationTest
 			long timestamp2 = System.currentTimeMillis();
 			metric2.addDataPoint(timestamp2, 40);
 
-			client.pushMetrics(metricBuilder);
+			client.putMetrics(metricBuilder);
 
 			client.shutdown();
 
 			// Because Telnet is Asynchronous, it takes some time before the datapoints get written.
 			// Wait for Kairos to notify us that they have been written.
-			verify(dataPointEvent, timeout(5000).times(1)).datapoint(TELNET_METRIC_NAME_1);
-			verify(dataPointEvent, timeout(5000).times(1)).datapoint(TELNET_METRIC_NAME_2);
+			watiForEvent();
 
 			// Query metrics
 			QueryBuilder builder = QueryBuilder.getInstance();
@@ -129,7 +108,7 @@ public class ClientIntegrationTest
 			builder.addMetric(TELNET_METRIC_NAME_1);
 			builder.addMetric(TELNET_METRIC_NAME_2);
 
-			HttpClient httpClient = new HttpClient("http://localhost:8081");
+			HttpClient httpClient = new HttpClient("http://localhost:8082");
 			QueryResponse query = httpClient.query(builder);
 			assertThat(query.getQueries().size(), equalTo(2));
 
@@ -152,14 +131,11 @@ public class ClientIntegrationTest
 		}
 	}
 
-
 	@Test
-	public void test_telnetClientPutMetrics() throws IOException, URISyntaxException, DataFormatException
+	public void test_telnetClientPutMetrics()
+			throws IOException, URISyntaxException, DataFormatException, InterruptedException
 	{
-		DataPointEvent dataPointEvent = mock(DataPointEvent.class);
-		kairos.getDataPointListener().setEvent(dataPointEvent);
-
-		TelnetClient client = new TelnetClient("localhost", 4244);
+		TelnetClient client = new TelnetClient("localhost", 4245);
 
 		try
 		{
@@ -181,8 +157,7 @@ public class ClientIntegrationTest
 
 			// Because Telnet is Asynchronous, it takes some time before the datapoints get written.
 			// Wait for Kairos to notify us that they have been written.
-			verify(dataPointEvent, timeout(5000).times(1)).datapoint(TELNET_METRIC_NAME_3);
-			verify(dataPointEvent, timeout(5000).times(1)).datapoint(TELNET_METRIC_NAME_4);
+			watiForEvent();
 
 			// Query metrics
 			QueryBuilder builder = QueryBuilder.getInstance();
@@ -190,7 +165,7 @@ public class ClientIntegrationTest
 			builder.addMetric(TELNET_METRIC_NAME_3);
 			builder.addMetric(TELNET_METRIC_NAME_4);
 
-			HttpClient httpClient = new HttpClient("http://localhost:8081");
+			HttpClient httpClient = new HttpClient("http://localhost:8082");
 			QueryResponse query = httpClient.query(builder);
 			assertThat(query.getQueries().size(), equalTo(2));
 
@@ -217,7 +192,7 @@ public class ClientIntegrationTest
 	public void test_httpClient_no_results_from_query()
 			throws InterruptedException, IOException, URISyntaxException, DataFormatException
 	{
-		HttpClient client = new HttpClient("http://localhost:8081");
+		HttpClient client = new HttpClient("http://localhost:8082");
 
 		try
 		{
@@ -262,7 +237,7 @@ public class ClientIntegrationTest
 	@Test
 	public void test_httpClient() throws InterruptedException, IOException, URISyntaxException, DataFormatException
 	{
-		HttpClient client = new HttpClient("http://localhost:8081");
+		HttpClient client = new HttpClient("http://localhost:8082");
 
 		try
 		{
@@ -332,7 +307,7 @@ public class ClientIntegrationTest
 	@Test
 	public void test_httpClient_multiTagValues() throws InterruptedException, IOException, URISyntaxException, DataFormatException
 	{
-		HttpClient client = new HttpClient("http://localhost:8081");
+		HttpClient client = new HttpClient("http://localhost:8082");
 
 		try
 		{
@@ -394,7 +369,7 @@ public class ClientIntegrationTest
 	@Test
 	public void test_aggregatorsAndGroupBy() throws InterruptedException, IOException, URISyntaxException
 	{
-		HttpClient client = new HttpClient("http://localhost:8081");
+		HttpClient client = new HttpClient("http://localhost:8082");
 
 		try
 		{
@@ -433,7 +408,6 @@ public class ClientIntegrationTest
 			metric.addAggregator(AggregatorFactory.createPercentileAggregator(0.3, 1, TimeUnit.SECONDS));
 			metric.addAggregator(AggregatorFactory.createLastAggregator(1, TimeUnit.SECONDS));
 			metric.addAggregator(AggregatorFactory.createFirstAggregator(1, TimeUnit.SECONDS));
-			metric.addAggregator(AggregatorFactory.createDataGapsMarkingAggregator(1, TimeUnit.SECONDS));
 			metric.addAggregator(AggregatorFactory.createDiffAggregator());
 			metric.addAggregator(AggregatorFactory.createLeastSquaresAggregator(1, TimeUnit.SECONDS));
 			metric.addAggregator(AggregatorFactory.createSamplerAggregator());
@@ -441,6 +415,7 @@ public class ClientIntegrationTest
 			metric.addAggregator(AggregatorFactory.createSaveAsAggregator("newMetricName"));
 			metric.addAggregator(AggregatorFactory.createTrimAggregator(AggregatorFactory.Trim.BOTH));
 			metric.addAggregator(AggregatorFactory.createSimpleMovingAverage(2));
+			metric.addAggregator(AggregatorFactory.createDataGapsMarkingAggregator(1, TimeUnit.SECONDS));
 
 			metric.addGrouper(new TagGrouper(HTTP_TAG_NAME_1, HTTP_TAG_NAME_2));
 			metric.addGrouper(new TimeGrouper(new RelativeTime(1, TimeUnit.MILLISECONDS), 3));
@@ -528,7 +503,7 @@ public class ClientIntegrationTest
 	@Test
 	public void test_limit() throws InterruptedException, IOException, URISyntaxException, DataFormatException
 	{
-		HttpClient client = new HttpClient("http://localhost:8081");
+		HttpClient client = new HttpClient("http://localhost:8082");
 
 		try
 		{
@@ -582,7 +557,7 @@ public class ClientIntegrationTest
 	@Test
 	public void test_Order() throws InterruptedException, IOException, URISyntaxException, DataFormatException
 	{
-		HttpClient client = new HttpClient("http://localhost:8081");
+		HttpClient client = new HttpClient("http://localhost:8082");
 
 		try
 		{
@@ -631,7 +606,7 @@ public class ClientIntegrationTest
 	@Test
 	public void test_customDataType() throws IOException, URISyntaxException, InterruptedException
 	{
-		HttpClient client = new HttpClient("http://localhost:8081");
+		HttpClient client = new HttpClient("http://localhost:8082");
 		client.registerCustomDataType("complex", Complex.class);
 
 		try
@@ -665,14 +640,13 @@ public class ClientIntegrationTest
 			//noinspection ThrowFromFinallyBlock
 			client.shutdown();
 		}
-
 	}
 
 	@Test
 	public void test_createRollup()
 			throws IOException
 	{
-		HttpClient client = new HttpClient("http://localhost:8081");
+		HttpClient client = new HttpClient("http://localhost:8082");
 		try {
 			RollupBuilder builder = RollupBuilder.getInstance("rollup1", new RelativeTime(2, TimeUnit.DAYS));
 
@@ -683,14 +657,27 @@ public class ClientIntegrationTest
 
 			RollupResponse rollupResponse = client.createRollup(builder);
 
-			//todo fix
-//			assertThat(rollupResponse.getStatusCode(), equalTo(204));
-//			assertNotNull(rollupResponse.getId());
-//			assertThat(rollupResponse.getName(), equalTo("rollup1"));
-//			assertThat(rollupResponse.getUrl(), equalTo("http://localhost:8081/api/v1/rolllup/" + rollupResponse.getId()));
+			assertThat(rollupResponse.getStatusCode(), equalTo(200));
+
+			ImmutableList<RollupTask> rollupTasks = rollupResponse.getRollupTasks();
+			assertThat(rollupTasks.size(), equalTo(1));
 		}
 		finally {
 			client.shutdown();
+		}
+	}
+
+	private void watiForEvent() throws InterruptedException
+	{
+		boolean done = false;
+		Stopwatch stopwatch = Stopwatch.createStarted();
+		while(!done)
+		{
+			sleep(200);
+			if (kairos.getDataPointListener().getEvent() != null || stopwatch.elapsed(java.util.concurrent.TimeUnit.SECONDS) > 1)
+			{
+				done = true;
+			}
 		}
 	}
 

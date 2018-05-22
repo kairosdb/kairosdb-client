@@ -39,6 +39,10 @@
 		</developer>
 	</developers>
 
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>com.google.guava</groupId>
@@ -95,11 +99,6 @@
 			<artifactId>mockito-core</artifactId>
 			<version>1.9.5</version>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.bval</groupId>
-			<artifactId>bval-jsr303</artifactId>
-			<version>0.5</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.bval</groupId>
