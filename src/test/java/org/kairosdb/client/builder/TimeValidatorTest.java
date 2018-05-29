@@ -86,4 +86,14 @@ public class TimeValidatorTest
 		TimeValidator.validateEndTimeLaterThanStartTime(startTime, endTime);
 	}
 
+	@Test
+	public void test_StartAndEndTimeEqual()
+	{
+		long time = System.currentTimeMillis();
+		RelativeTime relativetime = new RelativeTime(2, TimeUnit.DAYS);
+		TimeValidator.validateEndTimeLaterThanStartTime(time, time);
+		TimeValidator.validateEndTimeLaterThanStartTime(new RelativeTime(1, TimeUnit.HOURS), new RelativeTime(1, TimeUnit.HOURS));
+		TimeValidator.validateEndTimeLaterThanStartTime(relativetime.getTimeRelativeTo(System.currentTimeMillis()), relativetime);
+		TimeValidator.validateEndTimeLaterThanStartTime(relativetime, relativetime.getTimeRelativeTo(System.currentTimeMillis()));
+	}
 }

@@ -22,7 +22,7 @@ import static com.google.common.base.Preconditions.checkState;
  */
 public class TimeValidator
 {
-	private static final String START_TIME_EARLIER = "Start time must be earlier than the ending time\" (note the subtle difference";
+	private static final String START_TIME_EARLIER = "Start time must be equal to or earlier than the ending time";
 
 	private TimeValidator()
 	{
@@ -30,24 +30,24 @@ public class TimeValidator
 
 	public static void validateEndTimeLaterThanStartTime(long startTime, long endTime)
 	{
-		checkState(endTime > startTime, START_TIME_EARLIER);
+		checkState(endTime >= startTime, START_TIME_EARLIER);
 	}
 
 	public static void validateEndTimeLaterThanStartTime(RelativeTime startTime, RelativeTime endTime)
 	{
 		long now = System.currentTimeMillis();
-		checkState(startTime.getTimeRelativeTo(now) < endTime.getTimeRelativeTo(now), START_TIME_EARLIER);
+		checkState(startTime.getTimeRelativeTo(now) <= endTime.getTimeRelativeTo(now), START_TIME_EARLIER);
 	}
 
 	public static void validateEndTimeLaterThanStartTime(long startTime, RelativeTime endTime)
 	{
 		long now = System.currentTimeMillis();
-		checkState(startTime < endTime.getTimeRelativeTo(now), START_TIME_EARLIER);
+		checkState(startTime <= endTime.getTimeRelativeTo(now), START_TIME_EARLIER);
 	}
 
 	public static void validateEndTimeLaterThanStartTime(RelativeTime startTime, long endTime)
 	{
 		long now = System.currentTimeMillis();
-		checkState(startTime.getTimeRelativeTo(now) < endTime, START_TIME_EARLIER);
+		checkState(startTime.getTimeRelativeTo(now) <= endTime, START_TIME_EARLIER);
 	}
 }
