@@ -12,15 +12,15 @@ Sending metrics is done by using the MetricBuilder. You simply add a metric, the
 the data points.
 
 
-	MetricBuilder builder = MetricBuilder.getInstance();
-	builder.addMetric("metric1")
-			.addTag("host", "server1")
-			.addTag("customer", "Acme")
-			.addDataPoint(System.currentTimeMillis(), 10)
-			.addDataPoint(System.currentTimeMillis(), 30L);
+    MetricBuilder builder = MetricBuilder.getInstance();
+    builder.addMetric("metric1")
+        .addTag("host", "server1")
+        .addTag("customer", "Acme")
+        .addDataPoint(System.currentTimeMillis(), 10)
+        .addDataPoint(System.currentTimeMillis(), 30L);
     HttpClient client = new HttpClient("http://localhost:8080");
-	Response response = client.pushMetrics(builder);
-	client.shutdown();
+    Response response = client.pushMetrics(builder);
+    client.shutdown();
 
 ## Querying Data Points
 
@@ -28,7 +28,7 @@ Querying data points is similarly done by using the QueryBuilder class. A query 
 required, but the end date defaults to NOW if not specified. The metric(s) that you are querying for is also required.
 Optionally, tags may be added to narrow down the search.
 
-	QueryBuilder builder = QueryBuilder.getInstance();
+    QueryBuilder builder = QueryBuilder.getInstance();
     builder.setStart(2, TimeUnit.MONTHS)
            .setEnd(1, TimeUnit.MONTHS)
            .addMetric("metric1")
@@ -43,7 +43,7 @@ Querying metric tags is done by using the QueryTagBuilder class. A query require
 required, but the end date defaults to NOW if not specified. The metric(s) that you are querying for is also required.
 Optionally, tags may be added to narrow down the search.
 
-	QueryTagBuilder builder = QueryTagBuilder.getInstance();
+    QueryTagBuilder builder = QueryTagBuilder.getInstance();
     builder.setStart(2, TimeUnit.MONTHS)
            .setEnd(1, TimeUnit.MONTHS)
            .addMetric("metric1")
@@ -55,45 +55,77 @@ Optionally, tags may be added to narrow down the search.
 
 You can get a list of all metric names in KairosDB.
 
-	HttpClient client = new HttpClient("http://localhost:8080");
-	GetResponse response = client.getMetricNames();
+    HttpClient client = new HttpClient("http://localhost:8080");
+    GetResponse response = client.getMetricNames();
 
-	System.out.println("Response Code =" + response.getStatusCode());
-	for (String name : response.getResults())
+    System.out.println("Response Code =" + response.getStatusCode());
+    for (String name : response.getResults())
     {
-    	System.out.println(name);
+        System.out.println(name);
     }
-  	client.shutdown();
+    client.shutdown();
 
 ## Querying Tag Names
+
 Similarly you can get a list of all tag names in KairosDB.
 
-	HttpClient client = new HttpClient("http://localhost:8080");
-	GetResponse response = client.getTagNames();
+    HttpClient client = new HttpClient("http://localhost:8080");
+    GetResponse response = client.getTagNames();
 
-	System.out.println("response=" + response.getStatusCode());
-	for (String name : response.getResults())
-	{
-		System.out.println(name);
-	}
-	client.shutdown();
+    System.out.println("response=" + response.getStatusCode());
+    for (String name : response.getResults())
+    {
+        System.out.println(name);
+    }
+    client.shutdown();
 
 ## Querying Tag Values
+
 And a list of all tag values.
 
-	HttpClient client = new HttpClient("http://localhost:8080");
-	GetResponse response = client.getTagValues();
+    HttpClient client = new HttpClient("http://localhost:8080");
+    GetResponse response = client.getTagValues();
 
-	System.out.println("response=" + response.getStatusCode());
-	for (String name : response.getResults())
+    System.out.println("response=" + response.getStatusCode());
+    for (String name : response.getResults())
     {
-    	System.out.println(name);
+        System.out.println(name);
     }
-   	client.shutdown();
-   	
+    client.shutdown();
+   
 ## Create Roll-up Task
 
+You can get of a list of roll-up tasks using the RollupBuilder.
 
+    RollupBuilder builder = RollupBuilder.getInstance("Metric1_rollupTask", new RelativeTime(1, TimeUnit.DAYS));
+    Rollup rollup1 = builder.addRollup("metric1_rollup");
+    QueryBuilder builder1 = rollup1.addQuery();
+    builder1.setStart(1, TimeUnit.HOURS);
+    builder1.addMetric("metric1")
+         .addAggregator(AggregatorFactory.createMaxAggregator(1, TimeUnit.MINUTES));
+    client.createRollup(builder);
+    client.shutdown();
+
+## Get Roll-up Task
+
+Or just get a specified roll-up task
+
+    RollupResponse rollupResponse = client.getRollupTask("ddafbb87-3063-4013-8e98-da2ff8671caf");
+    for (RollupTask rollupTask : rollupResponse.getRollupTasks())
+    {
+        for (Rollup rollup : rollupTask.getRollups())
+        {
+            System.out.println(rollup);
+        }
+    }
+    client.shutdown();
+
+## Delete Roll-up task
+
+Or delete a roll-up task
+
+     Response response = client.deleteRollup("ddafbb87-3063-4013-8e98-da2ff8671caf");
+     client.shutdown();
 
 ## Custom Data Types
 Starting with version 0.9.4 of KairosDB, you can store more than just numbers as values. This version of the client
@@ -159,7 +191,7 @@ Last, you must cast to your new type following a query for a metric.
 
 ## KairosDB compatibility
 
-Version 2.2.0 of the client was tested with KairosDB version 1.1.3-1.
+Version 2.3.0 of the client was tested with KairosDB version 1.2.1-1.
 
 ## Contributions
 
