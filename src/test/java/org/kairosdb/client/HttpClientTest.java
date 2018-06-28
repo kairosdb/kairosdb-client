@@ -15,15 +15,8 @@
  */
 package org.kairosdb.client;
 
-import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.HttpContext;
+import org.junit.Before;
 import org.junit.Test;
 import org.kairosdb.client.builder.MetricBuilder;
 import org.kairosdb.client.builder.QueryBuilder;
@@ -31,14 +24,21 @@ import org.kairosdb.client.builder.TimeUnit;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 public class HttpClientTest
 {
+	private CloseableHttpClient apacheMockClient;
+
+	@Before
+	public void setup()
+	{
+		apacheMockClient = mock(CloseableHttpClient.class);
+	}
+
 	@Test(expected = NullPointerException.class)
 	public void test_constructor_null_url_invalid() throws MalformedURLException
 	{
@@ -65,11 +65,12 @@ public class HttpClientTest
 	}
 
 	@Test
-	public void test_pushMetrics_DefaultRetries() throws IOException, URISyntaxException
+	public void test_pushMetrics_DefaultRetries() throws IOException
 	{
+		when(apacheMockClient.execute(any())).thenThrow(new IOException("Fake Exception"));
+
 		HttpClient client = new HttpClient("http://bogus");
-		FakeClient fakeClient = new FakeClient();
-		client.setClient(fakeClient);
+		client.setClient(apacheMockClient);
 
 		MetricBuilder builder = MetricBuilder.getInstance();
 		builder.addMetric("newMetric").addDataPoint(10, 10).addTag("host", "server1");
@@ -81,16 +82,18 @@ public class HttpClientTest
 		}
 		catch (IOException e)
 		{
-			assertThat(fakeClient.getExecutionCount(), equalTo(4));  // 1 try and 3 retries
+			// ignore
 		}
+		verify(apacheMockClient, times(4)).execute(any()); // 1 try and 3 retries
 	}
 
 	@Test
-	public void test_pushMetrics_setRetries() throws URISyntaxException, MalformedURLException
+	public void test_pushMetrics_setRetries() throws IOException
 	{
+		when(apacheMockClient.execute(any())).thenThrow(new IOException("Fake Exception"));
+
 		HttpClient client = new HttpClient("http://bogus");
-		FakeClient fakeClient = new FakeClient();
-		client.setClient(fakeClient);
+		client.setClient(apacheMockClient);
 		client.setRetryCount(10);
 
 		MetricBuilder builder = MetricBuilder.getInstance();
@@ -103,16 +106,18 @@ public class HttpClientTest
 		}
 		catch (IOException e)
 		{
-			assertThat(fakeClient.getExecutionCount(), equalTo(11));  // 1 try and 10 retries
+			// ignore
 		}
+		verify(apacheMockClient, times(11)).execute(any()); // 1 try and 10 retries
 	}
 
 	@Test
-	public void test_pushMetrics_setRetries_zero() throws URISyntaxException, MalformedURLException
+	public void test_pushMetrics_setRetries_zero() throws IOException
 	{
+		when(apacheMockClient.execute(any())).thenThrow(new IOException("Fake Exception"));
+
 		HttpClient client = new HttpClient("http://bogus");
-		FakeClient fakeClient = new FakeClient();
-		client.setClient(fakeClient);
+		client.setClient(apacheMockClient);
 		client.setRetryCount(0);
 
 		MetricBuilder builder = MetricBuilder.getInstance();
@@ -125,16 +130,18 @@ public class HttpClientTest
 		}
 		catch (IOException e)
 		{
-			assertThat(fakeClient.getExecutionCount(), equalTo(1));  // 1 try and 0 retries
+			// ignore
 		}
+		verify(apacheMockClient, times(1)).execute(any()); // 1 try and 0 retries
 	}
 
 	@Test
-	public void test_query_DefaultRetries() throws IOException, URISyntaxException
+	public void test_query_DefaultRetries() throws IOException
 	{
+		when(apacheMockClient.execute(any())).thenThrow(new IOException("Fake Exception"));
+
 		HttpClient client = new HttpClient("http://bogus");
-		FakeClient fakeClient = new FakeClient();
-		client.setClient(fakeClient);
+		client.setClient(apacheMockClient);
 
 		QueryBuilder builder = QueryBuilder.getInstance();
 		builder.setStart(1, TimeUnit.DAYS);
@@ -147,16 +154,18 @@ public class HttpClientTest
 		}
 		catch (IOException e)
 		{
-			assertThat(fakeClient.getExecutionCount(), equalTo(4));  // 1 try and 3 retries
+			// ignore
 		}
+		verify(apacheMockClient, times(4)).execute(any()); // 1 try and 3 retries
 	}
 
 	@Test
-	public void test_query_setRetries() throws URISyntaxException, MalformedURLException
+	public void test_query_setRetries() throws IOException
 	{
+		when(apacheMockClient.execute(any())).thenThrow(new IOException("Fake Exception"));
+
 		HttpClient client = new HttpClient("http://bogus");
-		FakeClient fakeClient = new FakeClient();
-		client.setClient(fakeClient);
+		client.setClient(apacheMockClient);
 		client.setRetryCount(10);
 
 		QueryBuilder builder = QueryBuilder.getInstance();
@@ -170,16 +179,18 @@ public class HttpClientTest
 		}
 		catch (IOException e)
 		{
-			assertThat(fakeClient.getExecutionCount(), equalTo(11));  // 1 try and 10 retries
+			// ignore
 		}
+		verify(apacheMockClient, times(11)).execute(any()); // 1 try and 10 retries
 	}
 
 	@Test
-	public void test_query_setRetries_zero() throws URISyntaxException, MalformedURLException
+	public void test_query_setRetries_zero() throws IOException
 	{
+		when(apacheMockClient.execute(any())).thenThrow(new IOException("Fake Exception"));
+
 		HttpClient client = new HttpClient("http://bogus");
-		FakeClient fakeClient = new FakeClient();
-		client.setClient(fakeClient);
+		client.setClient(apacheMockClient);
 		client.setRetryCount(0);
 
 		QueryBuilder builder = QueryBuilder.getInstance();
@@ -193,91 +204,8 @@ public class HttpClientTest
 		}
 		catch (IOException e)
 		{
-			assertThat(fakeClient.getExecutionCount(), equalTo(1));  // 1 try and 0 retries
+			// ignore
 		}
-	}
-
-	private static class FakeClient extends CloseableHttpClient
-	{
-		private int executionCount;
-
-		private int getExecutionCount()
-		{
-			return executionCount;
-		}
-
-		@Override
-		public HttpParams getParams()
-		{
-			return null;
-		}
-
-		@Override
-		public ClientConnectionManager getConnectionManager()
-		{
-			return null;
-		}
-
-		@Override
-		public CloseableHttpResponse execute(HttpUriRequest httpUriRequest) throws IOException
-		{
-			executionCount++;
-			throw new IOException("Fake Exception");
-		}
-
-		@Override
-		public CloseableHttpResponse execute(HttpUriRequest httpUriRequest, HttpContext httpContext) throws IOException
-		{
-			executionCount++;
-			throw new IOException("Fake Exception");
-		}
-
-		@Override
-		public CloseableHttpResponse execute(HttpHost httpHost, HttpRequest httpRequest) throws IOException
-		{
-			return null;
-		}
-
-		@Override
-		protected CloseableHttpResponse doExecute(HttpHost httpHost, HttpRequest httpRequest, HttpContext httpContext) throws IOException
-		{
-			return null;
-		}
-
-		@Override
-		public CloseableHttpResponse execute(HttpHost httpHost, HttpRequest httpRequest, HttpContext httpContext) throws IOException
-		{
-			return null;
-		}
-
-		@Override
-		public <T> T execute(HttpUriRequest httpUriRequest, ResponseHandler<? extends T> responseHandler) throws IOException
-		{
-			return null;
-		}
-
-		@Override
-		public <T> T execute(HttpUriRequest httpUriRequest, ResponseHandler<? extends T> responseHandler, HttpContext httpContext) throws IOException
-		{
-			return null;
-		}
-
-		@Override
-		public <T> T execute(HttpHost httpHost, HttpRequest httpRequest, ResponseHandler<? extends T> responseHandler) throws IOException
-		{
-			return null;
-		}
-
-		@Override
-		public <T> T execute(HttpHost httpHost, HttpRequest httpRequest, ResponseHandler<? extends T> responseHandler, HttpContext httpContext) throws IOException
-		{
-			return null;
-		}
-
-		@Override
-		public void close() throws IOException
-		{
-
-		}
+		verify(apacheMockClient, times(1)).execute(any()); // 1 try and zero retries
 	}
 }
