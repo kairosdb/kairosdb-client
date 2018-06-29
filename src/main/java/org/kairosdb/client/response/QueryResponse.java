@@ -18,16 +18,14 @@ package org.kairosdb.client.response;
 import com.google.gson.JsonSyntaxException;
 import org.kairosdb.client.JsonMapper;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * Response returned by KairosDB.
+ Response returned by KairosDB.
  */
 public class QueryResponse extends Response
 {
@@ -49,12 +47,12 @@ public class QueryResponse extends Response
 	}
 
 	/**
-	 * Returns a list of query results returned by KairosDB. If status code is not
-	 * successful, call getErrors to get errors returned.
-	 *
-	 * @return list of query results or empty list of no data or if an error is returned.
-	 * @throws IOException         if could not map response to Queries object
-	 * @throws JsonSyntaxException if the response is not JSON or is invalid JSON
+	 Returns a list of query results returned by KairosDB. If status code is not
+	 successful, call getErrors to get errors returned.
+
+	 @return list of query results or empty list of no data or if an error is returned.
+	 @throws IOException         if could not map response to Queries object
+	 @throws JsonSyntaxException if the response is not JSON or is invalid JSON
 	 */
 	public List<Query> getQueries() throws IOException
 	{
@@ -81,9 +79,9 @@ public class QueryResponse extends Response
 	}
 
 	/**
-	 * Returns the body response as a string.
-	 *
-	 * @return body as a string or empty string.
+	 Returns the body response as a string.
+
+	 @return body as a string or empty string.
 	 */
 	public String getBody()
 	{
@@ -91,26 +89,26 @@ public class QueryResponse extends Response
 	}
 
 	public Query getQueryResponse(String metricName)
-		{
+	{
 		initializeMap();
 		return queriesMap.get(metricName);
-		}
+	}
 
 	private void initializeMap()
-		{
+	{
 		synchronized (queriesMapLock)
-			{
+		{
 			if (queriesMap == null)
-				{
+			{
 				queriesMap = new HashMap<String, Query>();
 				for (Query query : queries)
-					{
+				{
 					//there will always be at least one result with the name
 					queriesMap.put(query.getResults().get(0).getName(), query);
-					}
 				}
 			}
 		}
+	}
 
 	private class KairosQueryResponse
 	{
