@@ -100,46 +100,52 @@ public abstract class AbstractClient implements Client
         ClientResponse clientResponse = postData(builder.build(), url + "/api/v1/rollups");
         int responseCode = clientResponse.getStatusCode();
 
-        InputStream stream = clientResponse.getContentStream();
-        RollupTaskResponse response = mapper.fromJson(Response.getBody(stream), RollupTaskResponse.class);
-        response.setStatusCode(responseCode);
+        try (InputStream stream = clientResponse.getContentStream())
+        {
+	        RollupTaskResponse response = mapper.fromJson(Response.getBody(stream), RollupTaskResponse.class);
+	        response.setStatusCode(responseCode);
 
-        if (response.getStatusCode() == 200 && !Strings.isNullOrEmpty(response.getUrl())) {
-            ClientResponse rollupResponse = queryData(url + response.getUrl());
-            responseCode = rollupResponse.getStatusCode();
+	        if (response.getStatusCode() == 200 && !Strings.isNullOrEmpty(response.getUrl()))
+	        {
+		        ClientResponse rollupResponse = queryData(url + response.getUrl());
+		        responseCode = rollupResponse.getStatusCode();
 
-            try (InputStream contentStream = rollupResponse.getContentStream()) {
-                RollupTask rollup = mapper.fromJson(Response.getBody(contentStream), RollupTask.class);
-                return new RollupResponse(rollup, responseCode);
-            }
-        }
-        else {
-            try (InputStreamReader reader = new InputStreamReader(stream)) {
-                ErrorResponse errorResponse = mapper.fromJson(reader, ErrorResponse.class);
-                return new RollupResponse(responseCode, errorResponse.getErrors());
-            }
-        }
-    }
-
-    public RollupResponse getRollupTask(String id)
-            throws IOException
-    {
-        ClientResponse clientResponse = queryData(url + "/api/v1/rollups/" + id);
-        int responseCode = clientResponse.getStatusCode();
-        InputStream stream = clientResponse.getContentStream();
-
-        if (responseCode == 200) {
-            String body = Response.getBody(stream);
-            RollupTask task = mapper.fromJson(body, RollupTask.class);
-            return new RollupResponse(task, responseCode);
-        }
-        else {
-            try (InputStreamReader reader = new InputStreamReader(stream)) {
-                ErrorResponse errorResponse = mapper.fromJson(reader, ErrorResponse.class);
-                return new RollupResponse(responseCode, errorResponse.getErrors());
-            }
+		        try (InputStream contentStream = rollupResponse.getContentStream())
+		        {
+			        RollupTask rollup = mapper.fromJson(Response.getBody(contentStream), RollupTask.class);
+			        return new RollupResponse(rollup, responseCode);
+		        }
+	        }
+	        else
+	        {
+		        RollupResponse rollupResponse = new RollupResponse(responseCode);
+		        addErrors(stream, rollupResponse);
+		        return rollupResponse;
+	        }
         }
     }
+
+	public RollupResponse getRollupTask(String id)
+			throws IOException
+	{
+		ClientResponse clientResponse = queryData(url + "/api/v1/rollups/" + id);
+		int responseCode = clientResponse.getStatusCode();
+		try (InputStream stream = clientResponse.getContentStream())
+		{
+			if (responseCode == 200)
+			{
+				String body = Response.getBody(stream);
+				RollupTask task = mapper.fromJson(body, RollupTask.class);
+				return new RollupResponse(task, responseCode);
+			}
+			else
+			{
+				RollupResponse response = new RollupResponse(responseCode);
+				addErrors(stream, response);
+				return response;
+			}
+		}
+	}
 
     @Override
     public RollupResponse getRollupTasks()
@@ -147,19 +153,23 @@ public abstract class AbstractClient implements Client
     {
         ClientResponse clientResponse = queryData(url + "/api/v1/rollups");
         int responseCode = clientResponse.getStatusCode();
-        InputStream stream = clientResponse.getContentStream();
-
-        if (responseCode == 200) {
-            String body = Response.getBody(stream);
-            Type listType = new TypeToken<ArrayList<RollupTask>>(){}.getType();
-            List<RollupTask> tasks = mapper.fromJson(body, listType);
-            return new RollupResponse(tasks, responseCode);
-        }
-        else {
-            try (InputStreamReader reader = new InputStreamReader(stream)) {
-                ErrorResponse errorResponse = mapper.fromJson(reader, ErrorResponse.class);
-                return new RollupResponse(responseCode, errorResponse.getErrors());
-            }
+        try (InputStream stream = clientResponse.getContentStream())
+        {
+	        if (responseCode == 200)
+	        {
+		        String body = Response.getBody(stream);
+		        Type listType = new TypeToken<ArrayList<RollupTask>>()
+		        {
+		        }.getType();
+		        List<RollupTask> tasks = mapper.fromJson(body, listType);
+		        return new RollupResponse(tasks, responseCode);
+	        }
+	        else
+	        {
+		        RollupResponse rollupResponse = new RollupResponse(responseCode);
+		        addErrors(stream, rollupResponse);
+		        return rollupResponse;
+	        }
         }
     }
 
@@ -220,19 +230,16 @@ public abstract class AbstractClient implements Client
         return typeRegistry.getDataPointValueClass(groupType);
     }
 
-    private Response getResponse(ClientResponse clientResponse)
-            throws IOException
-    {
-        Response response = new Response(clientResponse.getStatusCode());
-        InputStream stream = clientResponse.getContentStream();
-        if (stream != null) {
-            try (InputStreamReader reader = new InputStreamReader(stream)) {
-                ErrorResponse errorResponse = mapper.fromJson(reader, ErrorResponse.class);
-                response.addErrors(errorResponse.getErrors());
-            }
-        }
-        return response;
-    }
+	private Response getResponse(ClientResponse clientResponse)
+			throws IOException
+	{
+		Response response = new Response(clientResponse.getStatusCode());
+		try (InputStream stream = clientResponse.getContentStream())
+		{
+			addErrors(stream, response);
+		}
+		return response;
+	}
 
     private GetResponse get(String url)
             throws IOException
@@ -315,4 +322,19 @@ public abstract class AbstractClient implements Client
             this.url = checkNotNull(url, "url cannot be null");
         }
     }
+
+	private void addErrors(InputStream stream, Response response) throws IOException
+	{
+		if (stream != null)
+		{
+			try (InputStreamReader reader = new InputStreamReader(stream))
+			{
+				ErrorResponse errorResponse = mapper.fromJson(reader, ErrorResponse.class);
+				if (errorResponse != null && errorResponse.getErrors() != null)
+				{
+					response.addErrors(errorResponse.getErrors());
+				}
+			}
+		}
+	}
 }

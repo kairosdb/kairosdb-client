@@ -1,7 +1,6 @@
 package org.kairosdb.client.response;
 
 import com.google.common.collect.ImmutableList;
-import org.kairosdb.client.builder.Rollup;
 import org.kairosdb.client.builder.RollupTask;
 
 import java.util.ArrayList;
@@ -28,10 +27,9 @@ public class RollupResponse extends Response
         this.rollupTasks = new ArrayList<>(rollupTasks);
     }
 
-    public RollupResponse(int responseCode, List<String> errors)
+    public RollupResponse(int responseCode)
     {
         super(responseCode);
-        addErrors(errors);
     }
 
     public ImmutableList<RollupTask> getRollupTasks()
