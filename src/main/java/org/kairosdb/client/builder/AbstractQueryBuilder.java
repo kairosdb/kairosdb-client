@@ -3,10 +3,10 @@ package org.kairosdb.client.builder;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 
-import java.io.IOException;
 import java.util.Date;
 
-import static com.google.common.base.Preconditions.*;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Abstract class for querying KairosDB.
@@ -15,20 +15,20 @@ import static com.google.common.base.Preconditions.*;
 public abstract class AbstractQueryBuilder<B extends AbstractQueryBuilder<B>>
 {
 	@SerializedName("start_absolute")
-	protected Long startAbsolute;
+	Long startAbsolute;
 
 	@SerializedName("end_absolute")
-	protected Long endAbsolute;
+	Long endAbsolute;
 
 	@SerializedName("start_relative")
-	protected RelativeTime startRelative;
+	RelativeTime startRelative;
 
 	@SerializedName("end_relative")
-	protected RelativeTime endRelative;
+	RelativeTime endRelative;
 
-	protected transient Gson mapper;
+	private transient Gson mapper;
 
-	protected AbstractQueryBuilder()
+	AbstractQueryBuilder()
 	{
 		mapper = buildGson();
 	}
@@ -43,6 +43,7 @@ public abstract class AbstractQueryBuilder<B extends AbstractQueryBuilder<B>>
 	 *
 	 * @return absolute range start time
 	 */
+	@SuppressWarnings("WeakerAccess")
 	public Date getStartAbsolute()
 	{
 		return new Date(startAbsolute);
@@ -53,6 +54,7 @@ public abstract class AbstractQueryBuilder<B extends AbstractQueryBuilder<B>>
 	 *
 	 * @return absolute range end time
 	 */
+	@SuppressWarnings("WeakerAccess")
 	public Date getEndAbsolute()
 	{
 		return new Date(endAbsolute);
@@ -63,6 +65,7 @@ public abstract class AbstractQueryBuilder<B extends AbstractQueryBuilder<B>>
 	 *
 	 * @return relative range start time
 	 */
+	@SuppressWarnings("WeakerAccess")
 	public RelativeTime getStartRelative()
 	{
 		return startRelative;
@@ -73,6 +76,7 @@ public abstract class AbstractQueryBuilder<B extends AbstractQueryBuilder<B>>
 	 *
 	 * @return relative range end time
 	 */
+	@SuppressWarnings("unused")
 	public RelativeTime getEndRelative()
 	{
 		return endRelative;
@@ -120,7 +124,7 @@ public abstract class AbstractQueryBuilder<B extends AbstractQueryBuilder<B>>
 	 * @param end end time
 	 * @return the builder
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "WeakerAccess"})
 	public B setEnd(Date end)
 	{
 		checkArgument(endRelative == null, "Both relative and absolute end times cannot be set.");
@@ -135,7 +139,7 @@ public abstract class AbstractQueryBuilder<B extends AbstractQueryBuilder<B>>
 	 * @param unit     unit of time
 	 * @return the builder
 	 */
-	@SuppressWarnings({"unchecked", "ConstantConditions"})
+	@SuppressWarnings({"unchecked", "ConstantConditions", "WeakerAccess"})
 	public B setEnd(int duration, TimeUnit unit)
 	{
 		checkNotNull(unit, "unit cannot be null");
@@ -150,9 +154,8 @@ public abstract class AbstractQueryBuilder<B extends AbstractQueryBuilder<B>>
 	 * Returns the JSON string built by the builder. This is the JSON that can be used by the client to query KairosDB
 	 *
 	 * @return JSON
-	 * @throws IOException if the query is invalid and cannot be converted to JSON
 	 */
-	public String build() throws IOException
+	public String build()
 	{
 		validate();
 		return mapper.toJson(this);

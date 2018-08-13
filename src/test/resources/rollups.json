@@ -1,39 +1,91 @@
-{
-  "name": "rollupTask",
-  "execution_interval": {
-    "value": 1,
-    "unit": "HOURS"
-  },
+[{
+  "id": "6cfeaf58-2c6d-485a-9d19-1ea8a47db7ee",
+  "name": "Rollup1",
   "rollups": [{
-    "save_as": "myRollupMetric",
+    "save_as": "metric1_rollup",
     "query": {
-      "cache_time": 0,
       "metrics": [{
         "name": "metric1",
         "tags": {},
-        "group_by": [{
-          "tags": ["tag1", "tag2"],
-          "name": "tag"
-        }],
         "aggregators": [{
           "sampling": {
             "value": 1,
             "unit": "MINUTES"
           },
-          "name": "max"
-        }, {
+          "name": "max",
+          "align_end_time": false,
+          "align_sampling": true,
+          "align_start_time": false
+        }]
+      }],
+      "start_relative": {
+        "value": 1,
+        "unit": "hours"
+      }
+    }
+  }],
+  "execution_interval": {
+    "value": 1,
+    "unit": "days"
+  }
+}, {
+  "id": "62acaf73-3af1-4bb9-a975-bbdff408c511",
+  "name": "Rollup2",
+  "rollups": [{
+    "save_as": "metric1_rollup",
+    "query": {
+      "metrics": [{
+        "name": "metric1",
+        "tags": {},
+        "aggregators": [{
           "sampling": {
             "value": 1,
             "unit": "MINUTES"
           },
-          "name": "count"
-        }],
-        "exclude_tags": false
+          "name": "max",
+          "align_end_time": false,
+          "align_sampling": true,
+          "align_start_time": false
+        }]
       }],
       "start_relative": {
         "value": 1,
-        "unit": "HOURS"
+        "unit": "hours"
       }
     }
-  }]
-}
+  }],
+  "execution_interval": {
+    "value": 1,
+    "unit": "days"
+  }
+}, {
+  "id": "724432c4-6b14-4cb4-88a2-9908979fe9a5",
+  "name": "Rollup3",
+  "rollups": [{
+    "save_as": "metric1_rollup",
+    "query": {
+      "metrics": [{
+        "name": "metric1",
+        "tags": {},
+        "aggregators": [{
+          "sampling": {
+            "value": 1,
+            "unit": "MINUTES"
+          },
+          "name": "max",
+          "align_end_time": false,
+          "align_sampling": true,
+          "align_start_time": false
+        }]
+      }],
+      "start_relative": {
+        "value": 1,
+        "unit": "hours"
+      }
+    }
+  }],
+  "execution_interval": {
+    "value": 1,
+    "unit": "days"
+  }
+}]

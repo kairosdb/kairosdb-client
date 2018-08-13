@@ -15,6 +15,7 @@
  */
 package org.kairosdb.client.response.grouping;
 
+import com.google.common.base.MoreObjects;
 import com.google.gson.annotations.SerializedName;
 import org.kairosdb.client.response.GroupResult;
 
@@ -32,6 +33,7 @@ public class ValueGroupResult extends GroupResult
 
 	private GroupingNumber group;
 
+	@SuppressWarnings("WeakerAccess")
 	public ValueGroupResult(int rangeSize, GroupingNumber group)
 	{
 		super("value");
@@ -72,9 +74,7 @@ public class ValueGroupResult extends GroupResult
 		ValueGroupResult that = (ValueGroupResult) o;
 
 		if (rangeSize != that.rangeSize) return false;
-		if (!group.equals(that.group)) return false;
-
-		return true;
+		return group.equals(that.group);
 	}
 
 	@Override
@@ -84,5 +84,14 @@ public class ValueGroupResult extends GroupResult
 		result = 31 * result + rangeSize;
 		result = 31 * result + group.hashCode();
 		return result;
+	}
+
+	@Override
+	public String toString()
+	{
+		return MoreObjects.toStringHelper(this)
+				.add("rangeSize", rangeSize)
+				.add("group", group)
+				.toString();
 	}
 }

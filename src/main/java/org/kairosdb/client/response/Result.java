@@ -15,6 +15,7 @@
  */
 package org.kairosdb.client.response;
 
+import com.google.common.base.MoreObjects;
 import com.google.gson.annotations.SerializedName;
 import org.kairosdb.client.builder.DataPoint;
 
@@ -62,8 +63,45 @@ public class Result
 		return tags != null ? tags : Collections.emptyMap();
 	}
 
+	@SuppressWarnings("WeakerAccess")
 	public List<GroupResult> getGroupResults()
 	{
 		return groupResults != null ? groupResults : Collections.EMPTY_LIST;
+	}
+
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		Result result = (Result) o;
+
+		if (!name.equals(result.name)) return false;
+		if (!tags.equals(result.tags)) return false;
+		if (!dataPoints.equals(result.dataPoints)) return false;
+		return groupResults.equals(result.groupResults);
+
+	}
+
+	@Override
+	public int hashCode()
+	{
+		int result = name.hashCode();
+		result = 31 * result + tags.hashCode();
+		result = 31 * result + dataPoints.hashCode();
+		result = 31 * result + groupResults.hashCode();
+		return result;
+	}
+
+	@Override
+	public String toString()
+	{
+		return MoreObjects.toStringHelper(this)
+				.add("name", name)
+				.add("tags", tags)
+				.add("dataPoints", dataPoints)
+				.add("groupResults", groupResults)
+				.toString();
 	}
 }

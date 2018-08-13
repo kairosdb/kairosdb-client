@@ -1,0 +1,39 @@
+{
+  "name": "rollupTask",
+  "execution_interval": {
+    "value": 1,
+    "unit": "HOURS"
+  },
+  "rollups": [{
+    "save_as": "myRollupMetric",
+    "query": {
+      "cache_time": 0,
+      "metrics": [{
+        "name": "metric1",
+        "tags": {},
+        "group_by": [{
+          "tags": ["tag1", "tag2"],
+          "name": "tag"
+        }],
+        "aggregators": [{
+          "sampling": {
+            "value": 1,
+            "unit": "MINUTES"
+          },
+          "name": "max"
+        }, {
+          "sampling": {
+            "value": 1,
+            "unit": "MINUTES"
+          },
+          "name": "count"
+        }],
+        "exclude_tags": false
+      }],
+      "start_relative": {
+        "value": 1,
+        "unit": "HOURS"
+      }
+    }
+  }]
+}

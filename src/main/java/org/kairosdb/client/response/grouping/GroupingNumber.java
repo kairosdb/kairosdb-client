@@ -15,6 +15,7 @@
  */
 package org.kairosdb.client.response.grouping;
 
+import com.google.common.base.MoreObjects;
 import com.google.gson.annotations.SerializedName;
 import org.kairosdb.client.response.Group;
 
@@ -26,6 +27,7 @@ public class GroupingNumber implements Group
 	@SerializedName("group_number")
 	private int groupNumber;
 
+	@SuppressWarnings("WeakerAccess")
 	public GroupingNumber(int groupNumber)
 	{
 		this.groupNumber = groupNumber;
@@ -34,5 +36,30 @@ public class GroupingNumber implements Group
 	public int getGroupNumber()
 	{
 		return groupNumber;
+	}
+
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		GroupingNumber that = (GroupingNumber) o;
+
+		return groupNumber == that.groupNumber;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return groupNumber;
+	}
+
+	@Override
+	public String toString()
+	{
+		return MoreObjects.toStringHelper(this)
+				.add("groupNumber", groupNumber)
+				.toString();
 	}
 }

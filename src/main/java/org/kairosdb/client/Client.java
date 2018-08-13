@@ -1,128 +1,138 @@
 package org.kairosdb.client;
 
-import org.kairosdb.client.builder.MetricBuilder;
-import org.kairosdb.client.builder.QueryBuilder;
-import org.kairosdb.client.builder.QueryTagBuilder;
-import org.kairosdb.client.builder.RollupBuilder;
-import org.kairosdb.client.response.GetResponse;
+import com.proofpoint.http.client.UnexpectedResponseException;
+import org.kairosdb.client.builder.*;
+import org.kairosdb.client.response.JsonResponseHandler;
 import org.kairosdb.client.response.QueryResponse;
 import org.kairosdb.client.response.QueryTagResponse;
-import org.kairosdb.client.response.Response;
-import org.kairosdb.client.response.RollupResponse;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
+import java.io.Closeable;
+import java.util.List;
 
-public interface Client
+public interface Client extends Closeable
 {
-	RollupResponse createRollup(RollupBuilder builder)
-			throws IOException;
+	/**
+	 * Create a new roll-up.
+	 * @param builder roll-up builder
+	 * @return newly created roll-up task
+	 * @throws UnexpectedResponseException if the operation fails
+	 */
+	RollupTask createRollupTask(RollupBuilder builder);
 
-	Response deleteRollup(String id)
-			throws IOException;
+	/**
+	 * Delete the roll-up. Throws an exception if the delete fails.
+	 * @param id identifier of the roll-up
+	 * @throws UnexpectedResponseException if the operation fails
+	 */
+	void deleteRollupTask(String id);
 
-	RollupResponse getRollupTasks()
-			throws IOException;
+	/**
+	 * Returns a list of all roll-up tasks.
+	 * @return list of roll-up tasks
+	 * @throws UnexpectedResponseException if the operation fails
+	 */
+	List<RollupTask> getRollupTasks();
 
-	RollupResponse getRollupTask(String id)
-			throws IOException;
+	/**
+	 * Returns the roll-up.
+	 * @param id roll-up identifier
+	 * @return roll-up or null if no roll-ups match the specified identifier
+	 * @throws UnexpectedResponseException if the operation fails
+	 */
+	RollupTask getRollupTask(String id);
 
 	/**
 	 * Returns a list of all metric names.
 	 *
 	 * @return list of all metric names
-	 * @throws IOException if the JSON returned could not be properly processed
+	 * @throws UnexpectedResponseException if the operation fails
 	 */
-	GetResponse getMetricNames() throws IOException;
-
-	/**
-	 * Returns a list of all tag names.
-	 *
-	 * @return list of all tag names
-	 * @throws IOException if the JSON returned could not be properly processed
-	 */
-	GetResponse getTagNames() throws IOException;
-
-	/**
-	 * Returns a list of all tag values.
-	 *
-	 * @return list of all tag values
-	 * @throws IOException if the JSON returned could not be properly processed
-	 */
-	GetResponse getTagValues() throws IOException;
+	Object getMetricNames();
 
 	/**
 	 * Returns status of Kairos Instance.
 	 *
 	 * @return status of Kairos instance
-	 * @throws IOException if the JSON returned could not be properly processed
+	 * @throws UnexpectedResponseException if the operation fails
 	 */
-	GetResponse getStatus() throws IOException;
+	List<String> getStatus();
+
+	/**
+	 * Returns a status code fo 204 if all is healthy.
+	 *
+	 * @return status of Kairos instance
+	 * @throws UnexpectedResponseException if the operation fails
+	 */
+	int getStatusCheck();
 
 	/**
 	 * Queries KairosDB using the query built by the builder.
 	 *
 	 * @param builder query builder
-	 * @return response from the server
-	 * @throws URISyntaxException if the host or post is invalid
-	 * @throws IOException        problem occurred querying the server
+	 * @param handler response handler
+	 * @return query response
+	 * @throws UnexpectedResponseException if the operation fails
 	 */
-	QueryResponse query(QueryBuilder builder) throws URISyntaxException, IOException;
+	<T> T query(QueryBuilder builder, JsonResponseHandler<T> handler);
+
+	/**
+	 * Queries KairosDB using the query built by the builder.
+	 *
+	 * @param builder query builder
+	 * @return query response
+	 * @throws UnexpectedResponseException if the operation fails
+	 */
+	QueryResponse query(QueryBuilder builder);
 
 	/**
 	 * Queries KairosDB tags using the query built by the builder.
 	 *
 	 * @param builder query tag builder
-	 * @return response from the server
-	 * @throws URISyntaxException if the host or post is invalid
-	 * @throws IOException        problem occurred querying the server
+	 * @return query response
+	 * @throws UnexpectedResponseException if the operation fails
 	 */
-	QueryTagResponse queryTag(QueryTagBuilder builder) throws URISyntaxException, IOException;
+	QueryTagResponse queryTags(QueryTagBuilder builder);
 
+	/**
+	 * Queries KairosDB tags using the query built by the builder.
+	 *
+	 * @param builder query tag builder
+	 * @return query response
+	 * @throws UnexpectedResponseException if the operation fails
+	 */
+	<T> T queryTags(QueryTagBuilder builder, JsonResponseHandler<T> handler);
 
 	/**
 	 * Sends metrics from the builder to the KairosDB server.
 	 *
 	 * @param builder metrics builder
-	 * @return response from the server
-	 * @throws URISyntaxException if the host or post is invalid
-	 * @throws IOException        problem occurred sending to the server
+	 * @throws UnexpectedResponseException if the operation fails
 	 */
-	Response pushMetrics(MetricBuilder builder) throws URISyntaxException, IOException;
+	void pushMetrics(MetricBuilder builder);
 
 	/**
 	 * Deletes a metric. This is the metric and all its data points.
+	 * An exception is thrown if this operation fails.
 	 *
 	 * @param name the metric to delete
-	 * @return response from the server
-	 * @throws IOException problem occurred sending to the server
+	 * @throws UnexpectedResponseException if the operation fails
 	 */
-	Response deleteMetric(String name) throws IOException;
+	void deleteMetric(String name);
 
 	/**
 	 * Deletes data in KairosDB using the query built by the builder.
+	 * An exception is thrown if this operation fails.
 	 *
 	 * @param builder query builder
-	 * @return response from the server
-	 * @throws URISyntaxException if the host or post is invalid
-	 * @throws IOException        problem occurred querying the server
+	 * @throws UnexpectedResponseException if the operation fails
 	 */
-	Response delete(QueryBuilder builder) throws URISyntaxException, IOException;
+	void delete(QueryBuilder builder);
 
 	/**
-	 * Returns the number of retries.
-	 *
-	 * @return number of retries
+	 * Returns the version string for the KairosDB server.
+	 * @return KairosDB version
 	 */
-	@SuppressWarnings("UnusedDeclaration")
-	int getRetryCount();
-
-	/**
-	 * Shuts down the client. Should be called when done using the client.
-	 *
-	 * @throws IOException if could not shutdown the client
-	 */
-	void shutdown() throws IOException;
+	String getVersion();
 
 	/**
 	 * Registers a new custom data type. The assumption is that this data type already exists on the server. The

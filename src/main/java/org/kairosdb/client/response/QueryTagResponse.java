@@ -1,88 +1,54 @@
 package org.kairosdb.client.response;
 
-import com.google.gson.JsonSyntaxException;
-import org.kairosdb.client.JsonMapper;
+import com.google.common.base.MoreObjects;
+import com.google.common.collect.ImmutableList;
+import static org.weakref.jmx.internal.guava.base.Preconditions.checkNotNull;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Response returned by KairosDB.
  */
-public class QueryTagResponse extends Response
+public class QueryTagResponse
 {
-	private final int responseCode;
-	private final JsonMapper mapper;
+	private List<TagQueryResult> queries;
 
-	private List<TagQuery> results;
-	private String body;
-
-	@SuppressWarnings("ConstantConditions")
-	public QueryTagResponse(JsonMapper mapper, int responseCode, InputStream stream) throws IOException
+	@SuppressWarnings("WeakerAccess")
+	public QueryTagResponse(List<TagQueryResult> queries)
 	{
-		super(responseCode);
-		this.mapper = checkNotNull(mapper, "mapper cannot be null");
-		this.responseCode = responseCode;
-		this.body = getBody(stream);
-		this.results = getQueries();
+		checkNotNull(queries, "queries cannot be null");
+		this.queries = queries;
 	}
 
-	/**
-	 * Returns a list of query results returned by KairosDB. If status code is not
-	 * successful, call getErrors to get errors returned.
-	 *
-	 * @return list of query results or empty list of no data or if an error is returned.
-	 * @throws IOException         if could not map response to Queries object
-	 * @throws JsonSyntaxException if the response is not JSON or is invalid JSON
-	 */
-	public List<TagQuery> getQueries() throws IOException
+	@SuppressWarnings("unused")
+	public List<TagQueryResult> getQueries()
 	{
-		if (results != null)
-			return results;
-
-		if (getBody() != null)
-		{
-			// We only get JSON if the response is a 200, 400 or 500 error
-			if (responseCode == 400 || responseCode == 500)
-			{
-				ErrorResponse errorResponse = mapper.fromJson(body, ErrorResponse.class);
-				addErrors(errorResponse.getErrors());
-				return Collections.emptyList();
-			}
-			else if (responseCode == 200)
-			{
-				KairosTagsResponse response = mapper.fromJson(body, KairosTagsResponse.class);
-				return response.getQueries();
-			}
-		}
-
-		return Collections.emptyList();
+		return queries == null ? ImmutableList.of() : queries;
 	}
 
-	/**
-	 * Returns the body response as a string.
-	 *
-	 * @return body as a string or empty string.
-	 */
-	public String getBody()
+	@Override
+	public boolean equals(Object o)
 	{
-		return body;
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		QueryTagResponse that = (QueryTagResponse) o;
+
+		return queries != null ? queries.equals(that.queries) : that.queries == null;
 	}
 
-	private class KairosTagsResponse
+	@Override
+	public int hashCode()
 	{
-		private List<TagQuery> queries = new ArrayList<TagQuery>();
+		return queries != null ? queries.hashCode() : 0;
+	}
 
-		public List<TagQuery> getQueries()
-		{
-			return queries;
-		}
+	@Override
+	public String toString()
+	{
+		return MoreObjects.toStringHelper(this)
+				.add("queries", queries)
+				.toString();
 	}
 }

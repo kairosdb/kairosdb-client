@@ -15,108 +15,54 @@
  */
 package org.kairosdb.client.response;
 
-import com.google.gson.JsonSyntaxException;
-import org.kairosdb.client.JsonMapper;
+import com.google.common.base.MoreObjects;
+import com.google.common.collect.ImmutableList;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
-
-import static com.google.common.base.Preconditions.checkNotNull;
+import java.util.List;
+import static org.weakref.jmx.internal.guava.base.Preconditions.checkNotNull;
 
 /**
  Response returned by KairosDB.
  */
-public class QueryResponse extends Response
+public class QueryResponse
 {
-	private final int responseCode;
-	private final JsonMapper mapper;
-	private final Object queriesMapLock = new Object();
+	private List<QueryResult> queries;
 
-	private Map<String, Query> queriesMap = null;
-	private List<Query> queries;
-	private String body;
-
-	public QueryResponse(JsonMapper mapper, int responseCode, InputStream stream) throws IOException
+	public QueryResponse(List<QueryResult> queries)
 	{
-		super(responseCode);
-		this.mapper = checkNotNull(mapper, "mapper cannot be null");
-		this.responseCode = responseCode;
-		this.body = getBody(stream);
-		this.queries = getQueries();
+		checkNotNull(queries, "queries cannot be null");
+		this.queries = queries;
 	}
 
-	/**
-	 Returns a list of query results returned by KairosDB. If status code is not
-	 successful, call getErrors to get errors returned.
-
-	 @return list of query results or empty list of no data or if an error is returned.
-	 @throws IOException         if could not map response to Queries object
-	 @throws JsonSyntaxException if the response is not JSON or is invalid JSON
-	 */
-	public List<Query> getQueries() throws IOException
+	@SuppressWarnings("unused")
+	public List<QueryResult> getQueries()
 	{
-		if (queries != null)
-			return queries;
-
-		if (getBody() != null)
-		{
-			// We only get JSON if the response is a 200, 400 or 500 error
-			if (responseCode == 400 || responseCode == 500)
-			{
-				ErrorResponse errorResponse = mapper.fromJson(body, ErrorResponse.class);
-				addErrors(errorResponse.getErrors());
-				return Collections.emptyList();
-			}
-			else if (responseCode == 200)
-			{
-				KairosQueryResponse response = mapper.fromJson(body, KairosQueryResponse.class);
-				return response.getQueries();
-			}
-		}
-
-		return Collections.emptyList();
+		return queries == null ? ImmutableList.of() : queries;
 	}
 
-	/**
-	 Returns the body response as a string.
-
-	 @return body as a string or empty string.
-	 */
-	public String getBody()
+	@Override
+	public boolean equals(Object o)
 	{
-		return body;
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		QueryResponse that = (QueryResponse) o;
+
+		return queries.equals(that.queries);
+
 	}
 
-	public Query getQueryResponse(String metricName)
+	@Override
+	public int hashCode()
 	{
-		initializeMap();
-		return queriesMap.get(metricName);
+		return queries.hashCode();
 	}
 
-	private void initializeMap()
+	@Override
+	public String toString()
 	{
-		synchronized (queriesMapLock)
-		{
-			if (queriesMap == null)
-			{
-				queriesMap = new HashMap<String, Query>();
-				for (Query query : queries)
-				{
-					//there will always be at least one result with the name
-					queriesMap.put(query.getResults().get(0).getName(), query);
-				}
-			}
-		}
-	}
-
-	private class KairosQueryResponse
-	{
-		private List<Query> queries = new ArrayList<Query>();
-
-		public List<Query> getQueries()
-		{
-			return queries;
-		}
+		return MoreObjects.toStringHelper(this)
+				.add("queries", queries)
+				.toString();
 	}
 }

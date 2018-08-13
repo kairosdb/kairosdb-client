@@ -6,13 +6,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
 import org.kairosdb.client.builder.aggregator.CustomAggregator;
 import org.kairosdb.client.builder.grouper.CustomGrouper;
-import org.kairosdb.client.serializer.CustomAggregatorSerializer;
-import org.kairosdb.client.serializer.CustomGrouperSerializer;
-import org.kairosdb.client.serializer.ListMultiMapSerializer;
-import org.kairosdb.client.serializer.OrderSerializer;
-import org.kairosdb.client.serializer.TimeZoneSerializer;
+import org.kairosdb.client.serializer.*;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
@@ -25,14 +20,14 @@ public class RollupBuilder
 {
     private final transient Gson mapper;
 
-    @SuppressWarnings("FieldCanBeLocal")
+    @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final String name;
 
-    @SuppressWarnings("FieldCanBeLocal")
+    @SuppressWarnings({"FieldCanBeLocal", "unused"})
     @SerializedName("execution_interval")
     private final RelativeTime executionInterval;
 
-    private final List<Rollup> rollups = new ArrayList<Rollup>();
+    private final List<Rollup> rollups = new ArrayList<>();
 
     private RollupBuilder(String name, RelativeTime executionInterval)
     {
@@ -71,7 +66,6 @@ public class RollupBuilder
     }
 
     public String build()
-            throws IOException
     {
         validate();
         return mapper.toJson(this);

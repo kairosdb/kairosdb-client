@@ -15,6 +15,7 @@
  */
 package org.kairosdb.client.response.grouping;
 
+import com.google.common.base.MoreObjects;
 import org.kairosdb.client.response.GroupResult;
 
 import java.util.List;
@@ -31,6 +32,7 @@ public class TagGroupResult extends GroupResult
 	private List<String> tags;
 	private Map<String, String> group;
 
+	@SuppressWarnings("WeakerAccess")
 	public TagGroupResult(List<String> tags, Map<String, String> group)
 	{
 		super("tag");
@@ -68,9 +70,7 @@ public class TagGroupResult extends GroupResult
 		TagGroupResult that = (TagGroupResult) o;
 
 		if (!group.equals(that.group)) return false;
-		if (!tags.equals(that.tags)) return false;
-
-		return true;
+		return tags.equals(that.tags);
 	}
 
 	@Override
@@ -80,5 +80,14 @@ public class TagGroupResult extends GroupResult
 		result = 31 * result + tags.hashCode();
 		result = 31 * result + group.hashCode();
 		return result;
+	}
+
+	@Override
+	public String toString()
+	{
+		return MoreObjects.toStringHelper(this)
+				.add("tags", tags)
+				.add("group", group)
+				.toString();
 	}
 }

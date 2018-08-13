@@ -15,41 +15,63 @@
  */
 package org.kairosdb.client;
 
-import com.google.gson.JsonSyntaxException;
+import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableList;
+import com.google.common.io.Resources;
+import com.google.common.reflect.TypeToken;
+import com.proofpoint.http.client.UnexpectedResponseException;
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.ProtocolVersion;
+import org.apache.http.StatusLine;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.entity.AbstractHttpEntity;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.message.BasicStatusLine;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.message.BasicHeader;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.kairosdb.client.builder.MetricBuilder;
-import org.kairosdb.client.builder.QueryBuilder;
-import org.kairosdb.client.builder.TimeUnit;
+import org.junit.rules.ExpectedException;
+import org.kairosdb.client.HttpClient.RollupTaskResponse;
+import org.kairosdb.client.builder.*;
 import org.kairosdb.client.response.QueryResponse;
-import org.kairosdb.client.response.Response;
+import org.kairosdb.client.response.QueryTagResponse;
 
-import java.io.EOFException;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.lang.reflect.Type;
 import java.net.MalformedURLException;
+import java.util.List;
 
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.apache.http.HttpHeaders.CONTENT_TYPE;
+import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItems;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class HttpClientTest
 {
-	private CloseableHttpClient apacheMockClient;
+	@Rule
+	public ExpectedException thrown= ExpectedException.none();
+
+	private CloseableHttpClient mockClient;
+	private HttpClient client;
+	private 	JsonMapper mapper;
+
 
 	@Before
-	public void setup()
+	public void setup() throws MalformedURLException
 	{
-		apacheMockClient = mock(CloseableHttpClient.class);
+		mapper = new JsonMapper(new DataPointTypeRegistry());
+		HttpClientBuilder mockClientBuilder = mock(HttpClientBuilder.class);
+		mockClient = mock(CloseableHttpClient.class);
+		when(mockClientBuilder.build()).thenReturn(mockClient);
+
+		client = new HttpClient(mockClientBuilder, "http://localhost");
 	}
 
 	@Test(expected = NullPointerException.class)
@@ -70,282 +92,290 @@ public class HttpClientTest
 		new HttpClient("foo");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void test_negativeRetries_invalid() throws MalformedURLException
+	@Test
+	public void test_getMetricNames() throws IOException
 	{
-		HttpClient client = new HttpClient("http://bogus");
-		client.setRetryCount(-1);
+		String[] expectedNames = {"metric1", "metric2", "metric3", "metric4"};
+		HttpEntity mockEntity = mock(HttpEntity.class);
+		when(mockEntity.getContent()).thenReturn(toMetricNameStream(expectedNames));
+		CloseableHttpResponse mockResponse = mockResponse(200, mockEntity);
+		when(mockClient.execute(any())).thenReturn(mockResponse);
+
+		List<String> metricNames = client.getMetricNames();
+
+		assertThat(metricNames, hasItems(expectedNames));
 	}
 
 	@Test
-	public void test_pushMetrics_DefaultRetries() throws IOException
+	public void test_getMetricNames_withIOException() throws IOException
 	{
-		when(apacheMockClient.execute(any())).thenThrow(new IOException("Fake Exception"));
+		thrown.expectMessage("Error reading JSON response from server");
+		thrown.expect(RuntimeException.class);
 
-		HttpClient client = new HttpClient("http://bogus");
-		client.setClient(apacheMockClient);
+		HttpEntity mockEntity = mock(HttpEntity.class);
+		when(mockEntity.getContent()).thenThrow(new IOException("Expected Exception"));
+		CloseableHttpResponse mockResponse = mockResponse(400, mockEntity);
+		when(mockClient.execute(any())).thenReturn(mockResponse);
 
-		MetricBuilder builder = MetricBuilder.getInstance();
-		builder.addMetric("newMetric").addDataPoint(10, 10).addTag("host", "server1");
-
-		try
-		{
-			client.pushMetrics(builder);
-			fail("IOException should have been thrown");
-		}
-		catch (IOException e)
-		{
-			// ignore
-		}
-		verify(apacheMockClient, times(4)).execute(any()); // 1 try and 3 retries
+		client.getMetricNames();
 	}
 
 	@Test
-	public void test_pushMetrics_setRetries() throws IOException
+	public void test_getMetricNames_returns_400() throws IOException
 	{
-		when(apacheMockClient.execute(any())).thenThrow(new IOException("Fake Exception"));
+		thrown.expectMessage("Errors: This is an expected error");
+		thrown.expect(UnexpectedResponseException.class);
 
-		HttpClient client = new HttpClient("http://bogus");
-		client.setClient(apacheMockClient);
-		client.setRetryCount(10);
+		HttpEntity mockEntity = mock(HttpEntity.class);
+		when(mockEntity.getContent()).thenReturn(toErrorStream("This is an expected error"));
+		CloseableHttpResponse mockResponse = mockResponse(400, mockEntity);
+		when(mockClient.execute(any())).thenReturn(mockResponse);
 
-		MetricBuilder builder = MetricBuilder.getInstance();
-		builder.addMetric("newMetric").addDataPoint(10, 10).addTag("host", "server1");
-
-		try
-		{
-			client.pushMetrics(builder);
-			fail("IOException should have been thrown");
-		}
-		catch (IOException e)
-		{
-			// ignore
-		}
-		verify(apacheMockClient, times(11)).execute(any()); // 1 try and 10 retries
+		client.getMetricNames();
 	}
 
 	@Test
-	public void test_pushMetrics_setRetries_zero() throws IOException
+	public void test_createRollup() throws IOException
 	{
-		when(apacheMockClient.execute(any())).thenThrow(new IOException("Fake Exception"));
+		// Create response from create call
+		String responseJson = Resources.toString(Resources.getResource("rollupResponse.json"), Charsets.UTF_8);
+		RollupTaskResponse taskResponse = mapper.fromJson(responseJson, RollupTaskResponse.class);
 
-		HttpClient client = new HttpClient("http://bogus");
-		client.setClient(apacheMockClient);
-		client.setRetryCount(0);
+		// create rollup builder
+		RollupBuilder builder = createRollupBuilder();
+		String json = appendId(taskResponse.getId(), builder.build());
+		RollupTask expectedTask = mapper.fromJson(json, RollupTask.class);
 
-		MetricBuilder builder = MetricBuilder.getInstance();
-		builder.addMetric("newMetric").addDataPoint(10, 10).addTag("host", "server1");
+		// Setup both responses. 1) from create call, 2) query for rollup
+		HttpEntity mockEntity1 = mock(HttpEntity.class);
+		when(mockEntity1.getContent()).thenReturn(toJsonStream(responseJson));
+		HttpEntity mockEntity2 = mock(HttpEntity.class);
+		when(mockEntity2.getContent()).thenReturn(toJsonStream(json));
+		CloseableHttpResponse mockResponse1 = mockResponse(200, mockEntity1);
+		CloseableHttpResponse mockResponse2 = mockResponse(200, mockEntity2);
+		when(mockClient.execute(any())).thenReturn(mockResponse1).thenReturn(mockResponse2);
 
-		try
-		{
-			client.pushMetrics(builder);
-			fail("IOException should have been thrown");
-		}
-		catch (IOException e)
-		{
-			// ignore
-		}
-		verify(apacheMockClient, times(1)).execute(any()); // 1 try and 0 retries
+		RollupTask task = client.createRollupTask(builder);
+
+		assertThat(task, equalTo(expectedTask));
 	}
 
 	@Test
-	public void test_query_DefaultRetries() throws IOException
+	public void test_getRollupTasks() throws IOException
 	{
-		when(apacheMockClient.execute(any())).thenThrow(new IOException("Fake Exception"));
+		String rollupsJson = Resources.toString(Resources.getResource("rollups.json"), Charsets.UTF_8);
+		Type type = new TypeToken<List<RollupTask>>(){}.getType();
+		List<RollupTask> expectedTasks = mapper.fromJson(rollupsJson, type);
 
-		HttpClient client = new HttpClient("http://bogus");
-		client.setClient(apacheMockClient);
+		HttpEntity mockEntity = mock(HttpEntity.class);
+		when(mockEntity.getContent()).thenReturn(toJsonStream(rollupsJson));
+		CloseableHttpResponse mockResponse = mockResponse(200, mockEntity);
+		when(mockClient.execute(any())).thenReturn(mockResponse);
+
+		List<RollupTask> rollupTasks = client.getRollupTasks();
+
+		assertThat(rollupTasks, equalTo(expectedTasks));
+	}
+
+	@Test
+	public void test_getRollupTask() throws IOException
+	{
+		String rollupJson = Resources.toString(Resources.getResource("rollup.json"), Charsets.UTF_8);
+		RollupTask expectedTask = mapper.fromJson(rollupJson, RollupTask.class);
+
+		HttpEntity mockEntity = mock(HttpEntity.class);
+		when(mockEntity.getContent()).thenReturn(toJsonStream(rollupJson));
+		CloseableHttpResponse mockResponse = mockResponse(200, mockEntity);
+		when(mockClient.execute(any())).thenReturn(mockResponse);
+
+		RollupTask rollupTask = client.getRollupTask("id");
+
+		assertThat(rollupTask, equalTo(expectedTask));
+	}
+
+	@Test
+	public void test_getStatus() throws IOException
+	{
+		List<String> statusItems = ImmutableList.of("JVM-Thread-Deadlock: OK", "Datastore-Query: OK");
+		String expectedStatus = "[\"" + statusItems.get(0) + "\",\"" + statusItems.get(1) + "\"]";
+		HttpEntity mockEntity = mock(HttpEntity.class);
+		when(mockEntity.getContent()).thenReturn(toJsonStream(expectedStatus));
+		CloseableHttpResponse mockResponse = mockResponse(200, mockEntity);
+		when(mockClient.execute(any())).thenReturn(mockResponse);
+
+		List<String> status = client.getStatus();
+
+		assertThat(status, hasItems(statusItems.get(0), statusItems.get(1)));
+	}
+
+	@Test
+	public void test_statusCheck() throws IOException
+	{
+		CloseableHttpResponse mockResponse = mockResponse(204);
+		when(mockClient.execute(any())).thenReturn(mockResponse);
+
+		int status = client.getStatusCheck();
+
+		assertThat(status, equalTo(204));
+	}
+
+	@Test
+	public void test_getVersion() throws IOException
+	{
+		HttpEntity mockEntity = mock(HttpEntity.class);
+		when(mockEntity.getContent()).thenReturn(toJsonStream("{\"version\": \"KairosDB 0.9.4\"}"));
+		CloseableHttpResponse mockResponse = mockResponse(200, mockEntity);
+		when(mockClient.execute(any())).thenReturn(mockResponse);
+
+		String version = client.getVersion();
+
+		assertThat(version, equalTo("KairosDB 0.9.4"));
+	}
+
+	@Test
+	public void test_query() throws IOException
+	{
+		String expectedResponseJson = Resources.toString(Resources.getResource("response_valid.json"), Charsets.UTF_8);
+		QueryResponse expectedResponse = mapper.fromJson(expectedResponseJson, QueryResponse.class);
 
 		QueryBuilder builder = QueryBuilder.getInstance();
-		builder.setStart(1, TimeUnit.DAYS);
-		builder.addMetric("newMetric");
+		builder.setStart(1, TimeUnit.HOURS);
+		builder.addMetric("archive_search").addAggregator(AggregatorFactory.createAverageAggregator(1, TimeUnit.MINUTES));
 
-		try
-		{
-			client.query(builder);
-			fail("IOException should have been thrown");
-		}
-		catch (IOException e)
-		{
-			// ignore
-		}
-		verify(apacheMockClient, times(4)).execute(any()); // 1 try and 3 retries
-	}
-
-	@Test
-	public void test_query_setRetries() throws IOException
-	{
-		when(apacheMockClient.execute(any())).thenThrow(new IOException("Fake Exception"));
-
-		HttpClient client = new HttpClient("http://bogus");
-		client.setClient(apacheMockClient);
-		client.setRetryCount(10);
-
-		QueryBuilder builder = QueryBuilder.getInstance();
-		builder.setStart(1, TimeUnit.DAYS);
-		builder.addMetric("newMetric");
-
-		try
-		{
-			client.query(builder);
-			fail("IOException should have been thrown");
-		}
-		catch (IOException e)
-		{
-			// ignore
-		}
-		verify(apacheMockClient, times(11)).execute(any()); // 1 try and 10 retries
-	}
-
-	@Test
-	public void test_query_setRetries_zero() throws IOException
-	{
-		when(apacheMockClient.execute(any())).thenThrow(new IOException("Fake Exception"));
-
-		HttpClient client = new HttpClient("http://bogus");
-		client.setClient(apacheMockClient);
-		client.setRetryCount(0);
-
-		QueryBuilder builder = QueryBuilder.getInstance();
-		builder.setStart(1, TimeUnit.DAYS);
-		builder.addMetric("newMetric");
-
-		try
-		{
-			client.query(builder);
-			fail("IOException should have been thrown");
-		}
-		catch (IOException e)
-		{
-			// ignore
-		}
-		verify(apacheMockClient, times(1)).execute(any()); // 1 try and zero retries
-	}
-
-	@Test
-	public void test_queryResponse_400_error() throws IOException
-	{
-		CloseableHttpResponse response = mock(CloseableHttpResponse.class);
-		when(response.getStatusLine()).thenReturn(new BasicStatusLine(new ProtocolVersion("protocol", 1, 1), 400, "400"));
-		when(response.getEntity()).thenReturn(new StringEntity("{\"errors\":[\"error message\"]}"));
-		when(apacheMockClient.execute(any())).thenReturn(response);
-
-		HttpClient client = new HttpClient("http://bogus");
-		client.setClient(apacheMockClient);
-		client.setRetryCount(0);
-
-		QueryBuilder builder = QueryBuilder.getInstance();
-		builder.setStart(1, TimeUnit.DAYS);
-		builder.addMetric("newMetric");
+		HttpEntity mockEntity = mock(HttpEntity.class);
+		when(mockEntity.getContent()).thenReturn(toJsonStream(expectedResponseJson));
+		CloseableHttpResponse mockResponse = mockResponse(200, mockEntity);
+		when(mockClient.execute(any())).thenReturn(mockResponse);
 
 		QueryResponse queryResponse = client.query(builder);
 
-		assertThat(queryResponse.getStatusCode(), equalTo(400));
-		assertThat(queryResponse.getErrors().size(), equalTo(1));
-		assertThat(queryResponse.getErrors().get(0), equalTo("error message"));
+		assertThat(queryResponse, equalTo(expectedResponse));
 	}
 
 	@Test
-	public void test_metricsResponse_400_error() throws IOException
+	public void test_queryTags() throws IOException
 	{
-		CloseableHttpResponse response = mock(CloseableHttpResponse.class);
-		when(response.getStatusLine()).thenReturn(new BasicStatusLine(new ProtocolVersion("protocol", 1, 1), 400, "400"));
-		when(response.getEntity()).thenReturn(new StringEntity("{\"errors\": [\"error message\"]}"));
-		when(apacheMockClient.execute(any())).thenReturn(response);
+		String expectedResponseJson = Resources.toString(Resources.getResource("query_tag_response_valid.json"), Charsets.UTF_8);
+		QueryTagResponse expectedResponse = mapper.fromJson(expectedResponseJson, QueryTagResponse.class);
 
-		HttpClient client = new HttpClient("http://bogus");
-		client.setClient(apacheMockClient);
-		client.setRetryCount(0);
+		QueryTagBuilder builder = QueryTagBuilder.getInstance();
+		builder.setStart(1, TimeUnit.HOURS);
+		builder.addMetric("kairosdb.datastore.query_time");
 
-		MetricBuilder builder = MetricBuilder.getInstance();
-		builder.addMetric("newMetric").addTag("foo", "bar");
+		HttpEntity mockEntity = mock(HttpEntity.class);
+		when(mockEntity.getContent()).thenReturn(toJsonStream(expectedResponseJson));
+		CloseableHttpResponse mockResponse = mockResponse(200, mockEntity);
+		when(mockClient.execute(any())).thenReturn(mockResponse);
 
-		Response pushResponse = client.pushMetrics(builder);
+		QueryTagResponse queryResponse = client.queryTags(builder);
 
-		assertThat(pushResponse.getStatusCode(), equalTo(400));
-		assertThat(pushResponse.getErrors().size(), equalTo(1));
-		assertThat(pushResponse.getErrors().get(0), equalTo("error message"));
+		assertThat(queryResponse, equalTo(expectedResponse));
 	}
 
-	/**
-		Ran across an issue where the content stream was not null but when the stream
-	   was read, an EOFException was throw. This test verifies that we handle this correctly.
-	 */
-	@Test
-	public void test_metricsResponse_500_error_EOFException() throws IOException
+	private String appendId(String id, String json)
 	{
-		CloseableHttpResponse response = mock(CloseableHttpResponse.class);
-		when(response.getStatusLine()).thenReturn(new BasicStatusLine(new ProtocolVersion("protocol", 1, 1), 500, "500"));
-		when(response.getEntity()).thenReturn(new BadEntity());
-		when(apacheMockClient.execute(any())).thenReturn(response);
-
-		HttpClient client = new HttpClient("http://bogus");
-		client.setClient(apacheMockClient);
-
-		MetricBuilder builder = MetricBuilder.getInstance();
-		builder.addMetric("newMetric").addTag("foo", "bar");
-
-		Response pushResponse = client.pushMetrics(builder);
-
-		assertThat(pushResponse.getStatusCode(), equalTo(500));
-		assertThat(pushResponse.getErrors().size(), equalTo(0));
+		return json.replace("\"name\"", "\"id\":\"" + id + "\", \"name\"");
 	}
 
-	@Test (expected = JsonSyntaxException.class)
-	public void test_metricsResponse_invalidJson() throws IOException
+	@SuppressWarnings("SameParameterValue")
+	private CloseableHttpResponse mockResponse(int statusCode)
 	{
-		CloseableHttpResponse response = mock(CloseableHttpResponse.class);
-		when(response.getStatusLine()).thenReturn(new BasicStatusLine(new ProtocolVersion("protocol", 1, 1), 500, "500"));
-		when(response.getEntity()).thenReturn(new StringEntity("bad json"));
-		when(apacheMockClient.execute(any())).thenReturn(response);
-
-		HttpClient client = new HttpClient("http://bogus");
-		client.setClient(apacheMockClient);
-
-		MetricBuilder builder = MetricBuilder.getInstance();
-		builder.addMetric("newMetric").addTag("foo", "bar");
-
-		client.pushMetrics(builder);
+		return this.mockResponse(statusCode, null);
 	}
 
-	private class BadEntity extends AbstractHttpEntity
+	private CloseableHttpResponse mockResponse(int statusCode, HttpEntity entity)
 	{
-		@Override
-		public boolean isRepeatable()
+		CloseableHttpResponse mockResponse = mock(CloseableHttpResponse.class);
+		when(mockResponse.getAllHeaders()).thenReturn(new Header[]{new BasicHeader(CONTENT_TYPE, APPLICATION_JSON.toString())});
+		when(mockResponse.getStatusLine()).thenReturn(toResponseCode(statusCode));
+
+		if (entity != null)
 		{
-			return false;
+			when(mockResponse.getEntity()).thenReturn(entity);
 		}
 
-		@Override
-		public long getContentLength()
-		{
-			return 0;
-		}
+		return mockResponse;
+	}
 
-		@Override
-		public InputStream getContent() throws IOException, IllegalStateException
-		{
-			return new BadInputStream();
-		}
+	private InputStream toJsonStream(String json)
+	{
+		return new ByteArrayInputStream(json.getBytes());
+	}
 
-		@Override
-		public void writeTo(OutputStream outputStream) throws IOException
+	private InputStream toMetricNameStream(String... metricNames)
+	{
+		StringBuilder builder = new StringBuilder("{\"results\":[");
+		int count = 0;
+		for (String metricName : metricNames)
 		{
+			if (count > 0)
+			{
+				builder.append(",");
+			}
+			builder.append("\"").append(metricName).append("\"");
+			count++;
 		}
+		builder.append("]}");
+		return new ByteArrayInputStream(builder.toString().getBytes());
+	}
 
-		@Override
-		public boolean isStreaming()
+	@SuppressWarnings("SameParameterValue")
+	private InputStream toErrorStream(String errorMessage)
+	{
+		String error = "{\"errors\": [\"" + errorMessage + "\"]}";
+		return new ByteArrayInputStream(error.getBytes());
+	}
+
+	private RollupBuilder createRollupBuilder()
+	{
+		RollupBuilder builder = RollupBuilder.getInstance("test", new RelativeTime(1, TimeUnit.DAYS));
+		Rollup rollup = builder.addRollup("foo");
+		QueryBuilder queryBuilder = rollup.addQuery();
+		queryBuilder.addMetric("testMetric");
+		queryBuilder.setStart(1, TimeUnit.DAYS);
+		return builder;
+	}
+
+	private StatusLine toResponseCode(int statusCode)
+	{
+		switch (statusCode)
 		{
-			return false;
+			case 200:
+			case 204:
+				return new TestStatusLine(statusCode, "OK");
+			case 400:
+				return new TestStatusLine(statusCode, "Bad Request");
+			default:
+				throw new IllegalArgumentException("Invalid status code");
 		}
 	}
 
-	private class BadInputStream extends InputStream
-	{
-		@Override
-		public int read() throws IOException
+	private class TestStatusLine implements StatusLine{
+		private final int code;
+		private final String reason;
+
+		private TestStatusLine(int code, String reason)
 		{
-			throw new EOFException();
+			this.code = code;
+			this.reason = reason;
+		}
+
+		@Override
+		public ProtocolVersion getProtocolVersion()
+		{
+			return null;
+		}
+
+		@Override
+		public int getStatusCode()
+		{
+			return code;
+		}
+
+		@Override
+		public String getReasonPhrase()
+		{
+			return reason;
 		}
 	}
 }

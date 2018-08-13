@@ -25,18 +25,33 @@ public class ErrorResponse
 {
 	private List<String> errors;
 
+	@SuppressWarnings("unused")
 	public ErrorResponse(List<String> errors)
 	{
 		this.errors = errors;
 	}
 
+	@SuppressWarnings("unused")
 	public ErrorResponse(String error)
 	{
 		errors = Collections.singletonList(error);
 	}
 
+	@SuppressWarnings("unused")
 	public List<String> getErrors()
 	{
 		return (errors);
+	}
+
+	@Override
+	public String toString()
+	{
+		StringBuilder builder = new StringBuilder("Errors: ");
+		for (String error : errors)
+		{
+			builder.append(error).append("\n");
+		}
+
+		return builder.toString();
 	}
 }

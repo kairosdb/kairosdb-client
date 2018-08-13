@@ -15,6 +15,7 @@
  */
 package org.kairosdb.client.response;
 
+import com.google.common.base.MoreObjects;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
@@ -22,14 +23,14 @@ import java.util.List;
 /**
  * Resulting object from a Query.
  */
-public class Query
+public class QueryResult
 {
 	private List<Result> results;
 
 	@SerializedName("sample_size")
 	private long sampleSize;
 
-	public Query(List<Result> results, long sampleSize)
+	public QueryResult(List<Result> results, long sampleSize)
 	{
 		this.results = results;
 		this.sampleSize = sampleSize;
@@ -66,5 +67,35 @@ public class Query
 		}
 
 		return null;
+	}
+
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		QueryResult that = (QueryResult) o;
+
+		if (sampleSize != that.sampleSize) return false;
+		return results != null ? results.equals(that.results) : that.results == null;
+
+	}
+
+	@Override
+	public int hashCode()
+	{
+		int result = results != null ? results.hashCode() : 0;
+		result = 31 * result + (int) (sampleSize ^ (sampleSize >>> 32));
+		return result;
+	}
+
+	@Override
+	public String toString()
+	{
+		return MoreObjects.toStringHelper(this)
+				.add("results", results)
+				.add("sampleSize", sampleSize)
+				.toString();
 	}
 }

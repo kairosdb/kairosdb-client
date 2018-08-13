@@ -23,7 +23,6 @@ import org.kairosdb.client.serializer.CustomAggregatorSerializer;
 import org.kairosdb.client.serializer.CustomGrouperSerializer;
 import org.kairosdb.client.serializer.DataPointSerializer;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +33,7 @@ import static com.google.common.base.Preconditions.checkState;
  */
 public class MetricBuilder
 {
-	private List<Metric> metrics = new ArrayList<Metric>();
+	private List<Metric> metrics = new ArrayList<>();
 	private transient Gson mapper;
 	private boolean useCompression = false;
 
@@ -96,17 +95,17 @@ public class MetricBuilder
 
 	/**
 	 * Sets the compression flag for http post.
-	 * @param compressionEnabled
+	 * @param compressionEnabled compresss post data
 	 */
+	@SuppressWarnings("WeakerAccess")
 	public void setCompression(boolean compressionEnabled)
 	{
 		useCompression = compressionEnabled;
-		return;
 	}
 
 	/**
 	 * Returns the compression flag
-	 * @return
+	 * @return return whether compression is being used
 	 */
 	public boolean isCompressionEnabled() { return useCompression; }
 
@@ -114,9 +113,8 @@ public class MetricBuilder
 	 * Returns the JSON string built by the builder. This is the JSON that can be used by the client add metrics.
 	 *
 	 * @return JSON
-	 * @throws IOException if metrics cannot be converted to JSON
 	 */
-	public String build() throws IOException
+	public String build()
 	{
 		for (Metric metric : metrics)
 		{

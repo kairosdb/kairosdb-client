@@ -1,5 +1,6 @@
 package org.kairosdb.client.response.grouping;
 
+import com.google.common.base.MoreObjects;
 import org.kairosdb.client.response.GroupResult;
 
 import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
@@ -11,6 +12,7 @@ public class DefaultGroupResult extends GroupResult
 {
 	private String type;
 
+	@SuppressWarnings("WeakerAccess")
 	public DefaultGroupResult(String name, String type)
 	{
 		super(name);
@@ -36,9 +38,7 @@ public class DefaultGroupResult extends GroupResult
 
 		DefaultGroupResult that = (DefaultGroupResult) o;
 
-		if (!type.equals(that.type)) return false;
-
-		return true;
+		return type.equals(that.type);
 	}
 
 	@Override
@@ -47,5 +47,13 @@ public class DefaultGroupResult extends GroupResult
 		int result = super.hashCode();
 		result = 31 * result + type.hashCode();
 		return result;
+	}
+
+	@Override
+	public String toString()
+	{
+		return MoreObjects.toStringHelper(this)
+				.add("type", type)
+				.toString();
 	}
 }

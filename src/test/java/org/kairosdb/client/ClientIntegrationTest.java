@@ -1,7 +1,7 @@
 package org.kairosdb.client;
 
 import com.google.common.base.Stopwatch;
-import com.google.common.collect.ImmutableList;
+import com.proofpoint.http.client.UnexpectedResponseException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -10,10 +10,7 @@ import org.kairosdb.client.builder.grouper.BinGrouper;
 import org.kairosdb.client.builder.grouper.TagGrouper;
 import org.kairosdb.client.builder.grouper.TimeGrouper;
 import org.kairosdb.client.builder.grouper.ValueGrouper;
-import org.kairosdb.client.response.GetResponse;
 import org.kairosdb.client.response.QueryResponse;
-import org.kairosdb.client.response.Response;
-import org.kairosdb.client.response.RollupResponse;
 import org.kairosdb.core.exception.DatastoreException;
 
 import java.io.File;
@@ -36,8 +33,6 @@ public class ClientIntegrationTest
 
 	private static final String TELNET_METRIC_NAME_1 = "telnetMetric1";
 	private static final String TELNET_METRIC_NAME_2 = "telnetMetric2";
-	private static final String TELNET_METRIC_NAME_3 = "telnetMetric3";
-	private static final String TELNET_METRIC_NAME_4 = "telnetMetric4";
 	private static final String TELNET_TAG_NAME_1 = "telnetTag1";
 	private static final String TELNET_TAG_NAME_2 = "telnetTag2";
 	private static final String TELNET_TAG_VALUE_1 = "telnetTag1";
@@ -128,69 +123,10 @@ public class ClientIntegrationTest
 	}
 
 	@Test
-	public void test_telnetClientPutMetrics()
-			throws IOException, DataFormatException, InterruptedException
-	{
-		TelnetClient client = new TelnetClient("localhost", 4245);
-
-		try
-		{
-			MetricBuilder metricBuilder = MetricBuilder.getInstance();
-
-			Metric metric1 = metricBuilder.addMetric(TELNET_METRIC_NAME_3);
-			metric1.addTag(TELNET_TAG_NAME_1, TELNET_TAG_VALUE_1);
-			long timestamp1 = System.currentTimeMillis();
-			metric1.addDataPoint(timestamp1, 20);
-
-			Metric metric2 = metricBuilder.addMetric(TELNET_METRIC_NAME_4);
-			metric2.addTag(TELNET_TAG_NAME_2, TELNET_TAG_VALUE_2);
-			long timestamp2 = System.currentTimeMillis();
-			metric2.addDataPoint(timestamp2, 40);
-
-			client.putMetrics(metricBuilder);
-
-			client.shutdown();
-
-			// Because Telnet is Asynchronous, it takes some time before the datapoints get written.
-			// Wait for Kairos to notify us that they have been written.
-			watiForEvent();
-
-			// Query metrics
-			QueryBuilder builder = QueryBuilder.getInstance();
-			builder.setStart(1, TimeUnit.MINUTES);
-			builder.addMetric(TELNET_METRIC_NAME_3);
-			builder.addMetric(TELNET_METRIC_NAME_4);
-
-			HttpClient httpClient = new HttpClient("http://localhost:8082");
-			QueryResponse query = httpClient.query(builder);
-			assertThat(query.getQueries().size(), equalTo(2));
-
-			assertThat(query.getQueries().get(0).getResults().size(), equalTo(1));
-			List<DataPoint> dataPoints = query.getQueries().get(0).getResults().get(0).getDataPoints();
-			assertThat(dataPoints.size(), equalTo(1));
-			assertThat(dataPoints.get(0).getTimestamp(), equalTo(timestamp1));
-			assertThat(dataPoints.get(0).longValue(), equalTo(20L));
-
-			assertThat(query.getQueries().get(1).getResults().size(), equalTo(1));
-			dataPoints = query.getQueries().get(1).getResults().get(0).getDataPoints();
-			assertThat(dataPoints.size(), equalTo(1));
-			assertThat(dataPoints.get(0).getTimestamp(), equalTo(timestamp2));
-			assertThat(dataPoints.get(0).longValue(), equalTo(40L));
-		}
-		finally
-		{
-			//noinspection ThrowFromFinallyBlock
-			client.shutdown();
-		}
-	}
-
-	@Test
 	public void test_httpClient_no_results_from_query()
 			throws IOException
 	{
-		HttpClient client = new HttpClient("http://localhost:8082");
-
-		try
+		try (HttpClient client = new HttpClient("http://localhost:8082"))
 		{
 			MetricBuilder metricBuilder = MetricBuilder.getInstance();
 
@@ -206,10 +142,7 @@ public class ClientIntegrationTest
 			metric2.addTtl(1000);
 
 			// Push Metrics
-			Response response = client.pushMetrics(metricBuilder);
-
-			assertThat(response.getStatusCode(), equalTo(204));
-			assertThat(response.getErrors().size(), equalTo(0));
+			client.pushMetrics(metricBuilder);
 
 			// Query metrics
 			QueryBuilder builder = QueryBuilder.getInstance();
@@ -223,19 +156,12 @@ public class ClientIntegrationTest
 			List<DataPoint> dataPoints = query.getQueries().get(0).getResults().get(0).getDataPoints();
 			assertThat(dataPoints.size(), equalTo(0));
 		}
-		finally
-		{
-			//noinspection ThrowFromFinallyBlock
-			client.shutdown();
-		}
 	}
 
 	@Test
 	public void test_httpClient() throws IOException, DataFormatException
 	{
-		HttpClient client = new HttpClient("http://localhost:8082");
-
-		try
+		try (HttpClient client = new HttpClient("http://localhost:8082"))
 		{
 			MetricBuilder metricBuilder = MetricBuilder.getInstance();
 
@@ -250,33 +176,17 @@ public class ClientIntegrationTest
 			metric2.addDataPoint(timestamp2, 40);
 
 			// Push Metrics
-			Response response = client.pushMetrics(metricBuilder);
-
-			assertThat(response.getStatusCode(), equalTo(204));
-			assertThat(response.getErrors().size(), equalTo(0));
+			client.pushMetrics(metricBuilder);
 
 			// Check Metric names
-			GetResponse metricNames = client.getMetricNames();
+			List<String> metricNames = client.getMetricNames();
 
-			assertThat(metricNames.getStatusCode(), equalTo(200));
-			assertThat(metricNames.getResults(), hasItems(HTTP_METRIC_NAME_1, HTTP_METRIC_NAME_2));
-
-			// Check Tag names
-			GetResponse tagNames = client.getTagNames();
-
-			assertThat(tagNames.getStatusCode(), equalTo(200));
-			assertThat(tagNames.getResults(), hasItems(HTTP_TAG_NAME_1, HTTP_TAG_NAME_2));
-
-			// Check Tag values
-			GetResponse tagValues = client.getTagValues();
-
-			assertThat(tagValues.getStatusCode(), equalTo(200));
-			assertThat(tagValues.getResults(), hasItems(HTTP_TAG_VALUE_1, HTTP_TAG_VALUE_2));
+			assertThat(metricNames, hasItems(HTTP_METRIC_NAME_1, HTTP_METRIC_NAME_2));
 
 			// Check Status
-			GetResponse status = client.getStatus();
+			int status = client.getStatusCheck();
 
-			assertThat(tagValues.getStatusCode(), equalTo(200));
+			assertThat(status, equalTo(204));
 
 			// Query metrics
 			QueryBuilder builder = QueryBuilder.getInstance();
@@ -293,19 +203,12 @@ public class ClientIntegrationTest
 			assertThat(dataPoints.get(0).getTimestamp(), equalTo(timestamp1));
 			assertThat(dataPoints.get(0).longValue(), equalTo(20L));
 		}
-		finally
-		{
-			//noinspection ThrowFromFinallyBlock
-			client.shutdown();
-		}
 	}
 
 	@Test
 	public void test_httpClient_multiTagValues() throws IOException, DataFormatException
 	{
-		HttpClient client = new HttpClient("http://localhost:8082");
-
-		try
+		try (HttpClient client = new HttpClient("http://localhost:8082"))
 		{
 			MetricBuilder metricBuilder = MetricBuilder.getInstance();
 
@@ -325,10 +228,7 @@ public class ClientIntegrationTest
 			metric3.addDataPoint(timestamp3, 30);
 
 			// Push Metrics
-			Response response = client.pushMetrics(metricBuilder);
-
-			assertThat(response.getStatusCode(), equalTo(204));
-			assertThat(response.getErrors().size(), equalTo(0));
+			client.pushMetrics(metricBuilder);
 
 			// Query metrics
 			QueryBuilder builder = QueryBuilder.getInstance();
@@ -351,23 +251,16 @@ public class ClientIntegrationTest
 			assertThat(dataPoints.get(1).getTimestamp(), equalTo(timestamp3));
 			assertThat(dataPoints.get(1).longValue(), equalTo(40L));
 		}
-		finally
-		{
-			//noinspection ThrowFromFinallyBlock
-			client.shutdown();
-		}
 	}
 
 	/**
-	 * The purpose of this test is to exercise the JSON parsing code. We want to verify that Kairos does not
-	 * return any errors which means that the aggregators and groupBys are all valid.
+	 The purpose of this test is to exercise the JSON parsing code. We want to verify that Kairos does not
+	 return any errors which means that the aggregators and groupBys are all valid.
 	 */
 	@Test
 	public void test_aggregatorsAndGroupBy() throws IOException
 	{
-		HttpClient client = new HttpClient("http://localhost:8082");
-
-		try
+		try (HttpClient client = new HttpClient("http://localhost:8082"))
 		{
 			MetricBuilder metricBuilder = MetricBuilder.getInstance();
 
@@ -379,10 +272,7 @@ public class ClientIntegrationTest
 			metric1.addDataPoint(System.currentTimeMillis(), 23);
 
 			// Push Metrics
-			Response response = client.pushMetrics(metricBuilder);
-
-			assertThat(response.getStatusCode(), equalTo(204));
-			assertThat(response.getErrors().size(), equalTo(0));
+			client.pushMetrics(metricBuilder);
 
 			// Query metrics
 			QueryBuilder builder = QueryBuilder.getInstance();
@@ -418,13 +308,8 @@ public class ClientIntegrationTest
 			metric.addGrouper(new ValueGrouper(4));
 			metric.addGrouper(new BinGrouper(2.0, 3.0, 4.0));
 
-			response = client.query(builder);
-			assertThat(response.getErrors().size(), equalTo(0));
-		}
-		finally
-		{
-			//noinspection ThrowFromFinallyBlock
-			client.shutdown();
+			QueryResponse response = client.query(builder);
+			assertThat(response.getQueries().size(), equalTo(1));
 		}
 	}
 
@@ -433,12 +318,11 @@ public class ClientIntegrationTest
 	{
 		System.setProperty("javax.net.ssl.trustStore", "src/test/resources/ssl.jks");
 		System.setProperty("javax.net.ssl.trustStorePassword", "testtest");
-		HttpClient client = new HttpClient("https://localhost:8443");
 
-		try
+
+		try (HttpClient client = new HttpClient("https://localhost:8443"))
 		{
 			MetricBuilder metricBuilder = MetricBuilder.getInstance();
-
 			Metric metric1 = metricBuilder.addMetric(SSL_METRIC_NAME_1);
 			metric1.addTag(SSL_TAG_NAME_1, SSL_TAG_VALUE_1);
 			long timestamp1 = System.currentTimeMillis();
@@ -450,28 +334,12 @@ public class ClientIntegrationTest
 			metric2.addDataPoint(timestamp2, 40);
 
 			// Push Metrics
-			Response response = client.pushMetrics(metricBuilder);
-
-			assertThat(response.getStatusCode(), equalTo(204));
-			assertThat(response.getErrors().size(), equalTo(0));
+			client.pushMetrics(metricBuilder);
 
 			// Check Metric names
-			GetResponse metricNames = client.getMetricNames();
+			List<String> metricNames = client.getMetricNames();
 
-			assertThat(metricNames.getStatusCode(), equalTo(200));
-			assertThat(metricNames.getResults(), hasItems(SSL_METRIC_NAME_1, SSL_METRIC_NAME_2));
-
-			// Check Tag names
-			GetResponse tagNames = client.getTagNames();
-
-			assertThat(tagNames.getStatusCode(), equalTo(200));
-			assertThat(tagNames.getResults(), hasItems(SSL_TAG_NAME_1, SSL_TAG_NAME_2));
-
-			// Check Tag values
-			GetResponse tagValues = client.getTagValues();
-
-			assertThat(tagValues.getStatusCode(), equalTo(200));
-			assertThat(tagValues.getResults(), hasItems(SSL_TAG_VALUE_1, SSL_TAG_VALUE_2));
+			assertThat(metricNames, hasItems(SSL_METRIC_NAME_1, SSL_METRIC_NAME_2));
 
 			// Query metrics
 			QueryBuilder builder = QueryBuilder.getInstance();
@@ -488,228 +356,185 @@ public class ClientIntegrationTest
 			assertThat(dataPoints.get(0).getTimestamp(), equalTo(timestamp1));
 			assertThat(dataPoints.get(0).longValue(), equalTo(20L));
 		}
-		finally
-		{
-			//noinspection ThrowFromFinallyBlock
-			client.shutdown();
-		}
 	}
 
-	@SuppressWarnings("PointlessArithmeticExpression")
-	@Test
-	public void test_limit() throws IOException, DataFormatException
-	{
-		HttpClient client = new HttpClient("http://localhost:8082");
-
-		try
+		@SuppressWarnings("PointlessArithmeticExpression")
+		@Test
+		public void test_limit() throws IOException, DataFormatException
 		{
-			MetricBuilder metricBuilder = MetricBuilder.getInstance();
+			try (HttpClient client = new HttpClient("http://localhost:8082"))
+			{
+				MetricBuilder metricBuilder = MetricBuilder.getInstance();
 
-			long time = System.currentTimeMillis();
-			Metric metric = metricBuilder.addMetric("limitMetric").addTag("host", "a");
-			metric.addDataPoint(time - 8, 20);
-			metric.addDataPoint(time - 7, 21);
-			metric.addDataPoint(time - 6, 22);
-			metric.addDataPoint(time - 5, 23);
-			metric.addDataPoint(time - 4, 24);
-			metric.addDataPoint(time - 3, 25);
-			metric.addDataPoint(time - 2, 26);
-			metric.addDataPoint(time - 1, 27);
-			metric.addDataPoint(time - 0, 28);
+				long time = System.currentTimeMillis();
+				Metric metric = metricBuilder.addMetric("limitMetric").addTag("host", "a");
+				metric.addDataPoint(time - 8, 20);
+				metric.addDataPoint(time - 7, 21);
+				metric.addDataPoint(time - 6, 22);
+				metric.addDataPoint(time - 5, 23);
+				metric.addDataPoint(time - 4, 24);
+				metric.addDataPoint(time - 3, 25);
+				metric.addDataPoint(time - 2, 26);
+				metric.addDataPoint(time - 1, 27);
+				metric.addDataPoint(time - 0, 28);
 
-			// Push Metrics
-			Response pushResponse = client.pushMetrics(metricBuilder);
+				// Push Metrics
+				client.pushMetrics(metricBuilder);
 
-			assertThat(pushResponse.getStatusCode(), equalTo(204));
-			assertThat(pushResponse.getErrors().size(), equalTo(0));
+				// Query metrics
+				QueryBuilder builder = QueryBuilder.getInstance();
+				builder.setStart(1, TimeUnit.MINUTES);
 
-			// Query metrics
-			QueryBuilder builder = QueryBuilder.getInstance();
-			builder.setStart(1, TimeUnit.MINUTES);
+				QueryMetric query = builder.addMetric("limitMetric");
+				query.setLimit(5);
 
-			QueryMetric query = builder.addMetric("limitMetric");
-			query.setLimit(5);
+				QueryResponse response = client.query(builder);
 
-			QueryResponse response = client.query(builder);
-			assertThat(response.getErrors().size(), equalTo(0));
+				List<DataPoint> dataPoints = response.getQueries().get(0).getResults().get(0).getDataPoints();
+				assertThat(dataPoints.size(), equalTo(5));
 
-			List<DataPoint> dataPoints = response.getQueries().get(0).getResults().get(0).getDataPoints();
-			assertThat(dataPoints.size(), equalTo(5));
-
-			assertThat(dataPoints.get(0).longValue(), equalTo(20L));
-			assertThat(dataPoints.get(1).longValue(), equalTo(21L));
-			assertThat(dataPoints.get(2).longValue(), equalTo(22L));
-			assertThat(dataPoints.get(3).longValue(), equalTo(23L));
-			assertThat(dataPoints.get(4).longValue(), equalTo(24L));
+				assertThat(dataPoints.get(0).longValue(), equalTo(20L));
+				assertThat(dataPoints.get(1).longValue(), equalTo(21L));
+				assertThat(dataPoints.get(2).longValue(), equalTo(22L));
+				assertThat(dataPoints.get(3).longValue(), equalTo(23L));
+				assertThat(dataPoints.get(4).longValue(), equalTo(24L));
+			}
 		}
-		finally
+
+		@SuppressWarnings("PointlessArithmeticExpression")
+		@Test
+		public void test_Order() throws IOException, DataFormatException
 		{
-			//noinspection ThrowFromFinallyBlock
-			client.shutdown();
+			try (HttpClient client = new HttpClient("http://localhost:8082"))
+			{
+				MetricBuilder metricBuilder = MetricBuilder.getInstance();
+
+				long time = System.currentTimeMillis();
+				Metric metric = metricBuilder.addMetric("orderMetric").addTag("host", "a");
+				metric.addDataPoint(time - 4, 20);
+				metric.addDataPoint(time - 3, 21);
+				metric.addDataPoint(time - 2, 22);
+				metric.addDataPoint(time - 1, 23);
+				metric.addDataPoint(time - 0, 24);
+
+				// Push Metrics
+				client.pushMetrics(metricBuilder);
+
+				// Query metrics
+				QueryBuilder builder = QueryBuilder.getInstance();
+				builder.setStart(1, TimeUnit.MINUTES);
+
+				QueryMetric query = builder.addMetric("orderMetric");
+				query.setOrder(QueryMetric.Order.DESCENDING);
+
+				QueryResponse response = client.query(builder);
+
+				List<DataPoint> dataPoints = response.getQueries().get(0).getResults().get(0).getDataPoints();
+				assertThat(dataPoints.size(), equalTo(5));
+
+				assertThat(dataPoints.get(0).longValue(), equalTo(24L));
+				assertThat(dataPoints.get(1).longValue(), equalTo(23L));
+				assertThat(dataPoints.get(2).longValue(), equalTo(22L));
+				assertThat(dataPoints.get(3).longValue(), equalTo(21L));
+				assertThat(dataPoints.get(4).longValue(), equalTo(20L));
+			}
 		}
-	}
 
-	@SuppressWarnings("PointlessArithmeticExpression")
-	@Test
-	public void test_Order() throws IOException, DataFormatException
-	{
-		HttpClient client = new HttpClient("http://localhost:8082");
-
-		try
+		@Test
+		public void test_customDataType() throws IOException
 		{
-			MetricBuilder metricBuilder = MetricBuilder.getInstance();
+			try (HttpClient client = new HttpClient("http://localhost:8082"))
+			{
+				client.registerCustomDataType("complex", Complex.class);
+				MetricBuilder metricBuilder = MetricBuilder.getInstance();
 
-			long time = System.currentTimeMillis();
-			Metric metric = metricBuilder.addMetric("orderMetric").addTag("host", "a");
-			metric.addDataPoint(time - 4, 20);
-			metric.addDataPoint(time - 3, 21);
-			metric.addDataPoint(time - 2, 22);
-			metric.addDataPoint(time - 1, 23);
-			metric.addDataPoint(time - 0, 24);
+				Metric metric1 = metricBuilder.addMetric("metric1", "complex-number");
+				metric1.addTag("host", "a");
+				long timestamp1 = System.currentTimeMillis();
+				metric1.addDataPoint(timestamp1, new Complex(4, 5));
 
-			// Push Metrics
-			Response pushResponse = client.pushMetrics(metricBuilder);
+				// Push Metrics
+				client.pushMetrics(metricBuilder);
 
-			assertThat(pushResponse.getStatusCode(), equalTo(204));
-			assertThat(pushResponse.getErrors().size(), equalTo(0));
+				// Query Metric
+				QueryBuilder queryBuilder = QueryBuilder.getInstance();
+				queryBuilder.setStart(2, TimeUnit.MINUTES);
+				queryBuilder.addMetric("metric1");
 
-			// Query metrics
-			QueryBuilder builder = QueryBuilder.getInstance();
-			builder.setStart(1, TimeUnit.MINUTES);
+				QueryResponse queryResponse = client.query(queryBuilder);
+				assertThat(queryResponse.getQueries().size(), equalTo(1));
+				assertThat(queryResponse.getQueries().get(0).getResults().size(), equalTo(1));
 
-			QueryMetric query = builder.addMetric("orderMetric");
-			query.setOrder(QueryMetric.Order.DESCENDING);
-
-			QueryResponse response = client.query(builder);
-			assertThat(response.getErrors().size(), equalTo(0));
-
-			List<DataPoint> dataPoints = response.getQueries().get(0).getResults().get(0).getDataPoints();
-			assertThat(dataPoints.size(), equalTo(5));
-
-			assertThat(dataPoints.get(0).longValue(), equalTo(24L));
-			assertThat(dataPoints.get(1).longValue(), equalTo(23L));
-			assertThat(dataPoints.get(2).longValue(), equalTo(22L));
-			assertThat(dataPoints.get(3).longValue(), equalTo(21L));
-			assertThat(dataPoints.get(4).longValue(), equalTo(20L));
+				List<DataPoint> dataPoints = queryResponse.getQueries().get(0).getResults().get(0).getDataPoints();
+				assertThat(dataPoints, hasItem(new DataPoint(timestamp1, new Complex(4, 5))));
+			}
 		}
-		finally
+
+		@Test
+		public void test_rollup()
+				throws IOException
 		{
-			//noinspection ThrowFromFinallyBlock
-			client.shutdown();
+			try (HttpClient client = new HttpClient("http://localhost:8082"))
+			{
+				RollupBuilder builder = RollupBuilder.getInstance("rollupTask", new RelativeTime(2, TimeUnit.DAYS));
+
+				// Rollup 1
+				Rollup rollup1 = builder.addRollup("rollup1.rollup");
+				QueryBuilder builder1 = rollup1.addQuery();
+				builder1.setStart(1, TimeUnit.HOURS);
+				builder1.addMetric("foobar1").addAggregator(AggregatorFactory.createMaxAggregator(1, TimeUnit.MINUTES));
+
+				Rollup rollup2 = builder.addRollup("rollup2.rollup");
+				QueryBuilder builder2 = rollup2.addQuery();
+				builder2.setStart(1, TimeUnit.MINUTES);
+				builder2.addMetric("foobar2").addAggregator(AggregatorFactory.createSumAggregator(1, TimeUnit.MINUTES));
+
+
+				// when: rollup is create
+				RollupTask task = client.createRollupTask(builder);
+
+				String id = task.getId();
+
+				// then: verify rollup created
+				assertThat(task.getName(), equalTo("rollupTask"));
+				assertThat(task.getExecutionInterval(), equalTo(new RelativeTime(2, TimeUnit.DAYS)));
+				assertThat(task.getRollups().size(), equalTo(2));
+				assertRollup(task.getRollups().get(0), new RelativeTime(1, TimeUnit.HOURS), "rollup1.rollup", "foobar1","max");
+				assertRollup(task.getRollups().get(1), new RelativeTime(1, TimeUnit.MINUTES), "rollup2.rollup", "foobar2","sum");
+
+				// when: get all rollups
+				List<RollupTask> rollupTasks = client.getRollupTasks();
+
+				// then: verify all rollups
+				assertThat(rollupTasks.size(), equalTo(1));
+				assertThat(rollupTasks.get(0).getName(), equalTo("rollupTask"));
+				assertThat(rollupTasks.get(0).getExecutionInterval(), equalTo(new RelativeTime(2, TimeUnit.DAYS)));
+				assertThat(rollupTasks.get(0).getRollups().size(), equalTo(2));
+				assertRollup(rollupTasks.get(0).getRollups().get(0), new RelativeTime(1, TimeUnit.HOURS), "rollup1.rollup", "foobar1","max");
+				assertRollup(rollupTasks.get(0).getRollups().get(1), new RelativeTime(1, TimeUnit.MINUTES), "rollup2.rollup", "foobar2","sum");
+
+				// when: get rollup
+				RollupTask rollupTask = client.getRollupTask(id);
+
+				// then: verify rollup returned
+				assertThat(rollupTask.getName(), equalTo("rollupTask"));
+				assertThat(rollupTask.getExecutionInterval(), equalTo(new RelativeTime(2, TimeUnit.DAYS)));
+				assertThat(rollupTask.getRollups().size(), equalTo(2));
+
+				// when: rollup is deleted
+				client.deleteRollupTask(id);
+
+				// then: verify rollup deleted
+				try
+				{
+					client.getRollupTask(id);
+				}
+				catch (UnexpectedResponseException e)
+				{
+					assertThat(e.getStatusCode(), equalTo(404));
+				}
+			}
 		}
-	}
-
-	@Test
-	public void test_customDataType() throws IOException
-	{
-		HttpClient client = new HttpClient("http://localhost:8082");
-		client.registerCustomDataType("complex", Complex.class);
-
-		try
-		{
-			MetricBuilder metricBuilder = MetricBuilder.getInstance();
-
-			Metric metric1 = metricBuilder.addMetric("metric1", "complex-number");
-			metric1.addTag("host", "a");
-			long timestamp1 = System.currentTimeMillis();
-			metric1.addDataPoint(timestamp1, new Complex(4, 5));
-
-			// Push Metrics
-			Response response = client.pushMetrics(metricBuilder);
-
-			assertThat(response.getStatusCode(), equalTo(204));
-
-			// Query Metric
-			QueryBuilder queryBuilder = QueryBuilder.getInstance();
-			queryBuilder.setStart(2, TimeUnit.MINUTES);
-			queryBuilder.addMetric("metric1");
-
-			QueryResponse queryResponse = client.query(queryBuilder);
-			assertThat(queryResponse.getQueries().size(), equalTo(1));
-			assertThat(queryResponse.getQueries().get(0).getResults().size(), equalTo(1));
-
-			List<DataPoint> dataPoints = queryResponse.getQueries().get(0).getResults().get(0).getDataPoints();
-			assertThat(dataPoints, hasItem(new DataPoint(timestamp1, new Complex(4, 5))));
-		}
-		finally
-		{
-			//noinspection ThrowFromFinallyBlock
-			client.shutdown();
-		}
-	}
-
-	@Test
-	public void test_rollup()
-			throws IOException
-	{
-		HttpClient client = new HttpClient("http://localhost:8082");
-		try {
-			RollupBuilder builder = RollupBuilder.getInstance("rollupTask", new RelativeTime(2, TimeUnit.DAYS));
-
-			// Rollup 1
-			Rollup rollup1 = builder.addRollup("rollup1.rollup");
-			QueryBuilder builder1 = rollup1.addQuery();
-			builder1.setStart(1, TimeUnit.HOURS);
-			builder1.addMetric("foobar1").addAggregator(AggregatorFactory.createMaxAggregator(1, TimeUnit.MINUTES));
-
-			Rollup rollup2 = builder.addRollup("rollup2.rollup");
-			QueryBuilder builder2 = rollup2.addQuery();
-			builder2.setStart(1, TimeUnit.MINUTES);
-			builder2.addMetric("foobar2").addAggregator(AggregatorFactory.createSumAggregator(1, TimeUnit.MINUTES));
-
-
-			// when: rollup is create
-			RollupResponse rollupResponse = client.createRollup(builder);
-
-			String id = rollupResponse.getRollupTasks().get(0).getId();
-
-			// then: verify rollup created
-			assertThat(rollupResponse.getStatusCode(), equalTo(200));
-			ImmutableList<RollupTask> rollupTasks = rollupResponse.getRollupTasks();
-			assertThat(rollupTasks.size(), equalTo(1));
-			assertThat(rollupTasks.get(0).getName(), equalTo("rollupTask"));
-			assertThat(rollupTasks.get(0).getExecutionInterval(), equalTo(new RelativeTime(2, TimeUnit.DAYS)));
-			assertThat(rollupTasks.get(0).getRollups().size(), equalTo(2));
-			assertRollup(rollupTasks.get(0).getRollups().get(0), new RelativeTime(1, TimeUnit.HOURS), "rollup1.rollup", "foobar1","max");
-			assertRollup(rollupTasks.get(0).getRollups().get(1), new RelativeTime(1, TimeUnit.MINUTES), "rollup2.rollup", "foobar2","sum");
-
-			// when: get all rollups
-			rollupResponse = client.getRollupTasks();
-
-			// then: verify all rollups
-			assertThat(rollupResponse.getStatusCode(), equalTo(200));
-			rollupTasks = rollupResponse.getRollupTasks();
-			assertThat(rollupTasks.size(), equalTo(1));
-			assertThat(rollupTasks.get(0).getName(), equalTo("rollupTask"));
-			assertThat(rollupTasks.get(0).getExecutionInterval(), equalTo(new RelativeTime(2, TimeUnit.DAYS)));
-			assertThat(rollupTasks.get(0).getRollups().size(), equalTo(2));
-			assertRollup(rollupTasks.get(0).getRollups().get(0), new RelativeTime(1, TimeUnit.HOURS), "rollup1.rollup", "foobar1","max");
-			assertRollup(rollupTasks.get(0).getRollups().get(1), new RelativeTime(1, TimeUnit.MINUTES), "rollup2.rollup", "foobar2","sum");
-
-			// when: get rollup
-			rollupResponse = client.getRollupTask(id);
-
-			// then: verify rollup returned
-			assertThat(rollupResponse.getStatusCode(), equalTo(200));
-			rollupTasks = rollupResponse.getRollupTasks();
-			assertThat(rollupTasks.size(), equalTo(1));
-			assertThat(rollupTasks.get(0).getName(), equalTo("rollupTask"));
-			assertThat(rollupTasks.get(0).getExecutionInterval(), equalTo(new RelativeTime(2, TimeUnit.DAYS)));
-			assertThat(rollupTasks.get(0).getRollups().size(), equalTo(2));
-
-			// when: rollup is deleted
-			Response response = client.deleteRollup(id);
-
-			// then: verify rollup deleted
-			assertThat(response.getStatusCode(), equalTo(204));
-
-			rollupResponse = client.getRollupTask(id);
-			assertThat(rollupResponse.getStatusCode(), equalTo(404));
-		}
-		finally {
-			client.shutdown();
-		}
-	}
 
 	private void assertRollup(Rollup actual, RelativeTime startTime, String saveAs, String metricName, String aggregatorName)
 	{
@@ -725,7 +550,7 @@ public class ClientIntegrationTest
 	{
 		boolean done = false;
 		Stopwatch stopwatch = Stopwatch.createStarted();
-		while(!done)
+		while (!done)
 		{
 			sleep(200);
 			if (kairos.getDataPointListener().getEvent() != null || stopwatch.elapsed(java.util.concurrent.TimeUnit.SECONDS) > 1)

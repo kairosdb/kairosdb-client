@@ -15,6 +15,7 @@
  */
 package org.kairosdb.client.response.grouping;
 
+import com.google.common.base.MoreObjects;
 import com.google.gson.annotations.SerializedName;
 import org.kairosdb.client.builder.RelativeTime;
 import org.kairosdb.client.response.GroupResult;
@@ -32,6 +33,7 @@ public class TimeGroupResult extends GroupResult
 	private int groupCount;
 	private GroupingNumber group;
 
+	@SuppressWarnings("WeakerAccess")
 	public TimeGroupResult(RelativeTime rangeSize,
 	                       int groupCount,
 	                       GroupingNumber group)
@@ -86,9 +88,7 @@ public class TimeGroupResult extends GroupResult
 
 		if (groupCount != that.groupCount) return false;
 		if (!group.equals(that.group)) return false;
-		if (!rangeSize.equals(that.rangeSize)) return false;
-
-		return true;
+		return rangeSize.equals(that.rangeSize);
 	}
 
 	@Override
@@ -99,5 +99,15 @@ public class TimeGroupResult extends GroupResult
 		result = 31 * result + groupCount;
 		result = 31 * result + group.hashCode();
 		return result;
+	}
+
+	@Override
+	public String toString()
+	{
+		return MoreObjects.toStringHelper(this)
+				.add("rangeSize", rangeSize)
+				.add("groupCount", groupCount)
+				.add("group", group)
+				.toString();
 	}
 }
