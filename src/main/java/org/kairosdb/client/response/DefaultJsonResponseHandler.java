@@ -20,6 +20,7 @@ import java.util.Set;
 
 import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
 import static com.proofpoint.http.client.ResponseHandlerUtils.propagate;
+import static org.weakref.jmx.internal.guava.base.Preconditions.checkNotNull;
 
 public class DefaultJsonResponseHandler<T> implements JsonResponseHandler
 {
@@ -48,9 +49,10 @@ public class DefaultJsonResponseHandler<T> implements JsonResponseHandler
 
 	public DefaultJsonResponseHandler(Type type, DataPointTypeRegistry typeRegistry)
 	{
+		checkNotNull(typeRegistry, "typeRegistry must not be null");
 		mapper = new JsonMapper(typeRegistry);
 		successfulResponseCodes = ImmutableSet.of(200, 204);
-		this.type = type;
+		this.type = checkNotNull(type, "type must not be null");
 	}
 
 	@Override
