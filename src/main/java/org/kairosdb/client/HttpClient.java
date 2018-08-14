@@ -106,10 +106,20 @@ public class HttpClient implements Client
 	public HttpClient(HttpClientBuilder builder, String url) throws MalformedURLException
 	{
 		checkNotNullOrEmpty(url, "url cannot be null");
-		checkNotNull(builder, "builder cannot be null");
+		checkNotNull(builder, "builder must not be null");
 		this.url = url;
 		new URL(url); // validate url
 		client = builder.build();
+		typeRegistry = new DataPointTypeRegistry();
+	}
+
+	public HttpClient(CloseableHttpClient client, String url) throws MalformedURLException
+	{
+		checkNotNullOrEmpty(url, "url cannot be null");
+		checkNotNull(client, "client must not be null");
+		this.url = url;
+		new URL(url); // validate url
+		this.client = client;
 		typeRegistry = new DataPointTypeRegistry();
 	}
 
