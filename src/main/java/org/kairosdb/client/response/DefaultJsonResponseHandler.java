@@ -71,6 +71,9 @@ public class DefaultJsonResponseHandler<T> implements JsonResponseHandler
 					request,
 					response);
 		}
+		if (response.getStatusCode() == 204) {
+			return null;
+		}
 		String contentType = response.getHeader(CONTENT_TYPE);
 		if (contentType == null)
 		{
