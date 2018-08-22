@@ -16,6 +16,7 @@ import org.kairosdb.client.builder.RollupTask;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
+import static junit.framework.TestCase.assertNull;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 import static org.hamcrest.Matchers.equalTo;
@@ -148,6 +149,21 @@ public class DefaultJsonResponseHandlerTest
 		{
 			assertThat(e.getMessage(), equalTo("Error reading JSON response from server"));
 		}
+	}
+
+	@Test
+	/*
+	 Apparently some proxies/gateways return 204 with content. That's just wrong.
+	 */
+	public void test_NoContent() throws IOException
+	{
+		when(mockResponse.getStatusCode()).thenReturn(204);
+		when(mockResponse.getStatusMessage()).thenReturn("OK");
+		when(mockResponse.getInputStream()).thenReturn(new ByteArrayInputStream("bogus".getBytes()));
+
+		String response = handler.handle(mockRequest, mockResponse);
+
+		assertNull(response);
 	}
 
 	@Test

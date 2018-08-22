@@ -30,13 +30,13 @@ public class DefaultJsonResponseHandler<T> implements JsonResponseHandler
 	private final JsonMapper mapper;
 	private final Type type;
 
-	@SuppressWarnings("unused")
+	@SuppressWarnings({"unused", "WeakerAccess"})
 	public DefaultJsonResponseHandler(Class<T> clazz)
 	{
 		this(clazz, new DataPointTypeRegistry());
 	}
 
-	@SuppressWarnings("WeakerAccess")
+	@SuppressWarnings({"WeakerAccess", "unused"})
 	public DefaultJsonResponseHandler(Type type)
 	{
 		this(type, new DataPointTypeRegistry());
@@ -72,6 +72,7 @@ public class DefaultJsonResponseHandler<T> implements JsonResponseHandler
 					response);
 		}
 		if (response.getStatusCode() == 204) {
+			// Apparently some proxies/gateways return 204 but with content
 			return null;
 		}
 		String contentType = response.getHeader(CONTENT_TYPE);
