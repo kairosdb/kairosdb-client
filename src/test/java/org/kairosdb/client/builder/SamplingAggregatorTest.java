@@ -78,6 +78,18 @@ public class SamplingAggregatorTest
 
 		assertFalse(aggregator.isAlignSampling());
 		assertTrue(aggregator.isAlignStartTime());
+		assertFalse(aggregator.isAlignEndTime());
+		assertThat(aggregator.getStartTimeAlignmentStartTime(), equalTo(0L));
+	}
+
+	@Test
+	public void testWithEndTimeAlignment()
+	{
+		SamplingAggregator aggregator = new SamplingAggregator("sum", 1, TimeUnit.DAYS).withEndTimeAlignment();
+
+		assertFalse(aggregator.isAlignSampling());
+		assertFalse(aggregator.isAlignStartTime());
+		assertTrue(aggregator.isAlignEndTime());
 		assertThat(aggregator.getStartTimeAlignmentStartTime(), equalTo(0L));
 	}
 
@@ -88,6 +100,18 @@ public class SamplingAggregatorTest
 
 		assertFalse(aggregator.isAlignSampling());
 		assertTrue(aggregator.isAlignStartTime());
+		assertFalse(aggregator.isAlignEndTime());
+		assertThat(aggregator.getStartTimeAlignmentStartTime(), equalTo(444L));
+	}
+
+	@Test
+	public void testWithEndTimeAlignmentWithStartTime()
+	{
+		SamplingAggregator aggregator = new SamplingAggregator("sum", 1, TimeUnit.DAYS).withEndTimeAlignment(444);
+
+		assertFalse(aggregator.isAlignSampling());
+		assertFalse(aggregator.isAlignStartTime());
+		assertTrue(aggregator.isAlignEndTime());
 		assertThat(aggregator.getStartTimeAlignmentStartTime(), equalTo(444L));
 	}
 }
