@@ -280,7 +280,7 @@ public class HttpClient implements Client
 		{
 			request = new Request(createURI(path), "POST",
 					ImmutableListMultimap.of(CONTENT_TYPE, APPLICATION_GZIP),
-					new StringBodySource(json, TEXT_PLAIN, true));
+					new StringBodySource(json, ContentType.create(TEXT_PLAIN.getMimeType(), "UTF-8"), true));
 		}
 		else
 		{
