@@ -52,8 +52,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.proofpoint.http.client.ResponseHandlerUtils.propagate;
-import static org.apache.http.HttpHeaders.ACCEPT;
-import static org.apache.http.HttpHeaders.CONTENT_TYPE;
+import static org.apache.http.HttpHeaders.*;
 import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 import static org.apache.http.entity.ContentType.TEXT_PLAIN;
 import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
@@ -64,7 +63,7 @@ import static org.weakref.jmx.internal.guava.base.Preconditions.checkNotNull;
  */
 public class HttpClient implements Client
 {
-	private static final String APPLICATION_GZIP = "application/gzip";
+	private static final String GZIP = "gzip";
 
 	private static final String PATH_ROLLUPS = "/api/v1/rollups/";
 	private static final String PATH_METRIC_NAMES = "/api/v1/metricnames";
@@ -279,7 +278,7 @@ public class HttpClient implements Client
 		if (compressed)
 		{
 			request = new Request(createURI(path), "POST",
-					ImmutableListMultimap.of(CONTENT_TYPE, APPLICATION_GZIP),
+					ImmutableListMultimap.of(CONTENT_ENCODING, GZIP),
 					new StringBodySource(json, TEXT_PLAIN, true));
 		}
 		else
