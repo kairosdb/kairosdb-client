@@ -292,7 +292,7 @@ public class HttpClient implements Client
 
 	private <T> T queryData(String path, JsonResponseHandler<T> responseHandler)
 	{
-		return this.queryData(path, responseHandler, ImmutableListMultimap.of(ACCEPT, APPLICATION_JSON.toString()));
+		return this.queryData(path, responseHandler, ImmutableListMultimap.of(ACCEPT, APPLICATION_JSON.toString(), ACCEPT_ENCODING, "gzip"));
 	}
 
 	@SuppressWarnings("unchecked")
