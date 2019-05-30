@@ -29,6 +29,9 @@ public class SamplingAggregator extends Aggregator
 	@SerializedName("align_start_time")
 	private Boolean alignStartTime;
 
+	@SerializedName("align_end_time")
+	private Boolean alignEndTime;
+
 	@SerializedName("align_sampling")
 	private Boolean alignSampling;
 
@@ -91,6 +94,22 @@ public class SamplingAggregator extends Aggregator
 
 	/**
 	 * <p>
+	 * Alignment based on the aggregation range rather than the value of the last
+	 * data point within that range.
+	 * Only one alignment type can be used.
+	 * </p>
+	 *
+	 * @return the SamplingAggregator
+	 */
+	public SamplingAggregator withEndTimeAlignment()
+	{
+		alignEndTime = true;
+
+		return this;
+	}
+
+	/**
+	 * <p>
 	 * Alignment that starts based on the specified time. For example, if startTime
 	 * is set to noon today,then alignment starts at noon today.
 	 * </p>
@@ -105,6 +124,27 @@ public class SamplingAggregator extends Aggregator
 	{
 		checkArgument(startTime >= 0, "startTime cannot be negative");
 		alignStartTime = true;
+		this.startTime = startTime;
+
+		return this;
+	}
+
+	/**
+	 * <p>
+	 * Alignment that starts based on the specified time. For example, if startTime
+	 * is set to noon today,then alignment starts at noon today.
+	 * </p>
+	 * <p>
+	 * Only one alignment type can be used.
+	 * </p>
+	 *
+	 * @param startTime the alignment start time
+	 * @return the SamplingAggregator
+	 */
+	public SamplingAggregator withEndTimeAlignment(long startTime)
+	{
+		checkArgument(startTime >= 0, "startTime cannot be negative");
+		alignEndTime = true;
 		this.startTime = startTime;
 
 		return this;
@@ -125,6 +165,11 @@ public class SamplingAggregator extends Aggregator
 	public Boolean isAlignStartTime()
 	{
 		return alignStartTime != null ? alignStartTime : false;
+	}
+
+	public Boolean isAlignEndTime()
+	{
+		return alignEndTime != null ? alignEndTime : false;
 	}
 
 	public Boolean isAlignSampling()
@@ -166,6 +211,8 @@ public class SamplingAggregator extends Aggregator
 			return false;
 		if (alignStartTime != null ? !alignStartTime.equals(that.alignStartTime) : that.alignStartTime != null)
 			return false;
+        if (alignEndTime != null ? !alignEndTime.equals(that.alignEndTime) : that.alignEndTime != null)
+            return false;
 		if (alignSampling != null ? !alignSampling.equals(that.alignSampling) : that.alignSampling != null)
 			return false;
 		return !(startTime != null ? !startTime.equals(that.startTime) : that.startTime != null);
@@ -177,6 +224,7 @@ public class SamplingAggregator extends Aggregator
 		int result = super.hashCode();
 		result = 31 * result + (sampling != null ? sampling.hashCode() : 0);
 		result = 31 * result + (alignStartTime != null ? alignStartTime.hashCode() : 0);
+        result = 31 * result + (alignEndTime != null ? alignEndTime.hashCode() : 0);
 		result = 31 * result + (alignSampling != null ? alignSampling.hashCode() : 0);
 		result = 31 * result + (startTime != null ? startTime.hashCode() : 0);
 		return result;
