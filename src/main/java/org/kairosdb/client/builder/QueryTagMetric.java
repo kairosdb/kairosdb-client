@@ -3,8 +3,8 @@ package org.kairosdb.client.builder;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 
-import java.util.Arrays;
 import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -51,17 +51,17 @@ public class QueryTagMetric
 	 * @param values tag values
 	 * @return the metric
 	 */
-	public QueryTagMetric addTag(String name, String... values)
+	public QueryTagMetric addTag(String name, Set<String> values)
 	{
 		checkNotNullOrEmpty(name, "name cannot be null or empty");
-		checkArgument(values.length > 0, "value must be greater than 0");
+		checkArgument(values.size() > 0, "value must be greater than 0");
 
 		for (String value : values)
 		{
 			checkNotNullOrEmpty(value, "value cannot be null or empty");
 		}
 
-		tags.putAll(name, Arrays.asList(values));
+		tags.putAll(name, values);
 
 		return (this);
 	}
