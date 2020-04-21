@@ -19,7 +19,6 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Resources;
 import com.google.common.reflect.TypeToken;
-import com.proofpoint.http.client.UnexpectedResponseException;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.ProtocolVersion;
@@ -36,6 +35,7 @@ import org.kairosdb.client.HttpClient.RollupTaskResponse;
 import org.kairosdb.client.builder.*;
 import org.kairosdb.client.response.QueryResponse;
 import org.kairosdb.client.response.QueryTagResponse;
+import org.kairosdb.client.response.UnexpectedResponseException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -60,7 +60,7 @@ public class HttpClientTest
 
 	private CloseableHttpClient mockClient;
 	private HttpClient client;
-	private 	JsonMapper mapper;
+	private JsonMapper mapper;
 
 
 	@Before
@@ -286,6 +286,9 @@ public class HttpClientTest
 	private CloseableHttpResponse mockResponse(int statusCode, HttpEntity entity)
 	{
 		CloseableHttpResponse mockResponse = mock(CloseableHttpResponse.class);
+		Header header = mock(Header.class);
+		when(header.getValue()).thenReturn(APPLICATION_JSON.toString());
+		when(mockResponse.getFirstHeader(CONTENT_TYPE)).thenReturn(header);
 		when(mockResponse.getAllHeaders()).thenReturn(new Header[]{new BasicHeader(CONTENT_TYPE, APPLICATION_JSON.toString())});
 		when(mockResponse.getStatusLine()).thenReturn(toResponseCode(statusCode));
 

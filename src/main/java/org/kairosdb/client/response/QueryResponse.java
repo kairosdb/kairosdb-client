@@ -19,7 +19,8 @@ import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
-import static org.weakref.jmx.internal.guava.base.Preconditions.checkNotNull;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  Response returned by KairosDB.
@@ -30,7 +31,7 @@ public class QueryResponse
 
 	public QueryResponse(List<QueryResult> queries)
 	{
-		checkNotNull(queries, "queries cannot be null");
+		requireNonNull(queries, "queries cannot be null");
 		this.queries = queries;
 	}
 

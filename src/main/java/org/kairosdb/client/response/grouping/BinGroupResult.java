@@ -6,7 +6,7 @@ import org.kairosdb.client.response.GroupResult;
 import java.util.List;
 import java.util.Map;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
 
 
 /**
@@ -23,8 +23,8 @@ public class BinGroupResult extends GroupResult
 	public BinGroupResult(List<Double> bins, Map<String, Integer> group)
 	{
 		super("bin");
-		this.bins = checkNotNull(bins);
-		this.group = checkNotNull(group);
+		this.bins = requireNonNull(bins);
+		this.group = requireNonNull(group);
 	}
 
 	/**

@@ -6,8 +6,8 @@ import com.google.common.collect.ListMultimap;
 import java.util.Arrays;
 import java.util.Map;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
+import static org.kairosdb.client.util.Preconditions.checkArgument;
 import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
 
 /**
@@ -34,7 +34,7 @@ public class QueryTagMetric
 	 */
 	public QueryTagMetric addTags(Map<String, String> tags)
 	{
-		checkNotNull(tags);
+		requireNonNull(tags);
 
 		for (String key : tags.keySet())
 		{

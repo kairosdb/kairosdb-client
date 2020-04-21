@@ -13,8 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
+import static java.util.Objects.requireNonNull;
+import static org.kairosdb.client.util.Preconditions.checkState;
 
 public class ResultsDeserializer implements JsonDeserializer<Result>
 {
@@ -22,7 +22,7 @@ public class ResultsDeserializer implements JsonDeserializer<Result>
 
 	public ResultsDeserializer(DataPointTypeRegistry typeRegistry)
 	{
-		this.typeRegistry = checkNotNull(typeRegistry);
+		this.typeRegistry = requireNonNull(typeRegistry);
 	}
 
 	@Override

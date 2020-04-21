@@ -1,12 +1,8 @@
 package org.kairosdb.client.response;
 
 import com.google.common.base.Charsets;
-import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.io.Resources;
-import com.proofpoint.http.client.HeaderName;
-import com.proofpoint.http.client.Request;
-import com.proofpoint.http.client.Response;
-import com.proofpoint.http.client.UnexpectedResponseException;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.kairosdb.client.DataPointTypeRegistry;
@@ -27,18 +23,17 @@ import static org.mockito.Mockito.when;
 
 public class DefaultJsonResponseHandlerTest
 {
-	private Request mockRequest;
-	private Response mockResponse;
+	private HttpUriRequest mockRequest;
+	private ResponseHelper mockResponse;
 	private DefaultJsonResponseHandler<String> handler;
 
 	@Before
 	public void setup()
 	{
-		mockRequest = mock(Request.class);
-		mockResponse = mock(Response.class);
+		mockRequest = mock(HttpUriRequest.class);
+		mockResponse = mock(ResponseHelper.class);
 
-		when(mockResponse.getHeaders()).thenReturn(ImmutableListMultimap.of(HeaderName.of(CONTENT_TYPE), APPLICATION_JSON.toString()));
-		when(mockResponse.getHeader(CONTENT_TYPE)).thenReturn(APPLICATION_JSON.toString());
+		when(mockResponse.getFirstHeader(CONTENT_TYPE)).thenReturn(APPLICATION_JSON.toString());
 
 		handler = new DefaultJsonResponseHandler<>(String.class);
 	}
@@ -66,7 +61,6 @@ public class DefaultJsonResponseHandlerTest
 	{
 		when(mockResponse.getStatusCode()).thenReturn(200);
 		when(mockResponse.getStatusMessage()).thenReturn("OK");
-		when(mockResponse.getHeaders()).thenReturn(ImmutableListMultimap.of());
 
 		try
 		{
@@ -84,7 +78,7 @@ public class DefaultJsonResponseHandlerTest
 	{
 		when(mockResponse.getStatusCode()).thenReturn(200);
 		when(mockResponse.getStatusMessage()).thenReturn("OK");
-		when(mockResponse.getHeader(CONTENT_TYPE)).thenReturn("application/bogus");
+		when(mockResponse.getFirstHeader(CONTENT_TYPE)).thenReturn("application/bogus");
 
 		try
 		{

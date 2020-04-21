@@ -3,7 +3,7 @@ package org.kairosdb.client.builder.aggregator;
 import org.kairosdb.client.builder.Aggregator;
 import org.kairosdb.client.builder.TimeUnit;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
 
 public class RateAggregator extends Aggregator
 {
@@ -12,7 +12,7 @@ public class RateAggregator extends Aggregator
 	public RateAggregator(TimeUnit unit)
 	{
 		super("rate");
-		this.unit = checkNotNull(unit);
+		this.unit = requireNonNull(unit);
 	}
 
 	public TimeUnit getUnit()

@@ -19,8 +19,9 @@ import com.google.gson.annotations.SerializedName;
 import org.kairosdb.client.builder.Aggregator;
 import org.kairosdb.client.builder.TimeUnit;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
+import static org.kairosdb.client.util.Preconditions.checkArgument;
+
 
 public class SamplingAggregator extends Aggregator
 {
@@ -187,7 +188,7 @@ public class SamplingAggregator extends Aggregator
 		private Sampling(int value, TimeUnit unit)
 		{
 			this.value = value;
-			this.unit = checkNotNull(unit);
+			this.unit = requireNonNull(unit);
 		}
 
 		private int value;

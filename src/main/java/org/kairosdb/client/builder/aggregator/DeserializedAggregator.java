@@ -5,7 +5,7 @@ import org.kairosdb.client.builder.Aggregator;
 
 import java.util.Map;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
 
 public class DeserializedAggregator extends Aggregator
 {
@@ -13,7 +13,7 @@ public class DeserializedAggregator extends Aggregator
     public DeserializedAggregator(Map<String, Object> properties)
     {
         super((String)properties.get("name"));
-        this.properties = checkNotNull(properties, "properties cannot be null");
+        this.properties = requireNonNull(properties, "properties cannot be null");
     }
 
     public ImmutableMap<String, Object> getProperties()

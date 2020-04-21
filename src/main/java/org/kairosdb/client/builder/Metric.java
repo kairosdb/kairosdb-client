@@ -19,9 +19,8 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.*;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-
+import static java.util.Objects.requireNonNull;
+import static org.kairosdb.client.util.Preconditions.checkArgument;
 import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
 
 /**
@@ -74,7 +73,7 @@ public class Metric
 	 */
 	public Metric addTags(Map<String, String> tags)
 	{
-		checkNotNull(tags);
+		requireNonNull(tags);
 		this.tags.putAll(tags);
 
 		return this;

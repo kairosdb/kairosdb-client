@@ -6,8 +6,9 @@ import org.kairosdb.client.builder.Grouper;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
+import static org.kairosdb.client.util.Preconditions.checkArgument;
+
 
 public class BinGrouper extends Grouper
 {
@@ -19,7 +20,7 @@ public class BinGrouper extends Grouper
 	{
 		super("bin");
 
-		checkNotNull(bins, "bins cannot be null");
+		requireNonNull(bins, "bins cannot be null");
 		checkArgument(bins.length > 0, "bins cannot be empty");
 		this.bins = bins;
 	}
@@ -27,7 +28,7 @@ public class BinGrouper extends Grouper
 	public BinGrouper(List<Double> bins)
 	{
 		super("bin");
-		checkNotNull(bins, "bins cannot be null");
+		requireNonNull(bins, "bins cannot be null");
 		checkArgument(bins.size() > 0, "bins cannot be empty");
 		this.bins = (Double[]) bins.toArray();
 	}

@@ -19,8 +19,8 @@ import com.google.gson.annotations.SerializedName;
 import org.kairosdb.client.builder.Grouper;
 import org.kairosdb.client.builder.RelativeTime;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
+import static org.kairosdb.client.util.Preconditions.checkArgument;
 
 /**
  * Grouper used to group by time range. The combination of rangeSize and count determine the grouping range. The
@@ -40,7 +40,7 @@ public class TimeGrouper extends Grouper
 	{
 		super("time");
 		checkArgument(count > 0);
-		this.rangeSize = checkNotNull(rangeSize);
+		this.rangeSize = requireNonNull(rangeSize);
 		this.count = count;
 	}
 

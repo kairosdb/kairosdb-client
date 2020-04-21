@@ -5,7 +5,7 @@
 
 	<groupId>org.kairosdb</groupId>
 	<artifactId>client</artifactId>
-	<version>3.0.0</version>
+	<version>3.0.1</version>
 	<packaging>jar</packaging>
 
 
@@ -75,34 +75,6 @@
 			<artifactId>jsr305</artifactId>
 			<version>2.0.0</version>
 		</dependency>
-		<dependency>
-			<groupId>com.proofpoint.platform</groupId>
-			<artifactId>http-client</artifactId>
-			<version>1.80</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-jdk14</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.google.code.findbugs</groupId>
-					<artifactId>annotations</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.jetty</groupId>
-					<artifactId>jetty-client</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.jetty</groupId>
-					<artifactId>jetty-http</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.apache.bval</groupId>
-					<artifactId>bval-jsr</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
 		<dependency>
 			<groupId>org.apache.bval</groupId>
 			<artifactId>bval-jsr303</artifactId>

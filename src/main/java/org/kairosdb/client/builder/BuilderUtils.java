@@ -1,6 +1,6 @@
 package org.kairosdb.client.builder;
 
-import static com.google.common.base.Preconditions.checkState;
+import static org.kairosdb.client.util.Preconditions.checkState;
 
 public class BuilderUtils
 {

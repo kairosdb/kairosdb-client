@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
 import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
 
 public class Rollup
@@ -65,7 +65,7 @@ public class Rollup
 
     void validate()
     {
-        checkNotNull(builder, "No queries added to rollup " + saveAs);
+        requireNonNull(builder, "No queries added to rollup " + saveAs);
         builder.validate();
     }
 

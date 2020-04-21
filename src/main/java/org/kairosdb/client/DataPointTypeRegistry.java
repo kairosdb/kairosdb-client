@@ -3,7 +3,7 @@ package org.kairosdb.client;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import static org.kairosdb.client.util.Preconditions.checkArgument;
 
 public class DataPointTypeRegistry
 {

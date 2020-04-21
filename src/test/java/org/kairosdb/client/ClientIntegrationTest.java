@@ -1,7 +1,6 @@
 package org.kairosdb.client;
 
 import com.google.common.base.Stopwatch;
-import com.proofpoint.http.client.UnexpectedResponseException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -11,6 +10,7 @@ import org.kairosdb.client.builder.grouper.TagGrouper;
 import org.kairosdb.client.builder.grouper.TimeGrouper;
 import org.kairosdb.client.builder.grouper.ValueGrouper;
 import org.kairosdb.client.response.QueryResponse;
+import org.kairosdb.client.response.UnexpectedResponseException;
 import org.kairosdb.core.exception.DatastoreException;
 
 import java.io.File;

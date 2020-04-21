@@ -1,6 +1,6 @@
 package org.kairosdb.client;
 
-import com.proofpoint.http.client.UnexpectedResponseException;
+import org.kairosdb.client.response.UnexpectedResponseException;
 import org.kairosdb.client.builder.*;
 import org.kairosdb.client.response.JsonResponseHandler;
 import org.kairosdb.client.response.QueryResponse;
