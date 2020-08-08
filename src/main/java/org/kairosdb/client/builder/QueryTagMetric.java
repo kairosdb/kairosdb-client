@@ -81,7 +81,7 @@ public class QueryTagMetric
 			valueList.add(value);
 		}
 		
-		tags.putAll(name, Arrays.asList(values));
+		tags.putAll(name, valueList);
 		
 		return (this);
 	}
