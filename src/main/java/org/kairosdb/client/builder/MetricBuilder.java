@@ -26,7 +26,7 @@ import org.kairosdb.client.serializer.DataPointSerializer;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkState;
+import static org.kairosdb.client.util.Preconditions.checkState;
 
 /**
  * Builder used to create the JSON to push metrics to KairosDB.

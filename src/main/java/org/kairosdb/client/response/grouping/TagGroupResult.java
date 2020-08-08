@@ -21,7 +21,7 @@ import org.kairosdb.client.response.GroupResult;
 import java.util.List;
 import java.util.Map;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
 
 
 /**
@@ -36,8 +36,8 @@ public class TagGroupResult extends GroupResult
 	public TagGroupResult(List<String> tags, Map<String, String> group)
 	{
 		super("tag");
-		this.tags = checkNotNull(tags);
-		this.group = checkNotNull(group);
+		this.tags = requireNonNull(tags);
+		this.group = requireNonNull(group);
 	}
 
 	/**

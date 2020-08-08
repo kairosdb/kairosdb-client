@@ -1,7 +1,12 @@
 package org.kairosdb.client.response;
 
-import com.proofpoint.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpUriRequest;
 
-public interface JsonResponseHandler<T> extends ResponseHandler<T, RuntimeException>
+public interface JsonResponseHandler<T>
 {
+	T handleException(HttpUriRequest request, Exception exception)
+			throws RuntimeException;
+
+	T handle(HttpUriRequest request, ResponseHelper response)
+			throws RuntimeException;
 }

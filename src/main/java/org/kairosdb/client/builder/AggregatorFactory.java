@@ -20,8 +20,8 @@ import org.kairosdb.client.builder.aggregator.PercentileAggregator;
 import org.kairosdb.client.builder.aggregator.RateAggregator;
 import org.kairosdb.client.builder.aggregator.SamplingAggregator;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
+import static org.kairosdb.client.util.Preconditions.checkArgument;
 import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
 
 public class AggregatorFactory
@@ -306,7 +306,7 @@ public class AggregatorFactory
 	 */
 	public static CustomAggregator createTrimAggregator(Trim trim)
 	{
-		checkNotNull(trim, "trim cannot be null");
+		requireNonNull(trim, "trim cannot be null");
 		return new CustomAggregator("trim", "\"trim\":\"" + trim + "\"");
 	}
 
@@ -319,7 +319,7 @@ public class AggregatorFactory
 	 */
 	public static CustomAggregator createFilterAggregator(FilterOperation operation, double threshold)
 	{
-		checkNotNull(operation, "operation cannot be null");
+		requireNonNull(operation, "operation cannot be null");
 		checkArgument(threshold >= 0.0, "threshold must be greater than or equal to zero");
 		return new CustomAggregator("filter", "\"filter_op\":\"" + operation + "\", \"threshold\":"  + threshold);
 	}

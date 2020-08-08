@@ -18,10 +18,12 @@ package org.kairosdb.client.util;
 import com.google.common.annotations.VisibleForTesting;
 import javax.annotation.Nullable;
 
+import static java.util.Objects.requireNonNull;
+
 public class Preconditions
 {
 	public static String checkNotNullOrEmpty(String reference) {
-		com.google.common.base.Preconditions.checkNotNull(reference);
+		requireNonNull(reference);
 		if (reference.isEmpty())
 		{
 			throw new IllegalArgumentException();
@@ -32,13 +34,33 @@ public class Preconditions
 	public static String checkNotNullOrEmpty(String reference,
 	                                         @Nullable String errorMessageTemplate,
 	                                         @Nullable Object... errorMessageArgs) {
-		com.google.common.base.Preconditions.checkNotNull(reference, errorMessageTemplate, errorMessageArgs);
+		if (reference == null)
+			throw new NullPointerException(format(errorMessageTemplate, errorMessageArgs));
+
 		if (reference.isEmpty())
 		{
 			throw new IllegalArgumentException(format(errorMessageTemplate, errorMessageArgs));
 
 		}
 		return reference;
+	}
+
+	public static void checkArgument(boolean expression, @Nullable Object errorMessage) {
+		if (!expression) {
+			throw new IllegalArgumentException(String.valueOf(errorMessage));
+		}
+	}
+
+	public static void checkArgument(boolean expression) {
+		if (!expression) {
+			throw new IllegalArgumentException();
+		}
+	}
+
+	public static void checkState(boolean expression, @Nullable Object errorMessage) {
+		if (!expression) {
+			throw new IllegalStateException(String.valueOf(errorMessage));
+		}
 	}
 
 	/**

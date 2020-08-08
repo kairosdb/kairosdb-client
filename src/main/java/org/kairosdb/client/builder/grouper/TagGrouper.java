@@ -21,8 +21,8 @@ import org.kairosdb.client.builder.Grouper;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
+import static org.kairosdb.client.util.Preconditions.checkArgument;
 import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
 
 /**
@@ -46,7 +46,7 @@ public class TagGrouper extends Grouper
 	public TagGrouper(List<String> tagNames)
 	{
 		super("tag");
-		checkNotNull(tagNames);
+		requireNonNull(tagNames);
 		this.tagNames = tagNames;
 	}
 

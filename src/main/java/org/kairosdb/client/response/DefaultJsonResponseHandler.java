@@ -6,9 +6,7 @@ import com.google.common.net.MediaType;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
-import com.proofpoint.http.client.Request;
-import com.proofpoint.http.client.Response;
-import com.proofpoint.http.client.UnexpectedResponseException;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.kairosdb.client.DataPointTypeRegistry;
 import org.kairosdb.client.JsonMapper;
 
@@ -19,8 +17,8 @@ import java.lang.reflect.Type;
 import java.util.Set;
 
 import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
-import static com.proofpoint.http.client.ResponseHandlerUtils.propagate;
-import static org.weakref.jmx.internal.guava.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
+import static org.kairosdb.client.util.Exceptions.propagate;
 
 public class DefaultJsonResponseHandler<T> implements JsonResponseHandler
 {
@@ -49,20 +47,20 @@ public class DefaultJsonResponseHandler<T> implements JsonResponseHandler
 
 	public DefaultJsonResponseHandler(Type type, DataPointTypeRegistry typeRegistry)
 	{
-		checkNotNull(typeRegistry, "typeRegistry must not be null");
+		requireNonNull(typeRegistry, "typeRegistry must not be null");
 		mapper = new JsonMapper(typeRegistry);
 		successfulResponseCodes = ImmutableSet.of(200, 204);
-		this.type = checkNotNull(type, "type must not be null");
+		this.type = requireNonNull(type, "type must not be null");
 	}
 
 	@Override
-	public T handleException(Request request, Exception e)
+	public Object handleException(HttpUriRequest request, Exception exception) throws RuntimeException
 	{
-		throw propagate(request, e);
+		throw propagate(request, exception);
 	}
 
 	@Override
-	public T handle(Request request, Response response)
+	public T handle(HttpUriRequest request, ResponseHelper response) throws RuntimeException
 	{
 		if (!successfulResponseCodes.contains(response.getStatusCode()) && response.getStatusCode() != 400)
 		{
@@ -75,7 +73,7 @@ public class DefaultJsonResponseHandler<T> implements JsonResponseHandler
 			// Apparently some proxies/gateways return 204 but with content
 			return null;
 		}
-		String contentType = response.getHeader(CONTENT_TYPE);
+		String contentType = response.getFirstHeader(CONTENT_TYPE);
 		if (contentType == null)
 		{
 			throw new UnexpectedResponseException("Content-Type is not set for response", request, response);

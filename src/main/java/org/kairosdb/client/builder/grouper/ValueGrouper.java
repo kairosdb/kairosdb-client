@@ -18,7 +18,7 @@ package org.kairosdb.client.builder.grouper;
 import com.google.gson.annotations.SerializedName;
 import org.kairosdb.client.builder.Grouper;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import static org.kairosdb.client.util.Preconditions.checkArgument;
 
 /**
  * Grouper used to group by metric value. Groups are a range of values specified by range size. For example,

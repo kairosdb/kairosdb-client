@@ -6,7 +6,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
 import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
 
 public class RollupTask
@@ -25,7 +25,7 @@ public class RollupTask
     {
         this.id = checkNotNullOrEmpty(id, "id cannot be null or empty");
         this.name = checkNotNullOrEmpty(name, "name cannot be null or empty");
-        this.executionInterval = checkNotNull(executionInterval, "executionInterval cannot be null");
+        this.executionInterval = requireNonNull(executionInterval, "executionInterval cannot be null");
         this.lastModified = lastModified;
     }
 

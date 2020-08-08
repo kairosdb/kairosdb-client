@@ -19,8 +19,8 @@ import com.google.common.base.MoreObjects;
 import com.google.gson.annotations.SerializedName;
 import org.kairosdb.client.response.GroupResult;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
+import static org.kairosdb.client.util.Preconditions.checkArgument;
 
 
 /**
@@ -41,7 +41,7 @@ public class ValueGroupResult extends GroupResult
 		checkArgument(rangeSize > 0);
 
 		this.rangeSize = rangeSize;
-		this.group = checkNotNull(group);
+		this.group = requireNonNull(group);
 	}
 
 	/**

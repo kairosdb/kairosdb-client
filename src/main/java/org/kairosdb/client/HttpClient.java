@@ -15,22 +15,13 @@
  */
 package org.kairosdb.client;
 
-import com.google.common.collect.ImmutableListMultimap;
-import com.google.common.collect.ListMultimap;
 import com.google.common.reflect.TypeToken;
-import com.proofpoint.http.client.BodySource;
-import com.proofpoint.http.client.HeaderName;
-import com.proofpoint.http.client.Request;
-import com.proofpoint.http.client.Response;
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.entity.EntityBuilder;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.StandardHttpRequestRetryHandler;
@@ -39,11 +30,11 @@ import org.kairosdb.client.response.DefaultJsonResponseHandler;
 import org.kairosdb.client.response.JsonResponseHandler;
 import org.kairosdb.client.response.QueryResponse;
 import org.kairosdb.client.response.QueryTagResponse;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import org.kairosdb.client.response.ResponseHelper;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Type;
+import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -51,12 +42,12 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
-import static com.proofpoint.http.client.ResponseHandlerUtils.propagate;
+import static java.util.Objects.requireNonNull;
 import static org.apache.http.HttpHeaders.*;
 import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 import static org.apache.http.entity.ContentType.TEXT_PLAIN;
+import static org.kairosdb.client.util.Exceptions.propagate;
 import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
-import static org.weakref.jmx.internal.guava.base.Preconditions.checkNotNull;
 
 /**
  * HTTP implementation of a client.
@@ -105,7 +96,7 @@ public class HttpClient implements Client
 	public HttpClient(HttpClientBuilder builder, String url) throws MalformedURLException
 	{
 		checkNotNullOrEmpty(url, "url cannot be null");
-		checkNotNull(builder, "builder must not be null");
+		requireNonNull(builder, "builder must not be null");
 		this.url = url;
 		new URL(url); // validate url
 		client = builder.build();
@@ -115,7 +106,7 @@ public class HttpClient implements Client
 	public HttpClient(CloseableHttpClient client, String url) throws MalformedURLException
 	{
 		checkNotNullOrEmpty(url, "url cannot be null");
-		checkNotNull(client, "client must not be null");
+		requireNonNull(client, "client must not be null");
 		this.url = url;
 		new URL(url); // validate url
 		this.client = client;
@@ -125,7 +116,7 @@ public class HttpClient implements Client
 	public void registerCustomDataType(String groupType, Class dataPointClass)
 	{
 		checkNotNullOrEmpty(groupType, "groupType may not be null or empty");
-		checkNotNull(dataPointClass, "dataPointClass may not be null");
+		requireNonNull(dataPointClass, "dataPointClass may not be null");
 		typeRegistry.registerCustomDataType(groupType, dataPointClass);
 	}
 
@@ -196,17 +187,17 @@ public class HttpClient implements Client
 		return queryData(PATH_CHECK, new JsonResponseHandler<Integer>()
 		{
 			@Override
-			public Integer handleException(Request request, Exception e) throws RuntimeException
+			public Integer handleException(HttpUriRequest request, Exception exception) throws RuntimeException
 			{
-				throw propagate(request, e);
+				throw propagate(request, exception);
 			}
 
 			@Override
-			public Integer handle(Request request, Response response) throws RuntimeException
+			public Integer handle(HttpUriRequest request, ResponseHelper response) throws RuntimeException
 			{
 				return response.getStatusCode();
 			}
-		}, ImmutableListMultimap.of());
+		});
 	}
 
 	@SuppressWarnings("unchecked")
@@ -274,40 +265,43 @@ public class HttpClient implements Client
 
 	private <T> T postData(String path, String json, JsonResponseHandler<T> responseHandler, boolean compressed)
 	{
-		Request request;
+		HttpPost post = new HttpPost(createURI(path));
+
+		EntityBuilder entityBuilder = EntityBuilder.create()
+				.setContentType(APPLICATION_JSON)
+				.setText(json);
+
 		if (compressed)
 		{
-			request = new Request(createURI(path), "POST",
-					ImmutableListMultimap.of(CONTENT_ENCODING, GZIP),
-					new StringBodySource(json, TEXT_PLAIN, true));
+			entityBuilder.gzipCompress();
+			post.addHeader(CONTENT_ENCODING, GZIP);
 		}
 		else
 		{
-			request = new Request(createURI(path), "POST",
-					ImmutableListMultimap.of(CONTENT_TYPE, APPLICATION_JSON.toString()),
-					new StringBodySource(json, APPLICATION_JSON));
+			post.addHeader(CONTENT_TYPE, APPLICATION_JSON.toString());
 		}
-		return execute(request, responseHandler);
-	}
+		post.setEntity(entityBuilder.build());
 
-	private <T> T queryData(String path, JsonResponseHandler<T> responseHandler)
-	{
-		return this.queryData(path, responseHandler, ImmutableListMultimap.of(ACCEPT, APPLICATION_JSON.toString(), ACCEPT_ENCODING, "gzip"));
+		return execute(post, responseHandler);
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T> T queryData(String path, JsonResponseHandler<T> responseHandler, ImmutableListMultimap headers)
+	private <T> T queryData(String path, JsonResponseHandler<T> responseHandler)
 	{
-		Request request = new Request(createURI(path), "GET", headers, null);
-		return execute(request, responseHandler);
+		HttpGet get = new HttpGet(createURI(path));
+		get.addHeader(ACCEPT, APPLICATION_JSON.toString());
+		get.addHeader(ACCEPT_ENCODING, "gzip");
+
+		return execute(get, responseHandler);
 	}
 
 	@SuppressWarnings("UnusedReturnValue")
 	private <T> T delete(String path, JsonResponseHandler<T> responseHandler)
 	{
-		Request request = new Request(createURI(path), "DELETE",
-				ImmutableListMultimap.of(ACCEPT, APPLICATION_JSON.toString()), null);
-		return execute(request, responseHandler);
+		HttpDelete delete = new HttpDelete(createURI(path));
+		delete.addHeader(ACCEPT, APPLICATION_JSON.toString());
+
+		return execute(delete, responseHandler);
 	}
 
 	private URI createURI(String path)
@@ -322,12 +316,12 @@ public class HttpClient implements Client
 		}
 	}
 
-	private <T> T execute(Request request, JsonResponseHandler<T> responseHandler)
+	private <T> T execute(HttpUriRequest request, JsonResponseHandler<T> responseHandler)
 	{
 		try
 		{
-			HttpResponse response = client.execute(convertToApacheRequest(request));
-			return responseHandler.handle(request, new ApacheResponse(response));
+			HttpResponse response = client.execute(request);
+			return responseHandler.handle(request, new ResponseHelper(response));
 		}
 		catch (IOException e)
 		{
@@ -341,127 +335,6 @@ public class HttpClient implements Client
 		client.close();
 	}
 
-	private static class ApacheResponse implements Response
-	{
-		private final HttpResponse response;
-
-		ApacheResponse(HttpResponse response)
-		{
-			this.response = response;
-		}
-
-		@Override
-		public int getStatusCode()
-		{
-			return response.getStatusLine().getStatusCode();
-		}
-
-		@Override
-		public String getStatusMessage()
-		{
-			return response.getStatusLine().getReasonPhrase();
-		}
-
-		@Override
-		public ListMultimap<HeaderName, String> getHeaders()
-		{
-			ImmutableListMultimap.Builder<HeaderName, String> builder = ImmutableListMultimap.builder();
-			for (Header header : response.getAllHeaders())
-			{
-				builder.put(HeaderName.of(header.getName()), header.getValue());
-			}
-			return builder.build();
-		}
-
-		@Override
-		public long getBytesRead()
-		{
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public InputStream getInputStream() throws IOException
-		{
-			if (response.getEntity() != null)
-				return response.getEntity().getContent();
-			return null;
-		}
-	}
-
-	private HttpUriRequest convertToApacheRequest(Request request)
-	{
-		HttpUriRequest apacheRequest;
-		switch (request.getMethod())
-		{
-			case "POST":
-				apacheRequest = new HttpPost(request.getUri());
-				if (request.getBodySource() instanceof StringBodySource)
-				{
-					((HttpPost) apacheRequest).setEntity(((StringBodySource) request.getBodySource()).toHttpEntity());
-				}
-				else
-				{
-					throw new IllegalArgumentException("Request has unsupported BodySource type " + request.getBodySource().getClass().getName());
-				}
-				break;
-			case "GET":
-				apacheRequest = new HttpGet(request.getUri());
-				break;
-			case "DELETE":
-				apacheRequest = new HttpDelete(request.getUri());
-				break;
-			default:
-				throw new IllegalArgumentException("Request method is invalid must be one of POST, GET, or DELETE");
-		}
-
-		for (Map.Entry<String, String> header : request.getHeaders().entries())
-		{
-			apacheRequest.addHeader(header.getKey(), header.getValue());
-		}
-
-		return apacheRequest;
-	}
-
-	private class StringBodySource implements BodySource
-	{
-		private final String body;
-		private final ContentType contentType;
-		private final boolean compressed;
-
-		StringBodySource(String body, ContentType contentType)
-		{
-			this.body = body;
-			this.contentType = contentType;
-			this.compressed = false;
-		}
-
-		StringBodySource(String body, ContentType contentType, boolean compressed)
-		{
-			this.body = body;
-			this.contentType = contentType;
-			this.compressed = compressed;
-		}
-
-		@Override
-		public long getLength()
-		{
-			return body.length();
-		}
-
-		HttpEntity toHttpEntity()
-		{
-			EntityBuilder builder = EntityBuilder.create()
-					.setContentType(contentType)
-					.setText(body);
-
-			if (compressed)
-			{
-				builder.gzipCompress();
-			}
-
-			return builder.build();
-		}
-	}
 
 	@SuppressWarnings("unused")
 	private class Results

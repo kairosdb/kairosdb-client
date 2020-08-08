@@ -20,8 +20,8 @@ import com.google.gson.annotations.SerializedName;
 import org.kairosdb.client.builder.RelativeTime;
 import org.kairosdb.client.response.GroupResult;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
+import static org.kairosdb.client.util.Preconditions.checkArgument;
 
 
 public class TimeGroupResult extends GroupResult
@@ -42,9 +42,9 @@ public class TimeGroupResult extends GroupResult
 
 		checkArgument(groupCount > 0);
 
-		this.rangeSize = checkNotNull(rangeSize);
+		this.rangeSize = requireNonNull(rangeSize);
 		this.groupCount = groupCount;
-		this.group = checkNotNull(group);
+		this.group = requireNonNull(group);
 	}
 
 	/**

@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
+import static java.util.Objects.requireNonNull;
 import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
+import static org.kairosdb.client.util.Preconditions.checkState;
 
 public class RollupBuilder
 {
@@ -32,7 +32,7 @@ public class RollupBuilder
     private RollupBuilder(String name, RelativeTime executionInterval)
     {
         this.name = checkNotNullOrEmpty(name, "name cannot be null or empty");
-        this.executionInterval = checkNotNull(executionInterval, "executionInterval cannot be null");
+        this.executionInterval = requireNonNull(executionInterval, "executionInterval cannot be null");
 
         GsonBuilder builder = new GsonBuilder();
         builder.registerTypeAdapter(CustomAggregator.class, new CustomAggregatorSerializer());
@@ -52,7 +52,7 @@ public class RollupBuilder
     public static RollupBuilder getInstance(String name, RelativeTime executionInterval)
     {
         checkNotNullOrEmpty(name, "name cannot be null or empty");
-        checkNotNull(executionInterval, "executionInterval cannot be null");
+        requireNonNull(executionInterval, "executionInterval cannot be null");
 
         return new RollupBuilder(name, executionInterval);
     }

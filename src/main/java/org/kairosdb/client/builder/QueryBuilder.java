@@ -12,8 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
+import static org.kairosdb.client.util.Preconditions.checkArgument;
 import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
 
 /**
@@ -79,7 +79,7 @@ public class QueryBuilder extends AbstractQueryBuilder<QueryBuilder>
 	 */
 	public QueryMetric addMetric(QueryMetric metric)
 	{
-		checkNotNull(metric,"metric cannot be null");
+		requireNonNull(metric,"metric cannot be null");
 		metrics.add(metric);
 		return metric;
 	}
@@ -145,7 +145,7 @@ public class QueryBuilder extends AbstractQueryBuilder<QueryBuilder>
 	@SuppressWarnings("ConstantConditions")
 	public QueryBuilder setTimeZone(TimeZone timeZone)
 	{
-		checkNotNull(timeZone, "timezone cannot be null");
+		requireNonNull(timeZone, "timezone cannot be null");
 
 		this.timeZone = timeZone;
 		return this;

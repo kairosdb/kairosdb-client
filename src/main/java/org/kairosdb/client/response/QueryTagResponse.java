@@ -2,7 +2,8 @@ package org.kairosdb.client.response;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
-import static org.weakref.jmx.internal.guava.base.Preconditions.checkNotNull;
+
+import static java.util.Objects.requireNonNull;
 
 import java.util.List;
 
@@ -17,7 +18,7 @@ public class QueryTagResponse
 	@SuppressWarnings("WeakerAccess")
 	public QueryTagResponse(List<TagQueryResult> queries)
 	{
-		checkNotNull(queries, "queries cannot be null");
+		requireNonNull(queries, "queries cannot be null");
 		this.queries = queries;
 	}
 

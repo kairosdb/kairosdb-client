@@ -25,8 +25,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
+import static org.kairosdb.client.util.Preconditions.checkArgument;
 import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
 
 /**
@@ -99,7 +99,7 @@ public class QueryMetric
 	 */
 	public QueryMetric addMultiValuedTags(Map<String, List<String>> tags)
 	{
-		checkNotNull(tags);
+		requireNonNull(tags);
 
 		for (String key : tags.keySet())
 		{
@@ -117,7 +117,7 @@ public class QueryMetric
 	 */
 	public QueryMetric addTags(Map<String, String> tags)
 	{
-		checkNotNull(tags);
+		requireNonNull(tags);
 
 		for (String key : tags.keySet())
 		{
@@ -157,7 +157,7 @@ public class QueryMetric
 	 */
 	public QueryMetric addAggregator(Aggregator aggregator)
 	{
-		checkNotNull(aggregator);
+		requireNonNull(aggregator);
 		aggregators.add(aggregator);
 		return this;
 	}
@@ -170,7 +170,7 @@ public class QueryMetric
 	 */
 	public QueryMetric addGrouper(Grouper grouper)
 	{
-		checkNotNull(grouper);
+		requireNonNull(grouper);
 
 		groupers.add(grouper);
 		return this;
@@ -192,7 +192,7 @@ public class QueryMetric
 	 */
 	public void setOrder(Order order)
 	{
-		checkNotNull(order);
+		requireNonNull(order);
 		this.order = order;
 	}
 

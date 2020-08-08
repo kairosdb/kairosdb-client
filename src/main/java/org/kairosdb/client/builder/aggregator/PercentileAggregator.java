@@ -15,7 +15,7 @@
  */
 package org.kairosdb.client.builder.aggregator;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import static org.kairosdb.client.util.Preconditions.checkArgument;
 
 import org.kairosdb.client.builder.TimeUnit;
 

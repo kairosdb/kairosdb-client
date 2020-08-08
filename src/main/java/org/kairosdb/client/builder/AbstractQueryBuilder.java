@@ -5,8 +5,8 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.Date;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
+import static org.kairosdb.client.util.Preconditions.checkArgument;
 
 /**
  * Abstract class for querying KairosDB.
@@ -91,7 +91,7 @@ public abstract class AbstractQueryBuilder<B extends AbstractQueryBuilder<B>>
 	@SuppressWarnings({"unchecked", "ConstantConditions"})
 	public B setStart(Date start)
 	{
-		checkNotNull(start, "start cannot be null");
+		requireNonNull(start, "start cannot be null");
 		checkArgument(startRelative == null, "Both relative and absolute start times cannot be set.");
 
 		this.startAbsolute = start.getTime();
@@ -110,7 +110,7 @@ public abstract class AbstractQueryBuilder<B extends AbstractQueryBuilder<B>>
 	public B setStart(int duration, TimeUnit unit)
 	{
 		checkArgument(duration > 0, "duration must be greater than 0");
-		checkNotNull(unit, "unit cannot be null");
+		requireNonNull(unit, "unit cannot be null");
 		checkArgument(startAbsolute == null, "Both relative and absolute start times cannot be set.");
 
 		startRelative = new RelativeTime(duration, unit);
@@ -142,7 +142,7 @@ public abstract class AbstractQueryBuilder<B extends AbstractQueryBuilder<B>>
 	@SuppressWarnings({"unchecked", "ConstantConditions", "WeakerAccess"})
 	public B setEnd(int duration, TimeUnit unit)
 	{
-		checkNotNull(unit, "unit cannot be null");
+		requireNonNull(unit, "unit cannot be null");
 		checkArgument(duration > 0, "duration must be greater than 0");
 		checkArgument(endAbsolute == null, "Both relative and absolute end times cannot be set.");
 		endRelative = new RelativeTime(duration, unit);
