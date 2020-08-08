@@ -3,6 +3,9 @@ package org.kairosdb.client.builder;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -63,6 +66,23 @@ public class QueryTagMetric
 
 		tags.putAll(name, values);
 
+		return (this);
+	}
+	
+	public QueryTagMetric addTag(String name, String... values)
+	{
+		checkNotNullOrEmpty(name, "name cannot be null or empty");
+		checkArgument(values.length > 0, "value must be greater than 0");
+		ArrayList<String> valueList = new ArrayList<>();
+		for (String value : values)
+		{
+			checkNotNullOrEmpty(value, "value cannot be null or empty");
+			if(!valueList.contains(value))
+			valueList.add(value);
+		}
+		
+		tags.putAll(name, Arrays.asList(values));
+		
 		return (this);
 	}
 
