@@ -39,7 +39,7 @@ public class SamplingAggregator extends Aggregator
 	@SerializedName("start_time")
 	private Long startTime;
 
-	public SamplingAggregator(String name, int value, TimeUnit unit)
+	public SamplingAggregator(String name, long value, TimeUnit unit)
 	{
 		super(name);
 		checkArgument(value > 0, "value must be greater than 0.");
@@ -47,7 +47,7 @@ public class SamplingAggregator extends Aggregator
 		sampling = new Sampling(value, unit);
 	}
 
-	public int getValue()
+	public long getValue()
 	{
 		return sampling.value;
 	}
@@ -185,13 +185,13 @@ public class SamplingAggregator extends Aggregator
 
 	private class Sampling
 	{
-		private Sampling(int value, TimeUnit unit)
+		private Sampling(long value, TimeUnit unit)
 		{
 			this.value = value;
 			this.unit = requireNonNull(unit);
 		}
 
-		private int value;
+		private long value;
 		private TimeUnit unit;
 	}
 

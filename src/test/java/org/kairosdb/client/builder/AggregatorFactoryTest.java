@@ -23,7 +23,7 @@ public class AggregatorFactoryTest
 		SamplingAggregator minAggregator = AggregatorFactory.createMinAggregator(1, TimeUnit.MINUTES);
 
 		assertThat(minAggregator.getName(), equalTo("min"));
-		assertThat(minAggregator.getValue(), equalTo(1));
+		assertThat(minAggregator.getValue(), equalTo(1L));
 		assertThat(minAggregator.getUnit(), equalTo(TimeUnit.MINUTES));
 	}
 
@@ -33,7 +33,7 @@ public class AggregatorFactoryTest
 		SamplingAggregator minAggregator = AggregatorFactory.createMaxAggregator(1, TimeUnit.MINUTES);
 
 		assertThat(minAggregator.getName(), equalTo("max"));
-		assertThat(minAggregator.getValue(), equalTo(1));
+		assertThat(minAggregator.getValue(), equalTo(1L));
 		assertThat(minAggregator.getUnit(), equalTo(TimeUnit.MINUTES));
 	}
 
@@ -43,7 +43,7 @@ public class AggregatorFactoryTest
 		SamplingAggregator aggregator = AggregatorFactory.createAverageAggregator(2, TimeUnit.YEARS);
 
 		assertThat(aggregator.getName(), equalTo("avg"));
-		assertThat(aggregator.getValue(), equalTo(2));
+		assertThat(aggregator.getValue(), equalTo(2L));
 		assertThat(aggregator.getUnit(), equalTo(TimeUnit.YEARS));
 	}
 
@@ -53,7 +53,7 @@ public class AggregatorFactoryTest
 		SamplingAggregator aggregator = AggregatorFactory.createStandardDeviationAggregator(3, TimeUnit.DAYS);
 
 		assertThat(aggregator.getName(), equalTo("dev"));
-		assertThat(aggregator.getValue(), equalTo(3));
+		assertThat(aggregator.getValue(), equalTo(3L));
 		assertThat(aggregator.getUnit(), equalTo(TimeUnit.DAYS));
 	}
 
@@ -63,7 +63,7 @@ public class AggregatorFactoryTest
 		SamplingAggregator aggregator = AggregatorFactory.createSumAggregator(3, TimeUnit.DAYS);
 
 		assertThat(aggregator.getName(), equalTo("sum"));
-		assertThat(aggregator.getValue(), equalTo(3));
+		assertThat(aggregator.getValue(), equalTo(3L));
 		assertThat(aggregator.getUnit(), equalTo(TimeUnit.DAYS));
 	}
 
@@ -73,7 +73,7 @@ public class AggregatorFactoryTest
 		SamplingAggregator aggregator = AggregatorFactory.createCountAggregator(3, TimeUnit.DAYS);
 
 		assertThat(aggregator.getName(), equalTo("count"));
-		assertThat(aggregator.getValue(), equalTo(3));
+		assertThat(aggregator.getValue(), equalTo(3L));
 		assertThat(aggregator.getUnit(), equalTo(TimeUnit.DAYS));
 	}
 	
@@ -84,7 +84,7 @@ public class AggregatorFactoryTest
 
 		assertThat(aggregator.getName(), equalTo("percentile"));
 		assertThat(aggregator.getPercentile(),equalTo(0.5));
-		assertThat(aggregator.getValue(), equalTo(3));
+		assertThat(aggregator.getValue(), equalTo(3L));
 		assertThat(aggregator.getUnit(), equalTo(TimeUnit.DAYS));
 	}
 
@@ -121,7 +121,7 @@ public class AggregatorFactoryTest
 		SamplingAggregator aggregator = AggregatorFactory.createLastAggregator(3, TimeUnit.DAYS);
 
 		assertThat(aggregator.getName(), equalTo("last"));
-		assertThat(aggregator.getValue(), equalTo(3));
+		assertThat(aggregator.getValue(), equalTo(3L));
 		assertThat(aggregator.getUnit(), equalTo(TimeUnit.DAYS));
 	}
 
@@ -131,7 +131,7 @@ public class AggregatorFactoryTest
 		SamplingAggregator aggregator = AggregatorFactory.createLeastSquaresAggregator(3, TimeUnit.DAYS);
 
 		assertThat(aggregator.getName(), equalTo("least_squares"));
-		assertThat(aggregator.getValue(), equalTo(3));
+		assertThat(aggregator.getValue(), equalTo(3L));
 		assertThat(aggregator.getUnit(), equalTo(TimeUnit.DAYS));
 	}
 

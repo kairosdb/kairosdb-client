@@ -23,7 +23,7 @@ public class PercentileAggregator extends SamplingAggregator
 {
 	private double percentile;
 
-	public PercentileAggregator(double percentile, int value, TimeUnit unit)
+	public PercentileAggregator(double percentile, long value, TimeUnit unit)
 	{
 		super("percentile", value, unit);
 		
