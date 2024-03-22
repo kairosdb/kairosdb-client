@@ -1,9 +1,8 @@
 package org.kairosdb.client.response;
 
-import com.google.common.collect.ImmutableListMultimap;
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<configuration>
+	<appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level [%file:%line] - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+
+	<logger name="failed_logger" level="TRACE" additivity="true">
+		<appender-ref ref="failed_data"/>
+	</logger>
+
+	<logger name="org.kairosdb.datastore.h2.orm" level="WARN"/>
+
+	<logger name="org.apache.kafka.streams.rowProcessor.internals" level="WARN"/>
+
+	<!--Line below suppresses large amounts of info when users authenticate, comment to get it back -->
+	<logger name="org.eclipse.jetty.jaas.spi.LdapLoginModule" level="WARN"/>
+
+	<logger name="com.datastax.driver.core" level="ERROR"/>
+
+
+	<!--<logger name="org.kairosdb.core.aggregator.SumAggregator" level="DEBUG"/>
+	<logger name="org.kairosdb.datastore.cassandra.CassandraDatastore" level="DEBUG"/>-->
+
+	<!--<logger name="org.kairosdb.core.http.rest.MetricsResource" level="DEBUG"/>-->
+	<logger name="org.kairosdb.metrics4j" level="INFO"/>
+
+	<root level="INFO">
+		<appender-ref ref="stdout"/>
+	</root>
+</configuration>

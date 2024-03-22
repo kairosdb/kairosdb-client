@@ -15,9 +15,7 @@ import java.io.IOException;
 import static junit.framework.TestCase.assertNull;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.apache.http.entity.ContentType.APPLICATION_JSON;
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -47,12 +45,13 @@ public class DefaultJsonResponseHandlerTest
 		try
 		{
 			handler.handle(mockRequest, mockResponse);
-			assertFalse("expected exception", false);
+			assertThat(true).as("expected exception").isFalse();
+
 		}
 		catch (UnexpectedResponseException e)
 		{
-			assertThat(e.getStatusCode(), equalTo(500));
-			assertThat(e.getStatusMessage(), equalTo("The status message"));
+			assertThat(e.getStatusCode()).isEqualTo(500);
+			assertThat(e.getStatusMessage()).isEqualTo("The status message");
 		}
 	}
 
@@ -61,15 +60,16 @@ public class DefaultJsonResponseHandlerTest
 	{
 		when(mockResponse.getStatusCode()).thenReturn(200);
 		when(mockResponse.getStatusMessage()).thenReturn("OK");
+		when(mockResponse.getFirstHeader(CONTENT_TYPE)).thenReturn(null);
 
 		try
 		{
 			handler.handle(mockRequest, mockResponse);
-			assertFalse("expected exception", false);
+			assertThat(true).as("expected exception").isFalse();
 		}
 		catch (UnexpectedResponseException e)
 		{
-			assertThat(e.getMessage(), equalTo("Content-Type is not set for response"));
+			assertThat(e.getMessage()).isEqualTo("Content-Type is not set for response");
 		}
 	}
 
@@ -83,11 +83,11 @@ public class DefaultJsonResponseHandlerTest
 		try
 		{
 			handler.handle(mockRequest, mockResponse);
-			assertFalse("expected exception", false);
+			assertThat(true).as("expected exception").isFalse();
 		}
 		catch (UnexpectedResponseException e)
 		{
-			assertThat(e.getMessage(), equalTo("Expected application/json response from server but got application/bogus"));
+			assertThat(e.getMessage()).isEqualTo("Expected application/json response from server but got application/bogus");
 		}
 	}
 
@@ -101,11 +101,11 @@ public class DefaultJsonResponseHandlerTest
 		try
 		{
 			handler.handle(mockRequest, mockResponse);
-			assertFalse("expected exception", false);
+			assertThat(true).as("expected exception").isFalse();
 		}
 		catch (UnexpectedResponseException e)
 		{
-			assertThat(e.getMessage(), equalTo("Expected response code to be [200, 204], but was 400: Errors: error message\n"));
+			assertThat(e.getMessage()).isEqualTo("Expected response code to be [200, 204], but was 400: Errors: error message\n");
 		}
 	}
 
@@ -119,11 +119,11 @@ public class DefaultJsonResponseHandlerTest
 		try
 		{
 			handler.handle(mockRequest, mockResponse);
-			assertFalse("expected exception", false);
+			assertThat(true).as("expected exception").isFalse();
 		}
 		catch (IllegalArgumentException e)
 		{
-			assertThat(e.getMessage(), equalTo("Unable to create parse JSON response:\n"));
+			assertThat(e.getMessage()).isEqualTo("Unable to create parse JSON response:\n");
 		}
 	}
 
@@ -137,11 +137,11 @@ public class DefaultJsonResponseHandlerTest
 		try
 		{
 			handler.handle(mockRequest, mockResponse);
-			assertFalse("expected exception", false);
+			assertThat(true).as("expected exception").isFalse();
 		}
 		catch (RuntimeException e)
 		{
-			assertThat(e.getMessage(), equalTo("Error reading JSON response from server"));
+			assertThat(e.getMessage()).isEqualTo("Error reading JSON response from server");
 		}
 	}
 
@@ -172,6 +172,6 @@ public class DefaultJsonResponseHandlerTest
 		RollupTask task = handler.handle(mockRequest, mockResponse);
 
 		JsonMapper mapper = new JsonMapper(new DataPointTypeRegistry());
-		assertThat(task, equalTo(mapper.fromJson(json, RollupTask.class)));
+		assertThat(task).isEqualTo(mapper.fromJson(json, RollupTask.class));
 	}
 }

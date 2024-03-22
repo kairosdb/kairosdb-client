@@ -48,7 +48,7 @@ public class BinGrouperTest
 	@Test
 	public void test_constructorList_name()
 	{
-		BinGrouper grouper = new BinGrouper(Arrays.asList(2.1, 3.1, 4.1));
+		BinGrouper grouper = new BinGrouper(List.of(2.1, 3.1, 4.1));
 
 		assertThat(grouper.getName(), equalTo("bin"));
 	}
@@ -64,7 +64,7 @@ public class BinGrouperTest
 	@Test
 	public void test_constructor_bins_from_list()
 	{
-		BinGrouper grouper = new BinGrouper(Arrays.asList(2.1, 3.1, 4.1));
+		BinGrouper grouper = new BinGrouper(List.of(2.1, 3.1, 4.1));
 
 		assertThat(grouper.getBins(), hasItems(2.1, 3.1, 4.1));
 	}

@@ -18,8 +18,7 @@ import java.io.IOException;
 import java.util.List;
 
 import static java.lang.Thread.sleep;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ClientIntegrationTest
 {
@@ -47,7 +46,9 @@ public class ClientIntegrationTest
 
 	private static InMemoryKairosServer kairos;
 
-	@BeforeClass
+	//Kairos needs to be ran separately for these tests to work.  Updated
+	//dependencies are preventing kairos from running in this way.
+	//@BeforeClass
 	public static void setupClass() throws InterruptedException
 	{
 		kairos = new InMemoryKairosServer(new File("src/test/resources/kairos.properties"));
@@ -59,7 +60,7 @@ public class ClientIntegrationTest
 		}
 	}
 
-	@AfterClass
+	//@AfterClass
 	public static void tearDownClass() throws DatastoreException, InterruptedException
 	{
 		kairos.shutdown();
@@ -101,19 +102,19 @@ public class ClientIntegrationTest
 
 			HttpClient httpClient = new HttpClient("http://localhost:8082");
 			QueryResponse query = httpClient.query(builder);
-			assertThat(query.getQueries().size(), equalTo(2));
+			assertThat(query.getQueries().size()).isEqualTo(2);
 
-			assertThat(query.getQueries().get(0).getResults().size(), equalTo(1));
+			assertThat(query.getQueries().get(0).getResults().size()).isEqualTo(1);
 			List<DataPoint> dataPoints = query.getQueries().get(0).getResults().get(0).getDataPoints();
-			assertThat(dataPoints.size(), equalTo(1));
-			assertThat(dataPoints.get(0).getTimestamp(), equalTo(timestamp1));
-			assertThat(dataPoints.get(0).longValue(), equalTo(20L));
+			assertThat(dataPoints.size()).isEqualTo(1);
+			assertThat(dataPoints.get(0).getTimestamp()).isEqualTo(timestamp1);
+			assertThat(dataPoints.get(0).longValue()).isEqualTo(20L);
 
-			assertThat(query.getQueries().get(1).getResults().size(), equalTo(1));
+			assertThat(query.getQueries().get(1).getResults().size()).isEqualTo(1);
 			dataPoints = query.getQueries().get(1).getResults().get(0).getDataPoints();
-			assertThat(dataPoints.size(), equalTo(1));
-			assertThat(dataPoints.get(0).getTimestamp(), equalTo(timestamp2));
-			assertThat(dataPoints.get(0).longValue(), equalTo(40L));
+			assertThat(dataPoints.size()).isEqualTo(1);
+			assertThat(dataPoints.get(0).getTimestamp()).isEqualTo(timestamp2);
+			assertThat(dataPoints.get(0).longValue()).isEqualTo(40L);
 		}
 		finally
 		{
@@ -150,11 +151,8 @@ public class ClientIntegrationTest
 			builder.addMetric("bogus");
 
 			QueryResponse query = client.query(builder);
-			assertThat(query.getQueries().size(), equalTo(1));
-			assertThat(query.getQueries().get(0).getResults().size(), equalTo(1));
-
-			List<DataPoint> dataPoints = query.getQueries().get(0).getResults().get(0).getDataPoints();
-			assertThat(dataPoints.size(), equalTo(0));
+			assertThat(query.getQueries().size()).isEqualTo(1);
+			assertThat(query.getQueries().get(0).getResults().size()).isEqualTo(0);
 		}
 	}
 
@@ -181,12 +179,12 @@ public class ClientIntegrationTest
 			// Check Metric names
 			List<String> metricNames = client.getMetricNames();
 
-			assertThat(metricNames, hasItems(HTTP_METRIC_NAME_1, HTTP_METRIC_NAME_2));
+			assertThat(metricNames).contains(HTTP_METRIC_NAME_1, HTTP_METRIC_NAME_2);
 
 			// Check Status
 			int status = client.getStatusCheck();
 
-			assertThat(status, equalTo(204));
+			assertThat(status).isEqualTo(204);
 
 			// Query metrics
 			QueryBuilder builder = QueryBuilder.getInstance();
@@ -195,13 +193,13 @@ public class ClientIntegrationTest
 			builder.addMetric(HTTP_METRIC_NAME_2);
 
 			QueryResponse query = client.query(builder);
-			assertThat(query.getQueries().size(), equalTo(2));
-			assertThat(query.getQueries().get(0).getResults().size(), equalTo(1));
+			assertThat(query.getQueries().size()).isEqualTo(2);
+			assertThat(query.getQueries().get(0).getResults().size()).isEqualTo(1);
 
 			List<DataPoint> dataPoints = query.getQueries().get(0).getResults().get(0).getDataPoints();
-			assertThat(dataPoints.size(), equalTo(1));
-			assertThat(dataPoints.get(0).getTimestamp(), equalTo(timestamp1));
-			assertThat(dataPoints.get(0).longValue(), equalTo(20L));
+			assertThat(dataPoints.size()).isEqualTo(1);
+			assertThat(dataPoints.get(0).getTimestamp()).isEqualTo(timestamp1);
+			assertThat(dataPoints.get(0).longValue()).isEqualTo(20L);
 		}
 	}
 
@@ -238,18 +236,18 @@ public class ClientIntegrationTest
 
 			QueryResponse query = client.query(builder);
 
-			assertThat(query.getQueries().size(), equalTo(1));
-			assertThat(query.getQueries().get(0).getResults().size(), equalTo(1));
-			assertThat(query.getQueries().get(0).getResults().get(0).getTags().size(), equalTo(1));
-			assertThat(query.getQueries().get(0).getResults().get(0).getTags().get(HTTP_TAG_NAME_1).size(), equalTo(2));
-			assertThat(query.getQueries().get(0).getResults().get(0).getTags().get(HTTP_TAG_NAME_1), hasItems(HTTP_TAG_VALUE_2, HTTP_TAG_VALUE_3));
+			assertThat(query.getQueries().size()).isEqualTo(1);
+			assertThat(query.getQueries().get(0).getResults().size()).isEqualTo(1);
+			assertThat(query.getQueries().get(0).getResults().get(0).getTags().size()).isEqualTo(1);
+			assertThat(query.getQueries().get(0).getResults().get(0).getTags().get(HTTP_TAG_NAME_1).size()).isEqualTo(2);
+			assertThat(query.getQueries().get(0).getResults().get(0).getTags().get(HTTP_TAG_NAME_1)).contains(HTTP_TAG_VALUE_2, HTTP_TAG_VALUE_3);
 
 			List<DataPoint> dataPoints = query.getQueries().get(0).getResults().get(0).getDataPoints();
-			assertThat(dataPoints.size(), equalTo(2));
-			assertThat(dataPoints.get(0).getTimestamp(), equalTo(timestamp2));
-			assertThat(dataPoints.get(0).longValue(), equalTo(30L));
-			assertThat(dataPoints.get(1).getTimestamp(), equalTo(timestamp3));
-			assertThat(dataPoints.get(1).longValue(), equalTo(40L));
+			assertThat(dataPoints.size()).isEqualTo(2);
+			assertThat(dataPoints.get(0).getTimestamp()).isEqualTo(timestamp2);
+			assertThat(dataPoints.get(0).longValue()).isEqualTo(30L);
+			assertThat(dataPoints.get(1).getTimestamp()).isEqualTo(timestamp3);
+			assertThat(dataPoints.get(1).longValue()).isEqualTo(40L);
 		}
 	}
 
@@ -309,7 +307,7 @@ public class ClientIntegrationTest
 			metric.addGrouper(new BinGrouper(2.0, 3.0, 4.0));
 
 			QueryResponse response = client.query(builder);
-			assertThat(response.getQueries().size(), equalTo(1));
+			assertThat(response.getQueries().size()).isEqualTo(1);
 		}
 	}
 
@@ -339,7 +337,7 @@ public class ClientIntegrationTest
 			// Check Metric names
 			List<String> metricNames = client.getMetricNames();
 
-			assertThat(metricNames, hasItems(SSL_METRIC_NAME_1, SSL_METRIC_NAME_2));
+			assertThat(metricNames).contains(SSL_METRIC_NAME_1, SSL_METRIC_NAME_2);
 
 			// Query metrics
 			QueryBuilder builder = QueryBuilder.getInstance();
@@ -348,13 +346,13 @@ public class ClientIntegrationTest
 			builder.addMetric(SSL_METRIC_NAME_2);
 
 			QueryResponse query = client.query(builder);
-			assertThat(query.getQueries().size(), equalTo(2));
-			assertThat(query.getQueries().get(0).getResults().size(), equalTo(1));
+			assertThat(query.getQueries().size()).isEqualTo(2);
+			assertThat(query.getQueries().get(0).getResults().size()).isEqualTo(1);
 
 			List<DataPoint> dataPoints = query.getQueries().get(0).getResults().get(0).getDataPoints();
-			assertThat(dataPoints.size(), equalTo(1));
-			assertThat(dataPoints.get(0).getTimestamp(), equalTo(timestamp1));
-			assertThat(dataPoints.get(0).longValue(), equalTo(20L));
+			assertThat(dataPoints.size()).isEqualTo(1);
+			assertThat(dataPoints.get(0).getTimestamp()).isEqualTo(timestamp1);
+			assertThat(dataPoints.get(0).longValue()).isEqualTo(20L);
 		}
 	}
 
@@ -391,13 +389,13 @@ public class ClientIntegrationTest
 				QueryResponse response = client.query(builder);
 
 				List<DataPoint> dataPoints = response.getQueries().get(0).getResults().get(0).getDataPoints();
-				assertThat(dataPoints.size(), equalTo(5));
+				assertThat(dataPoints.size()).isEqualTo(5);
 
-				assertThat(dataPoints.get(0).longValue(), equalTo(20L));
-				assertThat(dataPoints.get(1).longValue(), equalTo(21L));
-				assertThat(dataPoints.get(2).longValue(), equalTo(22L));
-				assertThat(dataPoints.get(3).longValue(), equalTo(23L));
-				assertThat(dataPoints.get(4).longValue(), equalTo(24L));
+				assertThat(dataPoints.get(0).longValue()).isEqualTo(20L);
+				assertThat(dataPoints.get(1).longValue()).isEqualTo(21L);
+				assertThat(dataPoints.get(2).longValue()).isEqualTo(22L);
+				assertThat(dataPoints.get(3).longValue()).isEqualTo(23L);
+				assertThat(dataPoints.get(4).longValue()).isEqualTo(24L);
 			}
 		}
 
@@ -430,17 +428,17 @@ public class ClientIntegrationTest
 				QueryResponse response = client.query(builder);
 
 				List<DataPoint> dataPoints = response.getQueries().get(0).getResults().get(0).getDataPoints();
-				assertThat(dataPoints.size(), equalTo(5));
+				assertThat(dataPoints.size()).isEqualTo(5);
 
-				assertThat(dataPoints.get(0).longValue(), equalTo(24L));
-				assertThat(dataPoints.get(1).longValue(), equalTo(23L));
-				assertThat(dataPoints.get(2).longValue(), equalTo(22L));
-				assertThat(dataPoints.get(3).longValue(), equalTo(21L));
-				assertThat(dataPoints.get(4).longValue(), equalTo(20L));
+				assertThat(dataPoints.get(0).longValue()).isEqualTo(24L);
+				assertThat(dataPoints.get(1).longValue()).isEqualTo(23L);
+				assertThat(dataPoints.get(2).longValue()).isEqualTo(22L);
+				assertThat(dataPoints.get(3).longValue()).isEqualTo(21L);
+				assertThat(dataPoints.get(4).longValue()).isEqualTo(20L);
 			}
 		}
 
-		@Test
+		@Test  //todo this fails when not running internal kairos server
 		public void test_customDataType() throws IOException
 		{
 			try (HttpClient client = new HttpClient("http://localhost:8082"))
@@ -462,11 +460,11 @@ public class ClientIntegrationTest
 				queryBuilder.addMetric("metric1");
 
 				QueryResponse queryResponse = client.query(queryBuilder);
-				assertThat(queryResponse.getQueries().size(), equalTo(1));
-				assertThat(queryResponse.getQueries().get(0).getResults().size(), equalTo(1));
+				assertThat(queryResponse.getQueries().size()).isEqualTo(1);
+				assertThat(queryResponse.getQueries().get(0).getResults().size()).isEqualTo(1);
 
 				List<DataPoint> dataPoints = queryResponse.getQueries().get(0).getResults().get(0).getDataPoints();
-				assertThat(dataPoints, hasItem(new DataPoint(timestamp1, new Complex(4, 5))));
+				assertThat(dataPoints).contains(new DataPoint(timestamp1, new Complex(4, 5)));
 			}
 		}
 
@@ -496,9 +494,9 @@ public class ClientIntegrationTest
 				String id = task.getId();
 
 				// then: verify rollup created
-				assertThat(task.getName(), equalTo("rollupTask"));
-				assertThat(task.getExecutionInterval(), equalTo(new RelativeTime(2, TimeUnit.DAYS)));
-				assertThat(task.getRollups().size(), equalTo(2));
+				assertThat(task.getName()).isEqualTo("rollupTask");
+				assertThat(task.getExecutionInterval()).isEqualTo(new RelativeTime(2, TimeUnit.DAYS));
+				assertThat(task.getRollups().size()).isEqualTo(2);
 				assertRollup(task.getRollups().get(0), new RelativeTime(1, TimeUnit.HOURS), "rollup1.rollup", "foobar1","max");
 				assertRollup(task.getRollups().get(1), new RelativeTime(1, TimeUnit.MINUTES), "rollup2.rollup", "foobar2","sum");
 
@@ -506,10 +504,10 @@ public class ClientIntegrationTest
 				List<RollupTask> rollupTasks = client.getRollupTasks();
 
 				// then: verify all rollups
-				assertThat(rollupTasks.size(), equalTo(1));
-				assertThat(rollupTasks.get(0).getName(), equalTo("rollupTask"));
-				assertThat(rollupTasks.get(0).getExecutionInterval(), equalTo(new RelativeTime(2, TimeUnit.DAYS)));
-				assertThat(rollupTasks.get(0).getRollups().size(), equalTo(2));
+				assertThat(rollupTasks.size()).isEqualTo(1);
+				assertThat(rollupTasks.get(0).getName()).isEqualTo("rollupTask");
+				assertThat(rollupTasks.get(0).getExecutionInterval()).isEqualTo(new RelativeTime(2, TimeUnit.DAYS));
+				assertThat(rollupTasks.get(0).getRollups().size()).isEqualTo(2);
 				assertRollup(rollupTasks.get(0).getRollups().get(0), new RelativeTime(1, TimeUnit.HOURS), "rollup1.rollup", "foobar1","max");
 				assertRollup(rollupTasks.get(0).getRollups().get(1), new RelativeTime(1, TimeUnit.MINUTES), "rollup2.rollup", "foobar2","sum");
 
@@ -517,9 +515,9 @@ public class ClientIntegrationTest
 				RollupTask rollupTask = client.getRollupTask(id);
 
 				// then: verify rollup returned
-				assertThat(rollupTask.getName(), equalTo("rollupTask"));
-				assertThat(rollupTask.getExecutionInterval(), equalTo(new RelativeTime(2, TimeUnit.DAYS)));
-				assertThat(rollupTask.getRollups().size(), equalTo(2));
+				assertThat(rollupTask.getName()).isEqualTo("rollupTask");
+				assertThat(rollupTask.getExecutionInterval()).isEqualTo(new RelativeTime(2, TimeUnit.DAYS));
+				assertThat(rollupTask.getRollups().size()).isEqualTo(2);
 
 				// when: rollup is deleted
 				client.deleteRollupTask(id);
@@ -531,24 +529,26 @@ public class ClientIntegrationTest
 				}
 				catch (UnexpectedResponseException e)
 				{
-					assertThat(e.getStatusCode(), equalTo(404));
+					assertThat(e.getStatusCode()).isEqualTo(404);
 				}
 			}
 		}
 
 	private void assertRollup(Rollup actual, RelativeTime startTime, String saveAs, String metricName, String aggregatorName)
 	{
-		assertThat(actual.getStartRelative(), equalTo(startTime));
-		assertThat(actual.getSaveAs(), equalTo(saveAs));
-		assertThat(actual.getMetrics().size(), equalTo(1));
-		assertThat(actual.getMetrics().get(0).getName(), equalTo(metricName));
-		assertThat(actual.getMetrics().get(0).getAggregators().size(), equalTo(1));
-		assertThat(actual.getMetrics().get(0).getAggregators().get(0).getName(), equalTo(aggregatorName));
+		assertThat(actual.getStartRelative()).isEqualTo(startTime);
+		assertThat(actual.getSaveAs()).isEqualTo(saveAs);
+		assertThat(actual.getMetrics().size()).isEqualTo(1);
+		assertThat(actual.getMetrics().get(0).getName()).isEqualTo(metricName);
+		assertThat(actual.getMetrics().get(0).getAggregators().size()).isEqualTo(1);
+		assertThat(actual.getMetrics().get(0).getAggregators().get(0).getName()).isEqualTo(aggregatorName);
 	}
 
 	private void watiForEvent() throws InterruptedException
 	{
-		boolean done = false;
+		sleep(2000);
+		//todo uncomment this when we get kairos running inside again with new update.
+		/*boolean done = false;
 		Stopwatch stopwatch = Stopwatch.createStarted();
 		while (!done)
 		{
@@ -557,7 +557,7 @@ public class ClientIntegrationTest
 			{
 				done = true;
 			}
-		}
+		}*/
 	}
 
 	private class Complex

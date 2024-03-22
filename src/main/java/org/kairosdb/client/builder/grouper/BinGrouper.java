@@ -5,6 +5,7 @@ import org.kairosdb.client.builder.Grouper;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
 import static org.kairosdb.client.util.Preconditions.checkArgument;
@@ -14,7 +15,7 @@ public class BinGrouper extends Grouper
 {
 
 	@SerializedName("bins")
-	private Double[] bins;
+	private List<Double> bins;
 
 	public BinGrouper(Double... bins)
 	{
@@ -22,7 +23,7 @@ public class BinGrouper extends Grouper
 
 		requireNonNull(bins, "bins cannot be null");
 		checkArgument(bins.length > 0, "bins cannot be empty");
-		this.bins = bins;
+		this.bins = Arrays.asList(bins);
 	}
 
 	public BinGrouper(List<Double> bins)
@@ -30,13 +31,14 @@ public class BinGrouper extends Grouper
 		super("bin");
 		requireNonNull(bins, "bins cannot be null");
 		checkArgument(bins.size() > 0, "bins cannot be empty");
-		this.bins = (Double[]) bins.toArray();
+		this.bins = bins;
 	}
 
 	public List<Double> getBins()
 	{
-		return Arrays.asList(bins);
+		return bins;
 	}
+
 
 	@Override
 	public boolean equals(Object o)
@@ -44,16 +46,13 @@ public class BinGrouper extends Grouper
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		if (!super.equals(o)) return false;
-
 		BinGrouper that = (BinGrouper) o;
-		return Arrays.equals(bins, that.bins);
+		return Objects.equals(bins, that.bins);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		int result = super.hashCode();
-		result = 31 * result + Arrays.hashCode(bins);
-		return result;
+		return Objects.hash(super.hashCode(), bins);
 	}
 }

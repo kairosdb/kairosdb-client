@@ -41,6 +41,12 @@ public class ComplexNumberDataPoint implements DataPoint
 	}
 
 	@Override
+	public void setTimestamp(long timestamp)
+	{
+		this.timestamp = timestamp;
+	}
+
+	@Override
 	public void writeValueToBuffer(DataOutput buffer) throws IOException
 	{
 		buffer.writeLong(real);

@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.kairosdb.core.DataPoint;
 import org.kairosdb.core.datapoints.DataPointFactory;
+import org.kairosdb.util.KDataInput;
 
 import java.io.DataInput;
 import java.io.IOException;
@@ -30,7 +31,7 @@ public class ComplexNumberDataPointFactory implements DataPointFactory
 	}
 
 	@Override
-	public DataPoint getDataPoint(long timestamp, DataInput buffer) throws IOException
+	public DataPoint getDataPoint(long timestamp, KDataInput buffer) throws IOException
 	{
 		return new ComplexNumberDataPoint(timestamp, buffer.readLong(), buffer.readLong());
 	}
