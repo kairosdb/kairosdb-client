@@ -5,6 +5,7 @@ import com.google.common.collect.ListMultimap;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Set;
 
 import static java.util.Objects.requireNonNull;
 import static org.kairosdb.client.util.Preconditions.checkArgument;
@@ -62,6 +63,21 @@ public class QueryTagMetric
 		}
 
 		tags.putAll(name, Arrays.asList(values));
+
+		return (this);
+	}
+
+	public QueryTagMetric addTag(String name, Set<String> values)
+	{
+		checkNotNullOrEmpty(name, "name cannot be null or empty");
+		checkArgument(values.size() > 0, "value must be greater than 0");
+
+		for (String value : values)
+		{
+			checkNotNullOrEmpty(value, "value cannot be null or empty");
+		}
+
+		tags.putAll(name, values);
 
 		return (this);
 	}
