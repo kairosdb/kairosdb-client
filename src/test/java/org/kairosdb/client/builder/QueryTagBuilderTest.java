@@ -1,10 +1,16 @@
 package org.kairosdb.client.builder;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Date;
 
+import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
+import static net.javacrumbs.jsonunit.JsonAssert.when;
+import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
@@ -125,9 +131,32 @@ public class QueryTagBuilderTest
 				.setStart(1, TimeUnit.HOURS);
 		builder.addMetric("metricName")
 				.addTag("foo", "bar")
-				.addTag("fi", "fum");
+				.addTag("fi", Collections.singleton("fum"));
 
 		assertThat(builder.build(), equalTo("{\"metrics\":[{\"name\":\"metricName\",\"tags\":{\"fi\":[\"fum\"],\"foo\":[\"bar\"]}}],\"start_relative\":{\"value\":1,\"unit\":\"HOURS\"}}"));
 	}
 
+	@Test
+	public void testMultipleTags() throws IOException
+	{
+		QueryTagBuilder builder = QueryTagBuilder.getInstance()
+				.setStart(1, TimeUnit.HOURS);
+		Set<String> tags = new HashSet<>();
+		Set<String> tags1 = new HashSet<>();
+		tags.add("bar");
+		tags.add("Bar");
+		tags.add("bars");
+
+		tags1.add("fum");
+		tags1.add("Fum");
+		tags1.add("fums");
+
+		builder.addMetric("metricName")
+				.addTag("foo",tags)
+				.addTag("fi",tags1);
+    assertJsonEquals(
+        builder.build(),
+            "{\"metrics\":[{\"name\":\"metricName\",\"tags\":{\"foo\":[\"bar\",\"Bar\",\"bars\"],\"fi\":[\"fum\",\"Fum\",\"fums\"]}}],\"start_relative\":{\"value\":1,\"unit\":\"HOURS\"}}",
+				when(IGNORING_ARRAY_ORDER));
+	}
 }
