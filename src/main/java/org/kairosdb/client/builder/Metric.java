@@ -191,33 +191,19 @@ public class Metric
 		return type;
 	}
 
-	@SuppressWarnings("SimplifiableIfStatement")
+
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o)
-			return true;
-		if (o == null || getClass() != o.getClass())
-			return false;
-
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
 		Metric metric = (Metric) o;
-
-		if (name != null ? !name.equals(metric.name) : metric.name != null)
-			return false;
-		if (tags != null ? !tags.equals(metric.tags) : metric.tags != null)
-			return false;
-		if (type != null ? !type.equals(metric.type) : metric.type != null)
-			return false;
-		return !(dataPoints != null ? !dataPoints.equals(metric.dataPoints) : metric.dataPoints != null);
+		return ttl == metric.ttl && Objects.equals(name, metric.name) && Objects.equals(tags, metric.tags) && Objects.equals(type, metric.type) && Objects.equals(dataPoints, metric.dataPoints);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		int result = name != null ? name.hashCode() : 0;
-		result = 31 * result + (tags != null ? tags.hashCode() : 0);
-		result = 31 * result + (type != null ? type.hashCode() : 0);
-		result = 31 * result + (dataPoints != null ? dataPoints.hashCode() : 0);
-		return result;
+		return Objects.hash(name, tags, type, ttl, dataPoints);
 	}
 }

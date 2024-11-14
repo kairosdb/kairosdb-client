@@ -5,6 +5,7 @@ import com.google.gson.annotations.SerializedName;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
 import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
@@ -54,43 +55,19 @@ public class RollupTask
         return lastModified;
     }
 
-    @SuppressWarnings("SimplifiableIfStatement")
     @Override
     public boolean equals(Object o)
     {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         RollupTask that = (RollupTask) o;
-
-        if (lastModified != that.lastModified) {
-            return false;
-        }
-        if (id != null ? !id.equals(that.id) : that.id != null) {
-            return false;
-        }
-        if (!rollups.equals(that.rollups)) {
-            return false;
-        }
-        if (!name.equals(that.name)) {
-            return false;
-        }
-        return executionInterval.equals(that.executionInterval);
+        return lastModified == that.lastModified && Objects.equals(id, that.id) && Objects.equals(rollups, that.rollups) && Objects.equals(name, that.name) && Objects.equals(executionInterval, that.executionInterval);
     }
 
     @Override
     public int hashCode()
     {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + rollups.hashCode();
-        result = 31 * result + name.hashCode();
-        result = 31 * result + executionInterval.hashCode();
-        result = 31 * result + (int) (lastModified ^ (lastModified >>> 32));
-        return result;
+        return Objects.hash(id, rollups, name, executionInterval, lastModified);
     }
 
     @Override

@@ -1,6 +1,5 @@
 package org.kairosdb.client;
 
-import com.google.common.base.Stopwatch;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -43,6 +42,7 @@ public class ClientIntegrationTest
 	private static final String SSL_TAG_NAME_2 = "sslTag2";
 	private static final String SSL_TAG_VALUE_1 = "sslTag1";
 	private static final String SSL_TAG_VALUE_2 = "sslTag2";
+	public static final String KAIROS_URL = "http://kairos-server:8080";
 
 	private static InMemoryKairosServer kairos;
 
@@ -70,7 +70,7 @@ public class ClientIntegrationTest
 	public void test_telnetClient()
 			throws IOException, DataFormatException, InterruptedException
 	{
-		TelnetClient client = new TelnetClient("localhost", 4245);
+		TelnetClient client = new TelnetClient("kairos-server", 4242);
 
 		try
 		{
@@ -100,7 +100,7 @@ public class ClientIntegrationTest
 			builder.addMetric(TELNET_METRIC_NAME_1);
 			builder.addMetric(TELNET_METRIC_NAME_2);
 
-			HttpClient httpClient = new HttpClient("http://localhost:8082");
+			HttpClient httpClient = new HttpClient(KAIROS_URL);
 			QueryResponse query = httpClient.query(builder);
 			assertThat(query.getQueries().size()).isEqualTo(2);
 
@@ -127,7 +127,7 @@ public class ClientIntegrationTest
 	public void test_httpClient_no_results_from_query()
 			throws IOException
 	{
-		try (HttpClient client = new HttpClient("http://localhost:8082"))
+		try (HttpClient client = new HttpClient(KAIROS_URL))
 		{
 			MetricBuilder metricBuilder = MetricBuilder.getInstance();
 
@@ -159,7 +159,7 @@ public class ClientIntegrationTest
 	@Test
 	public void test_httpClient() throws IOException, DataFormatException
 	{
-		try (HttpClient client = new HttpClient("http://localhost:8082"))
+		try (HttpClient client = new HttpClient(KAIROS_URL))
 		{
 			MetricBuilder metricBuilder = MetricBuilder.getInstance();
 
@@ -206,7 +206,7 @@ public class ClientIntegrationTest
 	@Test
 	public void test_httpClient_multiTagValues() throws IOException, DataFormatException
 	{
-		try (HttpClient client = new HttpClient("http://localhost:8082"))
+		try (HttpClient client = new HttpClient(KAIROS_URL))
 		{
 			MetricBuilder metricBuilder = MetricBuilder.getInstance();
 
@@ -258,7 +258,7 @@ public class ClientIntegrationTest
 	@Test
 	public void test_aggregatorsAndGroupBy() throws IOException
 	{
-		try (HttpClient client = new HttpClient("http://localhost:8082"))
+		try (HttpClient client = new HttpClient(KAIROS_URL))
 		{
 			MetricBuilder metricBuilder = MetricBuilder.getInstance();
 
@@ -360,7 +360,7 @@ public class ClientIntegrationTest
 		@Test
 		public void test_limit() throws IOException, DataFormatException
 		{
-			try (HttpClient client = new HttpClient("http://localhost:8082"))
+			try (HttpClient client = new HttpClient(KAIROS_URL))
 			{
 				MetricBuilder metricBuilder = MetricBuilder.getInstance();
 
@@ -403,7 +403,7 @@ public class ClientIntegrationTest
 		@Test
 		public void test_Order() throws IOException, DataFormatException
 		{
-			try (HttpClient client = new HttpClient("http://localhost:8082"))
+			try (HttpClient client = new HttpClient(KAIROS_URL))
 			{
 				MetricBuilder metricBuilder = MetricBuilder.getInstance();
 
@@ -441,7 +441,7 @@ public class ClientIntegrationTest
 		@Test  //todo this fails when not running internal kairos server
 		public void test_customDataType() throws IOException
 		{
-			try (HttpClient client = new HttpClient("http://localhost:8082"))
+			try (HttpClient client = new HttpClient(KAIROS_URL))
 			{
 				client.registerCustomDataType("complex", Complex.class);
 				MetricBuilder metricBuilder = MetricBuilder.getInstance();
@@ -472,7 +472,7 @@ public class ClientIntegrationTest
 		public void test_rollup()
 				throws IOException
 		{
-			try (HttpClient client = new HttpClient("http://localhost:8082"))
+			try (HttpClient client = new HttpClient(KAIROS_URL))
 			{
 				RollupBuilder builder = RollupBuilder.getInstance("rollupTask", new RelativeTime(2, TimeUnit.DAYS));
 

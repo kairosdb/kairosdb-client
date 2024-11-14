@@ -4,6 +4,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.TimeZone;
 
 import static java.util.Objects.requireNonNull;
@@ -72,27 +73,16 @@ public class Rollup
     @Override
     public boolean equals(Object o)
     {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         Rollup rollup = (Rollup) o;
-
-        if (!saveAs.equals(rollup.saveAs)) {
-            return false;
-        }
-        return builder.equals(rollup.builder);
+        return Objects.equals(saveAs, rollup.saveAs) && Objects.equals(builder, rollup.builder);
     }
 
     @Override
     public int hashCode()
     {
-        int result = saveAs.hashCode();
-        result = 31 * result + builder.hashCode();
-        return result;
+        return Objects.hash(saveAs, builder);
     }
 
     @Override

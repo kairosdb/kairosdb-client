@@ -16,6 +16,8 @@
 package org.kairosdb.client.builder;
 
 import java.util.Calendar;
+import java.util.Objects;
+import java.util.StringJoiner;
 import java.util.TimeZone;
 
 /**
@@ -26,6 +28,11 @@ public class RelativeTime
 	private int value;
 	private TimeUnit unit;
 	private transient Calendar calendar;
+
+	public RelativeTime()
+	{  //used by gson
+		calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+	}
 
 	public RelativeTime(int value, TimeUnit unit)
 	{
@@ -100,14 +107,12 @@ public class RelativeTime
 		return calendar.getTime().getTime();
 	}
 
+	//Intentionally leaving out the calendar, it messes up unit tests and is not needed for equality
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o)
-			return true;
-		if (o == null || getClass() != o.getClass())
-			return false;
-
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
 		RelativeTime that = (RelativeTime) o;
 		return value == that.value && unit == that.unit;
 	}
@@ -115,8 +120,16 @@ public class RelativeTime
 	@Override
 	public int hashCode()
 	{
-		int result = value;
-		result = 31 * result + (unit != null ? unit.hashCode() : 0);
-		return result;
+		return Objects.hash(value, unit);
+	}
+
+	@Override
+	public String toString()
+	{
+		return new StringJoiner(", ", RelativeTime.class.getSimpleName() + "[", "]")
+				.add("value=" + value)
+				.add("unit=" + unit)
+				.add("calendar=" + calendar)
+				.toString();
 	}
 }

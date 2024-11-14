@@ -15,6 +15,8 @@
  */
 package org.kairosdb.client.builder;
 
+import java.util.Objects;
+
 /**
  * A measurement. Contains the time when the measurement occurred and its value.
  */
@@ -99,26 +101,15 @@ public class DataPoint
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o)
-		{
-			return true;
-		}
-		if (o == null || getClass() != o.getClass())
-		{
-			return false;
-		}
-
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
 		DataPoint dataPoint = (DataPoint) o;
-
-		return timestamp == dataPoint.timestamp && value.equals(dataPoint.value);
-
+		return timestamp == dataPoint.timestamp && Objects.equals(value, dataPoint.value);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		int result = (int) (timestamp ^ (timestamp >>> 32));
-		result = 31 * result + value.hashCode();
-		return result;
+		return Objects.hash(timestamp, value);
 	}
 }

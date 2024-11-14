@@ -18,12 +18,13 @@ package org.kairosdb.client.builder;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.gson.annotations.SerializedName;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.StringJoiner;
 
 import static java.util.Objects.requireNonNull;
 import static org.kairosdb.client.util.Preconditions.checkArgument;
@@ -241,64 +242,33 @@ public class QueryMetric
 		this.excludeTags = exclude;
 	}
 
-	@SuppressWarnings("SimplifiableIfStatement")
+
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
 		QueryMetric that = (QueryMetric) o;
-
-		if (excludeTags != that.excludeTags) {
-			return false;
-		}
-		if (!name.equals(that.name)) {
-			return false;
-		}
-		if (tags != null ? !tags.equals(that.tags) : that.tags != null) {
-			return false;
-		}
-		if (groupers != null ? !groupers.equals(that.groupers) : that.groupers != null) {
-			return false;
-		}
-		if (aggregators != null ? !aggregators.equals(that.aggregators) : that.aggregators != null) {
-			return false;
-		}
-		if (limit != null ? !limit.equals(that.limit) : that.limit != null) {
-			return false;
-		}
-		return order == that.order;
+		return excludeTags == that.excludeTags && Objects.equals(name, that.name) && Objects.equals(tags, that.tags) && Objects.equals(groupers, that.groupers) && Objects.equals(aggregators, that.aggregators) && Objects.equals(limit, that.limit) && order == that.order;
 	}
 
 	@Override
 	public int hashCode()
 	{
-		int result = name.hashCode();
-		result = 31 * result + (tags != null ? tags.hashCode() : 0);
-		result = 31 * result + (groupers != null ? groupers.hashCode() : 0);
-		result = 31 * result + (aggregators != null ? aggregators.hashCode() : 0);
-		result = 31 * result + (limit != null ? limit.hashCode() : 0);
-		result = 31 * result + (order != null ? order.hashCode() : 0);
-		result = 31 * result + (excludeTags ? 1 : 0);
-		return result;
+		return Objects.hash(name, tags, groupers, aggregators, limit, order, excludeTags);
 	}
 
 	@Override
 	public String toString()
 	{
-		return new ToStringBuilder(this)
-				.append("name", name)
-				.append("tags", tags)
-				.append("groupers", groupers)
-				.append("aggregators", aggregators)
-				.append("limit", limit)
-				.append("order", order)
-				.append("excludeTags", excludeTags)
+		return new StringJoiner(", ", QueryMetric.class.getSimpleName() + "[", "]")
+				.add("name='" + name + "'")
+				.add("tags=" + tags)
+				.add("groupers=" + groupers)
+				.add("aggregators=" + aggregators)
+				.add("limit=" + limit)
+				.add("order=" + order)
+				.add("excludeTags=" + excludeTags)
 				.toString();
 	}
 }

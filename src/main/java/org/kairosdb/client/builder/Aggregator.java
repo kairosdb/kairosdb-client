@@ -15,6 +15,8 @@
  */
 package org.kairosdb.client.builder;
 
+import java.util.Objects;
+
 import static org.kairosdb.client.util.Preconditions.checkNotNullOrEmpty;
 
 /**
@@ -41,19 +43,15 @@ public class Aggregator
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o)
-			return true;
-		if (o == null || getClass() != o.getClass())
-			return false;
-
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
 		Aggregator that = (Aggregator) o;
-
-		return name.equals(that.name);
+		return Objects.equals(name, that.name);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return name.hashCode();
+		return Objects.hash(name);
 	}
 }
