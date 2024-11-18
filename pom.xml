@@ -5,7 +5,7 @@
 
 	<groupId>org.kairosdb</groupId>
 	<artifactId>client</artifactId>
-	<version>3.1.1-SNAPSHOT</version>
+	<version>3.1.1</version>
 	<packaging>jar</packaging>
 
 
