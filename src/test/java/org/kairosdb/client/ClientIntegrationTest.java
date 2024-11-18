@@ -1,5 +1,6 @@
 package org.kairosdb.client;
 
+import com.google.common.base.Stopwatch;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -15,40 +16,43 @@ import org.kairosdb.core.exception.DatastoreException;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 import static java.lang.Thread.sleep;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ClientIntegrationTest
 {
-	private static final String HTTP_METRIC_NAME_1 = "httpMetric1";
-	private static final String HTTP_METRIC_NAME_2 = "httpMetric2";
+	//This ensures that consecutive runs of tests will not interfere with each other.
+	private static final String RAND = UUID.randomUUID().toString();
+	private static final String HTTP_METRIC_NAME_1 = "httpMetric1"+RAND;
+	private static final String HTTP_METRIC_NAME_2 = "httpMetric2"+RAND;
 	private static final String HTTP_TAG_NAME_1 = "httpTag1";
 	private static final String HTTP_TAG_NAME_2 = "httpTag2";
 	private static final String HTTP_TAG_VALUE_1 = "httpTagValue1";
 	private static final String HTTP_TAG_VALUE_2 = "httpTagValue2";
 	private static final String HTTP_TAG_VALUE_3 = "httpTagValue3";
 
-	private static final String TELNET_METRIC_NAME_1 = "telnetMetric1";
-	private static final String TELNET_METRIC_NAME_2 = "telnetMetric2";
+	private static final String TELNET_METRIC_NAME_1 = "telnetMetric1+RAND";
+	private static final String TELNET_METRIC_NAME_2 = "telnetMetric2+RAND";
 	private static final String TELNET_TAG_NAME_1 = "telnetTag1";
 	private static final String TELNET_TAG_NAME_2 = "telnetTag2";
 	private static final String TELNET_TAG_VALUE_1 = "telnetTag1";
 	private static final String TELNET_TAG_VALUE_2 = "telnetTag2";
 
-	private static final String SSL_METRIC_NAME_1 = "sslMetric1";
-	private static final String SSL_METRIC_NAME_2 = "sslMetric2";
+	private static final String SSL_METRIC_NAME_1 = "sslMetric1"+RAND;
+	private static final String SSL_METRIC_NAME_2 = "sslMetric2"+RAND;
 	private static final String SSL_TAG_NAME_1 = "sslTag1";
 	private static final String SSL_TAG_NAME_2 = "sslTag2";
 	private static final String SSL_TAG_VALUE_1 = "sslTag1";
 	private static final String SSL_TAG_VALUE_2 = "sslTag2";
-	public static final String KAIROS_URL = "http://kairos-server:8080";
+	public static final String KAIROS_URL = "http://localhost:8082";
 
 	private static InMemoryKairosServer kairos;
 
 	//Kairos needs to be ran separately for these tests to work.  Updated
 	//dependencies are preventing kairos from running in this way.
-	//@BeforeClass
+	@BeforeClass
 	public static void setupClass() throws InterruptedException
 	{
 		kairos = new InMemoryKairosServer(new File("src/test/resources/kairos.properties"));
@@ -60,7 +64,7 @@ public class ClientIntegrationTest
 		}
 	}
 
-	//@AfterClass
+	@AfterClass
 	public static void tearDownClass() throws DatastoreException, InterruptedException
 	{
 		kairos.shutdown();
@@ -70,7 +74,7 @@ public class ClientIntegrationTest
 	public void test_telnetClient()
 			throws IOException, DataFormatException, InterruptedException
 	{
-		TelnetClient client = new TelnetClient("kairos-server", 4242);
+		TelnetClient client = new TelnetClient("localhost", 4245);
 
 		try
 		{
@@ -125,7 +129,7 @@ public class ClientIntegrationTest
 
 	@Test
 	public void test_httpClient_no_results_from_query()
-			throws IOException
+			throws IOException, InterruptedException
 	{
 		try (HttpClient client = new HttpClient(KAIROS_URL))
 		{
@@ -145,6 +149,8 @@ public class ClientIntegrationTest
 			// Push Metrics
 			client.pushMetrics(metricBuilder);
 
+			watiForEvent();
+
 			// Query metrics
 			QueryBuilder builder = QueryBuilder.getInstance();
 			builder.setStart(1, TimeUnit.MINUTES);
@@ -157,7 +163,7 @@ public class ClientIntegrationTest
 	}
 
 	@Test
-	public void test_httpClient() throws IOException, DataFormatException
+	public void test_httpClient() throws IOException, DataFormatException, InterruptedException
 	{
 		try (HttpClient client = new HttpClient(KAIROS_URL))
 		{
@@ -176,6 +182,9 @@ public class ClientIntegrationTest
 			// Push Metrics
 			client.pushMetrics(metricBuilder);
 
+			//Thread.sleep(1000);
+			watiForEvent();
+
 			// Check Metric names
 			List<String> metricNames = client.getMetricNames();
 
@@ -193,6 +202,7 @@ public class ClientIntegrationTest
 			builder.addMetric(HTTP_METRIC_NAME_2);
 
 			QueryResponse query = client.query(builder);
+			System.out.println(query);
 			assertThat(query.getQueries().size()).isEqualTo(2);
 			assertThat(query.getQueries().get(0).getResults().size()).isEqualTo(1);
 
@@ -204,7 +214,7 @@ public class ClientIntegrationTest
 	}
 
 	@Test
-	public void test_httpClient_multiTagValues() throws IOException, DataFormatException
+	public void test_httpClient_multiTagValues() throws IOException, DataFormatException, InterruptedException
 	{
 		try (HttpClient client = new HttpClient(KAIROS_URL))
 		{
@@ -228,6 +238,8 @@ public class ClientIntegrationTest
 			// Push Metrics
 			client.pushMetrics(metricBuilder);
 
+			watiForEvent();
+
 			// Query metrics
 			QueryBuilder builder = QueryBuilder.getInstance();
 			builder.setStart(1, TimeUnit.MINUTES);
@@ -235,6 +247,8 @@ public class ClientIntegrationTest
 			queryMetric.addTag(HTTP_TAG_NAME_1, HTTP_TAG_VALUE_2, HTTP_TAG_VALUE_3);
 
 			QueryResponse query = client.query(builder);
+
+			System.out.println(query);
 
 			assertThat(query.getQueries().size()).isEqualTo(1);
 			assertThat(query.getQueries().get(0).getResults().size()).isEqualTo(1);
@@ -256,7 +270,7 @@ public class ClientIntegrationTest
 	 return any errors which means that the aggregators and groupBys are all valid.
 	 */
 	@Test
-	public void test_aggregatorsAndGroupBy() throws IOException
+	public void test_aggregatorsAndGroupBy() throws IOException, InterruptedException
 	{
 		try (HttpClient client = new HttpClient(KAIROS_URL))
 		{
@@ -271,6 +285,8 @@ public class ClientIntegrationTest
 
 			// Push Metrics
 			client.pushMetrics(metricBuilder);
+
+			watiForEvent();
 
 			// Query metrics
 			QueryBuilder builder = QueryBuilder.getInstance();
@@ -312,7 +328,7 @@ public class ClientIntegrationTest
 	}
 
 	@Test
-	public void test_ssl() throws IOException, DataFormatException
+	public void test_ssl() throws IOException, DataFormatException, InterruptedException
 	{
 		System.setProperty("javax.net.ssl.trustStore", "src/test/resources/ssl.jks");
 		System.setProperty("javax.net.ssl.trustStorePassword", "testtest");
@@ -333,6 +349,8 @@ public class ClientIntegrationTest
 
 			// Push Metrics
 			client.pushMetrics(metricBuilder);
+
+			watiForEvent();
 
 			// Check Metric names
 			List<String> metricNames = client.getMetricNames();
@@ -358,7 +376,7 @@ public class ClientIntegrationTest
 
 		@SuppressWarnings("PointlessArithmeticExpression")
 		@Test
-		public void test_limit() throws IOException, DataFormatException
+		public void test_limit() throws IOException, DataFormatException, InterruptedException
 		{
 			try (HttpClient client = new HttpClient(KAIROS_URL))
 			{
@@ -378,6 +396,8 @@ public class ClientIntegrationTest
 
 				// Push Metrics
 				client.pushMetrics(metricBuilder);
+
+				watiForEvent();
 
 				// Query metrics
 				QueryBuilder builder = QueryBuilder.getInstance();
@@ -401,7 +421,7 @@ public class ClientIntegrationTest
 
 		@SuppressWarnings("PointlessArithmeticExpression")
 		@Test
-		public void test_Order() throws IOException, DataFormatException
+		public void test_Order() throws IOException, DataFormatException, InterruptedException
 		{
 			try (HttpClient client = new HttpClient(KAIROS_URL))
 			{
@@ -417,6 +437,8 @@ public class ClientIntegrationTest
 
 				// Push Metrics
 				client.pushMetrics(metricBuilder);
+
+				watiForEvent();
 
 				// Query metrics
 				QueryBuilder builder = QueryBuilder.getInstance();
@@ -439,7 +461,7 @@ public class ClientIntegrationTest
 		}
 
 		@Test  //todo this fails when not running internal kairos server
-		public void test_customDataType() throws IOException
+		public void test_customDataType() throws IOException, InterruptedException
 		{
 			try (HttpClient client = new HttpClient(KAIROS_URL))
 			{
@@ -453,6 +475,8 @@ public class ClientIntegrationTest
 
 				// Push Metrics
 				client.pushMetrics(metricBuilder);
+
+				watiForEvent();
 
 				// Query Metric
 				QueryBuilder queryBuilder = QueryBuilder.getInstance();
@@ -546,9 +570,9 @@ public class ClientIntegrationTest
 
 	private void watiForEvent() throws InterruptedException
 	{
-		sleep(2000);
+		//sleep(2000);
 		//todo uncomment this when we get kairos running inside again with new update.
-		/*boolean done = false;
+		boolean done = false;
 		Stopwatch stopwatch = Stopwatch.createStarted();
 		while (!done)
 		{
@@ -557,7 +581,7 @@ public class ClientIntegrationTest
 			{
 				done = true;
 			}
-		}*/
+		}
 	}
 
 	private class Complex
