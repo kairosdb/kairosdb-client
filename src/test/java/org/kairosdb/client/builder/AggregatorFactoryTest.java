@@ -89,6 +89,17 @@ public class AggregatorFactoryTest
 	}
 
 	@Test
+	public void test_createDataGapsMarkingAggregator()
+	{
+		SamplingAggregator aggregator = AggregatorFactory.createDataGapsMarkingAggregator(3, TimeUnit.DAYS).withTrim();
+
+		assertThat(aggregator.getName(), equalTo("gaps"));
+		assertThat(aggregator.isTrim(),equalTo(true));
+		assertThat(aggregator.getValue(), equalTo(3));
+		assertThat(aggregator.getUnit(), equalTo(TimeUnit.DAYS));
+	}
+	
+	@Test
 	public void test_createRateAggregator()
 	{
 		RateAggregator aggregator = AggregatorFactory.createRateAggregator(TimeUnit.DAYS);

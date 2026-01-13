@@ -39,6 +39,9 @@ public class SamplingAggregator extends Aggregator
 	@SerializedName("start_time")
 	private Long startTime;
 
+	@SerializedName("trim")
+	private Boolean trim;
+
 	public SamplingAggregator(String name, long value, TimeUnit unit)
 	{
 		super(name);
@@ -55,6 +58,19 @@ public class SamplingAggregator extends Aggregator
 	public TimeUnit getUnit()
 	{
 		return sampling.unit;
+	}
+
+	/**
+	 * To trim off empty ranges before and after the actual data (issue #453 - https://github.com/kairosdb/kairosdb/issues/453)
+	 * Default value is false.
+	 * 
+	 * @return the SamplingAggregator
+	 */
+	public SamplingAggregator withTrim()
+	{
+		trim = true;
+
+		return this;
 	}
 
 	/**
@@ -161,6 +177,11 @@ public class SamplingAggregator extends Aggregator
 		this.alignSampling = alignSampling;
 
 		return this;
+	}
+
+	public Boolean isTrim()
+	{
+		return trim != null ? trim : false;
 	}
 
 	public Boolean isAlignStartTime()
