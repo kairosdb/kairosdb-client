@@ -15,63 +15,58 @@
  */
 package org.kairosdb.client.builder;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class MetricTest
 {
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void test_nullMetricName_invalid()
 	{
-		MetricBuilder builder = MetricBuilder.getInstance();
-
-		builder.addMetric(null);
+		assertThrows(NullPointerException.class, () ->
+				MetricBuilder.getInstance().addMetric(null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void test_emptyMetricName_invalid()
 	{
-		MetricBuilder builder = MetricBuilder.getInstance();
-
-		builder.addMetric("");
+		assertThrows(IllegalArgumentException.class, () ->
+				MetricBuilder.getInstance().addMetric(""));
 	}
 
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void test_nullTagName_invalid()
 	{
-		MetricBuilder builder = MetricBuilder.getInstance();
-
-		builder.addMetric("metric1").addTag(null, "value");
+		assertThrows(NullPointerException.class, () ->
+				MetricBuilder.getInstance().addMetric("metric1").addTag(null, "value"));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void test_emptyTagName_invalid()
 	{
-		MetricBuilder builder = MetricBuilder.getInstance();
-
-		builder.addMetric("metric1").addTag("", "value");
+		assertThrows(IllegalArgumentException.class, () ->
+				MetricBuilder.getInstance().addMetric("metric1").addTag("", "value"));
 	}
 
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void test_nullTagValue_invalid()
 	{
-		MetricBuilder builder = MetricBuilder.getInstance();
-
-		builder.addMetric("metric1").addTag("tag", null);
+		assertThrows(NullPointerException.class, () ->
+				MetricBuilder.getInstance().addMetric("metric1").addTag("tag", null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void test_emptyTagValue_invalid()
 	{
-		MetricBuilder builder = MetricBuilder.getInstance();
-
-		builder.addMetric("metric1").addTag("tag", "");
+		assertThrows(IllegalArgumentException.class, () ->
+				MetricBuilder.getInstance().addMetric("metric1").addTag("tag", ""));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void test_ttl_less_than_zero_invalid()
 	{
-		MetricBuilder builder = MetricBuilder.getInstance();
-
-		builder.addMetric("metric1").addTtl(-1);
+		assertThrows(IllegalArgumentException.class, () ->
+				MetricBuilder.getInstance().addMetric("metric1").addTtl(-1));
 	}
 }

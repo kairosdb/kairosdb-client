@@ -1,19 +1,21 @@
 package org.kairosdb.client.response.grouping;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class DefaultGroupResultTest
 {
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void test_constructor_type_null_invalid()
 	{
-		new DefaultGroupResult("name", null);
+		assertThrows(NullPointerException.class, () -> new DefaultGroupResult("name", null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void test_constructor_type_empty_invalid()
 	{
-		new DefaultGroupResult("name", "");
+		assertThrows(IllegalArgumentException.class, () -> new DefaultGroupResult("name", ""));
 	}
 
 }

@@ -15,11 +15,12 @@
  */
 package org.kairosdb.client.builder;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class DataPointTest
 {
@@ -73,20 +74,22 @@ public class DataPointTest
 		assertThat(dataPoint.isDoubleValue(), equalTo(false));
 	}
 
-	@Test(expected = DataFormatException.class)
-	public void test_longValue_wrong_type_invalid() throws DataFormatException
+	@Test
+	public void test_longValue_wrong_type_invalid()
 	{
-		DataPoint dataPoint = new DataPoint(388383, "foo");
-
-		dataPoint.longValue();
+		assertThrows(DataFormatException.class, () -> {
+			DataPoint dataPoint = new DataPoint(388383, "foo");
+			dataPoint.longValue();
+		});
 	}
 
-	@Test(expected = DataFormatException.class)
-	public void test_doubleValue_wrong_type_invalid() throws DataFormatException
+	@Test
+	public void test_doubleValue_wrong_type_invalid()
 	{
-		DataPoint dataPoint = new DataPoint(388383, "foo");
-
-		dataPoint.doubleValue();
+		assertThrows(DataFormatException.class, () -> {
+			DataPoint dataPoint = new DataPoint(388383, "foo");
+			dataPoint.doubleValue();
+		});
 	}
 
 	@Test
@@ -110,43 +113,48 @@ public class DataPointTest
 		assertThat(dataPoint.isDoubleValue(), equalTo(false));
 	}
 
-	@Test(expected = DataFormatException.class)
-	public void test_nullValue_toDouble() throws DataFormatException
+	@Test
+	public void test_nullValue_toDouble()
 	{
-		DataPoint dataPoint = new DataPoint(93939393, null);
-
-		dataPoint.doubleValue();
+		assertThrows(DataFormatException.class, () -> {
+			DataPoint dataPoint = new DataPoint(93939393, null);
+			dataPoint.doubleValue();
+		});
 	}
 
-	@Test(expected = DataFormatException.class)
-	public void test_nullValue_toLong() throws DataFormatException
+	@Test
+	public void test_nullValue_toLong()
 	{
-		DataPoint dataPoint = new DataPoint(93939393, null);
-
-		dataPoint.longValue();
+		assertThrows(DataFormatException.class, () -> {
+			DataPoint dataPoint = new DataPoint(93939393, null);
+			dataPoint.longValue();
+		});
 	}
 
-	@Test(expected = DataFormatException.class)
-	public void test_longValue_valueNull() throws DataFormatException
+	@Test
+	public void test_longValue_valueNull()
 	{
-		DataPoint dataPoint = new DataPoint(93939393, null);
-
-		dataPoint.longValue();
+		assertThrows(DataFormatException.class, () -> {
+			DataPoint dataPoint = new DataPoint(93939393, null);
+			dataPoint.longValue();
+		});
 	}
 
-	@Test(expected = DataFormatException.class)
-	public void test_doubleValue_valueNull() throws DataFormatException
+	@Test
+	public void test_doubleValue_valueNull()
 	{
-		DataPoint dataPoint = new DataPoint(93939393, null);
-
-		dataPoint.doubleValue();
+		assertThrows(DataFormatException.class, () -> {
+			DataPoint dataPoint = new DataPoint(93939393, null);
+			dataPoint.doubleValue();
+		});
 	}
 
-	@Test(expected = DataFormatException.class)
-	public void test_stringValue_valueNull() throws DataFormatException
+	@Test
+	public void test_stringValue_valueNull()
 	{
-		DataPoint dataPoint = new DataPoint(93939393, null);
-
-		dataPoint.stringValue();
+		assertThrows(DataFormatException.class, () -> {
+			DataPoint dataPoint = new DataPoint(93939393, null);
+			dataPoint.stringValue();
+		});
 	}
 }

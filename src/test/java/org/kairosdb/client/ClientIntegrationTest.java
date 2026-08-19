@@ -1,9 +1,8 @@
 package org.kairosdb.client;
 
-import com.google.common.base.Stopwatch;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.kairosdb.client.builder.*;
 import org.kairosdb.client.builder.grouper.BinGrouper;
 import org.kairosdb.client.builder.grouper.TagGrouper;
@@ -11,9 +10,13 @@ import org.kairosdb.client.builder.grouper.TimeGrouper;
 import org.kairosdb.client.builder.grouper.ValueGrouper;
 import org.kairosdb.client.response.QueryResponse;
 import org.kairosdb.client.response.UnexpectedResponseException;
-import org.kairosdb.core.exception.DatastoreException;
+//import org.kairosdb.core.exception.DatastoreException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.testcontainers.utility.MountableFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
@@ -23,6 +26,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ClientIntegrationTest
 {
+	private static Logger logger = LoggerFactory.getLogger(ClientIntegrationTest.class);
+
 	//This ensures that consecutive runs of tests will not interfere with each other.
 	private static final String RAND = UUID.randomUUID().toString();
 	private static final String HTTP_METRIC_NAME_1 = "httpMetric1"+RAND;
@@ -46,35 +51,62 @@ public class ClientIntegrationTest
 	private static final String SSL_TAG_NAME_2 = "sslTag2";
 	private static final String SSL_TAG_VALUE_1 = "sslTag1";
 	private static final String SSL_TAG_VALUE_2 = "sslTag2";
-	public static final String KAIROS_URL = "http://localhost:8082";
+	public static final String KAIROS_URL = "http://localhost:";
 
-	private static InMemoryKairosServer kairos;
-
-	//Kairos needs to be ran separately for these tests to work.  Updated
-	//dependencies are preventing kairos from running in this way.
-	@BeforeClass
-	public static void setupClass() throws InterruptedException
+	private static String getKairosUrl()
 	{
-		kairos = new InMemoryKairosServer(new File("src/test/resources/kairos.properties"));
-		kairos.start();
-
-		while (!kairos.isStarted())
-		{
-			Thread.sleep(5);
-		}
+		return KAIROS_URL+httpPort;
 	}
 
-	@AfterClass
-	public static void tearDownClass() throws DatastoreException, InterruptedException
+	//private static InMemoryKairosServer kairos;
+	private static int httpPort = 8080;
+	private static int sslPort = 8443;
+	private static int telnetPort = 4242;
+
+	public static GenericContainer kairosDB = new GenericContainer("kairosdb/kairosdb:1.4.0-beta.1")
+			.withLogConsumer(new Slf4jLogConsumer(logger))
+			.withExposedPorts(8080, 8443, 4242)
+			.withCopyFileToContainer(MountableFile.forHostPath("src/test/resources/ssl.jks"), "/tmp/ssl.jks")
+			.withCopyFileToContainer(MountableFile.forHostPath("src/test/resources/kairosdb.conf"), "/opt/kairosdb/conf/kairosdb.conf");
+
+	@BeforeAll
+	public static void setupContainer()
 	{
-		kairos.shutdown();
+		kairosDB.start();
+		httpPort = kairosDB.getMappedPort(8080);
+		sslPort = kairosDB.getMappedPort(8443);
+		telnetPort = kairosDB.getMappedPort(4242);
 	}
+
+	@AfterAll
+	public static void tearDownContainer()
+	{
+		kairosDB.stop();
+	}
+
+//	@BeforeAll
+//	public static void setupClass() throws InterruptedException
+//	{
+//		kairos = new InMemoryKairosServer(new File("src/test/resources/kairos.properties"));
+//		kairos.start();
+//
+//		while (!kairos.isStarted())
+//		{
+//			Thread.sleep(5);
+//		}
+//	}
+
+//	@AfterAll
+//	public static void tearDownClass() throws DatastoreException, InterruptedException
+//	{
+//		kairos.shutdown();
+//	}
 
 	@Test
 	public void test_telnetClient()
 			throws IOException, DataFormatException, InterruptedException
 	{
-		TelnetClient client = new TelnetClient("localhost", 4245);
+		TelnetClient client = new TelnetClient("localhost", telnetPort);
 
 		try
 		{
@@ -104,7 +136,7 @@ public class ClientIntegrationTest
 			builder.addMetric(TELNET_METRIC_NAME_1);
 			builder.addMetric(TELNET_METRIC_NAME_2);
 
-			HttpClient httpClient = new HttpClient(KAIROS_URL);
+			HttpClient httpClient = new HttpClient(getKairosUrl());
 			QueryResponse query = httpClient.query(builder);
 			assertThat(query.getQueries().size()).isEqualTo(2);
 
@@ -131,7 +163,7 @@ public class ClientIntegrationTest
 	public void test_httpClient_no_results_from_query()
 			throws IOException, InterruptedException
 	{
-		try (HttpClient client = new HttpClient(KAIROS_URL))
+		try (HttpClient client = new HttpClient(getKairosUrl()))
 		{
 			MetricBuilder metricBuilder = MetricBuilder.getInstance();
 
@@ -165,7 +197,7 @@ public class ClientIntegrationTest
 	@Test
 	public void test_httpClient() throws IOException, DataFormatException, InterruptedException
 	{
-		try (HttpClient client = new HttpClient(KAIROS_URL))
+		try (HttpClient client = new HttpClient(getKairosUrl()))
 		{
 			MetricBuilder metricBuilder = MetricBuilder.getInstance();
 
@@ -216,7 +248,7 @@ public class ClientIntegrationTest
 	@Test
 	public void test_httpClient_multiTagValues() throws IOException, DataFormatException, InterruptedException
 	{
-		try (HttpClient client = new HttpClient(KAIROS_URL))
+		try (HttpClient client = new HttpClient(getKairosUrl()))
 		{
 			MetricBuilder metricBuilder = MetricBuilder.getInstance();
 
@@ -272,7 +304,7 @@ public class ClientIntegrationTest
 	@Test
 	public void test_aggregatorsAndGroupBy() throws IOException, InterruptedException
 	{
-		try (HttpClient client = new HttpClient(KAIROS_URL))
+		try (HttpClient client = new HttpClient(getKairosUrl()))
 		{
 			MetricBuilder metricBuilder = MetricBuilder.getInstance();
 
@@ -334,7 +366,7 @@ public class ClientIntegrationTest
 		System.setProperty("javax.net.ssl.trustStorePassword", "testtest");
 
 
-		try (HttpClient client = new HttpClient("https://localhost:8443"))
+		try (HttpClient client = new HttpClient("https://localhost:"+sslPort))
 		{
 			MetricBuilder metricBuilder = MetricBuilder.getInstance();
 			Metric metric1 = metricBuilder.addMetric(SSL_METRIC_NAME_1);
@@ -378,7 +410,7 @@ public class ClientIntegrationTest
 		@Test
 		public void test_limit() throws IOException, DataFormatException, InterruptedException
 		{
-			try (HttpClient client = new HttpClient(KAIROS_URL))
+			try (HttpClient client = new HttpClient(getKairosUrl()))
 			{
 				MetricBuilder metricBuilder = MetricBuilder.getInstance();
 
@@ -423,7 +455,7 @@ public class ClientIntegrationTest
 		@Test
 		public void test_Order() throws IOException, DataFormatException, InterruptedException
 		{
-			try (HttpClient client = new HttpClient(KAIROS_URL))
+			try (HttpClient client = new HttpClient(getKairosUrl()))
 			{
 				MetricBuilder metricBuilder = MetricBuilder.getInstance();
 
@@ -460,10 +492,10 @@ public class ClientIntegrationTest
 			}
 		}
 
-		@Test  //todo this fails when not running internal kairos server
+		/*@Test  //todo this fails when not running internal kairos server
 		public void test_customDataType() throws IOException, InterruptedException
 		{
-			try (HttpClient client = new HttpClient(KAIROS_URL))
+			try (HttpClient client = new HttpClient(getKairosUrl()))
 			{
 				client.registerCustomDataType("complex", Complex.class);
 				MetricBuilder metricBuilder = MetricBuilder.getInstance();
@@ -490,13 +522,13 @@ public class ClientIntegrationTest
 				List<DataPoint> dataPoints = queryResponse.getQueries().get(0).getResults().get(0).getDataPoints();
 				assertThat(dataPoints).contains(new DataPoint(timestamp1, new Complex(4, 5)));
 			}
-		}
+		}*/
 
 		@Test
 		public void test_rollup()
 				throws IOException
 		{
-			try (HttpClient client = new HttpClient(KAIROS_URL))
+			try (HttpClient client = new HttpClient(getKairosUrl()))
 			{
 				RollupBuilder builder = RollupBuilder.getInstance("rollupTask", new RelativeTime(2, TimeUnit.DAYS));
 
@@ -570,18 +602,18 @@ public class ClientIntegrationTest
 
 	private void watiForEvent() throws InterruptedException
 	{
-		//sleep(2000);
+		sleep(2000);
 		//todo uncomment this when we get kairos running inside again with new update.
-		boolean done = false;
-		Stopwatch stopwatch = Stopwatch.createStarted();
-		while (!done)
-		{
-			sleep(200);
-			if (kairos.getDataPointListener().getEvent() != null || stopwatch.elapsed(java.util.concurrent.TimeUnit.SECONDS) > 1)
-			{
-				done = true;
-			}
-		}
+//		boolean done = false;
+//		Stopwatch stopwatch = Stopwatch.createStarted();
+//		while (!done)
+//		{
+//			sleep(200);
+//			if (kairos.getDataPointListener().getEvent() != null || stopwatch.elapsed(java.util.concurrent.TimeUnit.SECONDS) > 1)
+//			{
+//				done = true;
+//			}
+//		}
 	}
 
 	private class Complex

@@ -1,22 +1,23 @@
 package org.kairosdb.client.builder.grouper;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class CustomGrouperTest
 {
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void test_constructor_null_json_invalid()
 	{
-		new CustomGrouper("name", null);
+		assertThrows(NullPointerException.class, () -> new CustomGrouper("name", null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void test_constructor_empty_json_invalid()
 	{
-		new CustomGrouper("name", "");
+		assertThrows(IllegalArgumentException.class, () -> new CustomGrouper("name", ""));
 	}
 
 	@Test

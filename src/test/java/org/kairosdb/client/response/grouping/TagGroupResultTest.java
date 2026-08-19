@@ -1,22 +1,24 @@
 package org.kairosdb.client.response.grouping;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 public class TagGroupResultTest
 {
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void test_constructor_null_tags_invalid()
 	{
-		new TagGroupResult(null, new HashMap<String, String>());
+		assertThrows(NullPointerException.class, () -> new TagGroupResult(null, new HashMap<String, String>()));
 	}
 
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void test_constructor_null_group_invalid()
 	{
-		new TagGroupResult(new ArrayList<String>(), null);
+		assertThrows(NullPointerException.class, () -> new TagGroupResult(new ArrayList<String>(), null));
 	}
 
 }

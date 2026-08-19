@@ -22,6 +22,8 @@
 
 	<logger name="com.datastax.driver.core" level="ERROR"/>
 
+	<logger name="org.kairosdb.client.ClientIntegrationTest" level="ERROR"/>
+
 
 	<!--<logger name="org.kairosdb.core.aggregator.SumAggregator" level="DEBUG"/>
 	<logger name="org.kairosdb.datastore.cassandra.CassandraDatastore" level="DEBUG"/>-->

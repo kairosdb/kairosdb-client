@@ -3,8 +3,8 @@ package org.kairosdb.client.response;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.kairosdb.client.DataPointTypeRegistry;
 import org.kairosdb.client.JsonMapper;
 import org.kairosdb.client.builder.RollupTask;
@@ -12,10 +12,10 @@ import org.kairosdb.client.builder.RollupTask;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
-import static junit.framework.TestCase.assertNull;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -25,7 +25,7 @@ public class DefaultJsonResponseHandlerTest
 	private ResponseHelper mockResponse;
 	private DefaultJsonResponseHandler<String> handler;
 
-	@Before
+	@BeforeEach
 	public void setup()
 	{
 		mockRequest = mock(HttpUriRequest.class);

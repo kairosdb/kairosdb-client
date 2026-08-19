@@ -1,40 +1,42 @@
 package org.kairosdb.client.builder.grouper;
 
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class BinGrouperTest
 {
 
-	@Test(expected = NullPointerException.class)
+	@Test()
 	public void test_constructor_nullBins_invalid()
 	{
-		new BinGrouper((Double[]) null);
+		assertThrows(NullPointerException.class, () -> new BinGrouper((Double[]) null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test()
 	public void test_constructor_emptyBins_invalid()
 	{
-		new BinGrouper();
+		assertThrows(IllegalArgumentException.class, () -> new BinGrouper());
 	}
 
-	@Test(expected = NullPointerException.class)
+	@Test()
 	public void test_constructor_nullBinsList_invalid()
 	{
-		new BinGrouper((List<Double>) null);
+		assertThrows(NullPointerException.class, () -> new BinGrouper((List<Double>) null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test()
 	public void test_constructor_emptyBinsList_invalid()
 	{
-		new BinGrouper(new ArrayList<Double>());
+		assertThrows(IllegalArgumentException.class, () -> new BinGrouper(new ArrayList<Double>()));
 	}
 
 	@Test

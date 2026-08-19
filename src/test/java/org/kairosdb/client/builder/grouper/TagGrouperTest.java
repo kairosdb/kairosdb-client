@@ -1,75 +1,45 @@
-//
-//  TagGrouperTest.java
-//
-// Copyright 2013, Proofpoint Inc. All rights reserved.
-//        
 package org.kairosdb.client.builder.grouper;
-
-import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItems;
-import static org.junit.Assert.assertThat;
+import org.junit.jupiter.api.Test;
 
-public class TagGrouperTest
-{
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-	@Test(expected = NullPointerException.class)
-	public void test_constructor_nullTagNames_invalid()
-	{
-		new TagGrouper((String[]) null);
-	}
+public class TagGrouperTest {
 
-	@Test(expected = NullPointerException.class)
-	public void test_constructor_nullTagName_invalid()
-	{
-		new TagGrouper("tag1", null);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void test_constructor_emptyTagNameList_invalid()
-	{
-		new TagGrouper();
-	}
-
-	@Test(expected = NullPointerException.class)
-	public void test_constructor_null_list_invalid()
-	{
-		new TagGrouper((List<String>) null);
+	@Test
+	void test_constructor_nullTagNames_invalid() {
+		assertThrows(NullPointerException.class, () -> new TagGrouper((String[]) null));
 	}
 
 	@Test
-	public void test_constructor_name()
-	{
-		TagGrouper grouper = new TagGrouper("tag1", "tag2");
-
-		assertThat(grouper.getName(), equalTo("tag"));
+	void test_constructor_nullTagName_invalid() {
+		assertThrows(NullPointerException.class, () -> new TagGrouper("tag1", null));
 	}
 
 	@Test
-	public void test_constructor_list_name()
-	{
-		TagGrouper grouper = new TagGrouper(Arrays.asList("tag1", "tag2"));
-
-		assertThat(grouper.getName(), equalTo("tag"));
+	void test_constructor_emptyTagNameList_invalid() {
+		assertThrows(IllegalArgumentException.class, TagGrouper::new);
 	}
 
 	@Test
-	public void test_constructor_tagNames()
-	{
-		TagGrouper grouper = new TagGrouper("tag1", "tag2");
-
-		assertThat(grouper.getTagNames(), hasItems("tag1", "tag2"));
+	void test_constructor_null_list_invalid() {
+		assertThrows(NullPointerException.class, () -> new TagGrouper((List<String>) null));
 	}
 
 	@Test
-	public void test_constructor_tagNames_from_list()
-	{
-		TagGrouper grouper = new TagGrouper(Arrays.asList("tag1", "tag2"));
+	void test_constructor_name() { assertEquals("tag", new TagGrouper("tag1", "tag2").getName()); }
 
-		assertThat(grouper.getTagNames(), hasItems("tag1", "tag2"));
-	}
+	@Test
+	void test_constructor_list_name() { assertEquals("tag", new TagGrouper(Arrays.asList("tag1", "tag2")).getName()); }
+
+	@Test
+	void test_constructor_tagNames() { assertThat(new TagGrouper("tag1", "tag2").getTagNames()).containsExactlyInAnyOrder("tag1", "tag2"); }
+
+	@Test
+	void test_constructor_tagNames_from_list() { assertThat(new TagGrouper(Arrays.asList("tag1", "tag2")).getTagNames()).containsExactlyInAnyOrder("tag1", "tag2"); }
 }

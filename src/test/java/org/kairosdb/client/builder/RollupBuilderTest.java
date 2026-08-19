@@ -2,55 +2,52 @@ package org.kairosdb.client.builder;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 import org.kairosdb.client.DataPointTypeRegistry;
 import org.kairosdb.client.JsonMapper;
 import org.kairosdb.client.builder.grouper.TagGrouper;
 
 import java.io.IOException;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 public class RollupBuilderTest
 {
-	@Rule
-	public ExpectedException thrown = ExpectedException.none();
-
 	@Test
 	public void test_build_noRollups()
 	{
-		thrown.expect(IllegalStateException.class);
-		thrown.expectMessage("No roll-ups added");
-
-		RollupBuilder builder = RollupBuilder.getInstance("rollup1", new RelativeTime(2, TimeUnit.DAYS));
-		builder.build();
+		IllegalStateException e = assertThrows(IllegalStateException.class, () -> {
+			RollupBuilder builder = RollupBuilder.getInstance("rollup1", new RelativeTime(2, TimeUnit.DAYS));
+			builder.build();
+		});
+		assertThat(e.getMessage(), containsString("No roll-ups added"));
 	}
 
 	@Test
 	public void test_build_noQueries()
 	{
-		thrown.expect(NullPointerException.class);
-		thrown.expectMessage("No queries added to rollup rollup1");
-
-		RollupBuilder builder = RollupBuilder.getInstance("rollup1", new RelativeTime(2, TimeUnit.DAYS));
-		builder.addRollup("rollup1");
-		builder.build();
+		NullPointerException e = assertThrows(NullPointerException.class, () -> {
+			RollupBuilder builder = RollupBuilder.getInstance("rollup1", new RelativeTime(2, TimeUnit.DAYS));
+			builder.addRollup("rollup1");
+			builder.build();
+		});
+		assertThat(e.getMessage(), containsString("No queries added to rollup rollup1"));
 	}
 
 	@Test
 	public void test_build_invalidQueryTime()
 	{
-		thrown.expect(IllegalStateException.class);
-		thrown.expectMessage("Start time must be specified");
-
-		RollupBuilder builder = RollupBuilder.getInstance("rollup1", new RelativeTime(2, TimeUnit.DAYS));
-		Rollup rollup = builder.addRollup("rollup1");
-		rollup.addQuery().setEnd(1, TimeUnit.MINUTES);
-		builder.build();
+		IllegalStateException e = assertThrows(IllegalStateException.class, () -> {
+			RollupBuilder builder = RollupBuilder.getInstance("rollup1", new RelativeTime(2, TimeUnit.DAYS));
+			Rollup rollup = builder.addRollup("rollup1");
+			rollup.addQuery().setEnd(1, TimeUnit.MINUTES);
+			builder.build();
+		});
+		assertThat(e.getMessage(), containsString("Start time must be specified"));
 	}
 
 	@Test

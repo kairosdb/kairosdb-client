@@ -15,13 +15,15 @@
  */
 package org.kairosdb.client.builder;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TimeValidatorTest
 {
 
 	@Test
-	public void test_AbsoluteStartBeforeAbsoluteEnd_Valid() 
+	public void test_AbsoluteStartBeforeAbsoluteEnd_Valid()
 	{
 		long now = System.currentTimeMillis();
 		RelativeTime startTime = new RelativeTime(2, TimeUnit.WEEKS);
@@ -29,61 +31,69 @@ public class TimeValidatorTest
 		TimeValidator.validateEndTimeLaterThanStartTime(startTime.getTimeRelativeTo(now), endTime.getTimeRelativeTo(now));
 	}
 
-	@Test(expected = IllegalStateException.class)
-	public void test_AbsoluteStartLaterThanAbsoluteEnd_Invalid() 
+	@Test
+	public void test_AbsoluteStartLaterThanAbsoluteEnd_Invalid()
 	{
-		long now = System.currentTimeMillis();
-		RelativeTime startTime = new RelativeTime(2, TimeUnit.DAYS);
-		RelativeTime endTime = new RelativeTime(2, TimeUnit.WEEKS);
-		TimeValidator.validateEndTimeLaterThanStartTime(startTime.getTimeRelativeTo(now), endTime.getTimeRelativeTo(now));
+		assertThrows(IllegalStateException.class, () -> {
+			long now = System.currentTimeMillis();
+			RelativeTime startTime = new RelativeTime(2, TimeUnit.DAYS);
+			RelativeTime endTime = new RelativeTime(2, TimeUnit.WEEKS);
+			TimeValidator.validateEndTimeLaterThanStartTime(startTime.getTimeRelativeTo(now), endTime.getTimeRelativeTo(now));
+		});
 	}
 
 	@Test
-	public void test_RelativeStartBeforeAbsoluteEnd_Valid() 
+	public void test_RelativeStartBeforeAbsoluteEnd_Valid()
 	{
 		RelativeTime startTime = new RelativeTime(2, TimeUnit.WEEKS);
 		RelativeTime endTime = new RelativeTime(2, TimeUnit.DAYS);
 		TimeValidator.validateEndTimeLaterThanStartTime(startTime, endTime.getTimeRelativeTo(System.currentTimeMillis()));
 	}
 
-	@Test(expected = IllegalStateException.class)
-	public void test_RelativeStartLaterThanAbsoluteEnd_Invalid() 
+	@Test
+	public void test_RelativeStartLaterThanAbsoluteEnd_Invalid()
 	{
-		RelativeTime startTime = new RelativeTime(2, TimeUnit.DAYS);
-		RelativeTime endTime = new RelativeTime(2, TimeUnit.WEEKS);
-		TimeValidator.validateEndTimeLaterThanStartTime(startTime, endTime.getTimeRelativeTo(System.currentTimeMillis()));
+		assertThrows(IllegalStateException.class, () -> {
+			RelativeTime startTime = new RelativeTime(2, TimeUnit.DAYS);
+			RelativeTime endTime = new RelativeTime(2, TimeUnit.WEEKS);
+			TimeValidator.validateEndTimeLaterThanStartTime(startTime, endTime.getTimeRelativeTo(System.currentTimeMillis()));
+		});
 	}
 
 	@Test
-	public void test_AbsoluteStartBeforeRelativeEnd_Valid() 
+	public void test_AbsoluteStartBeforeRelativeEnd_Valid()
 	{
 		RelativeTime startTime = new RelativeTime(2, TimeUnit.WEEKS);
 		RelativeTime endTime = new RelativeTime(2, TimeUnit.DAYS);
 		TimeValidator.validateEndTimeLaterThanStartTime(startTime.getTimeRelativeTo(System.currentTimeMillis()), endTime);
 	}
 
-	@Test(expected = IllegalStateException.class)
-	public void test_AbsoluteStartLaterThanRelativeEnd_Invalid() 
+	@Test
+	public void test_AbsoluteStartLaterThanRelativeEnd_Invalid()
 	{
-		RelativeTime startTime = new RelativeTime(2, TimeUnit.DAYS);
-		RelativeTime endTime = new RelativeTime(2, TimeUnit.WEEKS);
-		TimeValidator.validateEndTimeLaterThanStartTime(startTime.getTimeRelativeTo(System.currentTimeMillis()), endTime);
+		assertThrows(IllegalStateException.class, () -> {
+			RelativeTime startTime = new RelativeTime(2, TimeUnit.DAYS);
+			RelativeTime endTime = new RelativeTime(2, TimeUnit.WEEKS);
+			TimeValidator.validateEndTimeLaterThanStartTime(startTime.getTimeRelativeTo(System.currentTimeMillis()), endTime);
+		});
 	}
 
 	@Test
-	public void test_RelativeStartBeforeRelativeEnd_Valid() 
+	public void test_RelativeStartBeforeRelativeEnd_Valid()
 	{
 		RelativeTime startTime = new RelativeTime(2, TimeUnit.WEEKS);
 		RelativeTime endTime = new RelativeTime(2, TimeUnit.DAYS);
 		TimeValidator.validateEndTimeLaterThanStartTime(startTime, endTime);
 	}
 
-	@Test(expected = IllegalStateException.class)
-	public void test_RelativeStartLaterThanRelativeEnd_Invalid() 
+	@Test
+	public void test_RelativeStartLaterThanRelativeEnd_Invalid()
 	{
-		RelativeTime startTime = new RelativeTime(2, TimeUnit.DAYS);
-		RelativeTime endTime = new RelativeTime(2, TimeUnit.WEEKS);
-		TimeValidator.validateEndTimeLaterThanStartTime(startTime, endTime);
+		assertThrows(IllegalStateException.class, () -> {
+			RelativeTime startTime = new RelativeTime(2, TimeUnit.DAYS);
+			RelativeTime endTime = new RelativeTime(2, TimeUnit.WEEKS);
+			TimeValidator.validateEndTimeLaterThanStartTime(startTime, endTime);
+		});
 	}
 
 	@Test

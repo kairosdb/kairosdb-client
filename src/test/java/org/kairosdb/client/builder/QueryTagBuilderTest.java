@@ -3,7 +3,7 @@ package org.kairosdb.client.builder;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Date;
@@ -12,116 +12,123 @@ import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
 import static net.javacrumbs.jsonunit.JsonAssert.when;
 import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class QueryTagBuilderTest
 {
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void test_MetricNameNull_Invalid()
 	{
-		QueryTagBuilder.getInstance().addMetric(null);
+		assertThrows(NullPointerException.class, () -> QueryTagBuilder.getInstance().addMetric(null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void test_MetricNameEmpty_Invalid()
 	{
-		QueryTagBuilder.getInstance().addMetric("");
+		assertThrows(IllegalArgumentException.class, () -> QueryTagBuilder.getInstance().addMetric(""));
 	}
 
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void test_AbsoluteStartNull_Invalid()
 	{
-		QueryTagBuilder.getInstance().setStart(null);
+		assertThrows(NullPointerException.class, () -> QueryTagBuilder.getInstance().setStart(null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void test_AbsoluteStartAndRelativeStartSet_Invalid()
 	{
-		QueryTagBuilder.getInstance().setStart(new Date()).setStart(3, TimeUnit.DAYS);
+		assertThrows(IllegalArgumentException.class, () ->
+				QueryTagBuilder.getInstance().setStart(new Date()).setStart(3, TimeUnit.DAYS));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void test_RelativeStartAndAbsoluteStartSet_Invalid()
 	{
-		QueryTagBuilder.getInstance().setStart(3, TimeUnit.DAYS).setStart(new Date());
+		assertThrows(IllegalArgumentException.class, () ->
+				QueryTagBuilder.getInstance().setStart(3, TimeUnit.DAYS).setStart(new Date()));
 	}
 
-	@Test(expected = NullPointerException.class)
-	public void test_RelativeStartUnitNull_Invalid() throws IOException
+	@Test
+	public void test_RelativeStartUnitNull_Invalid()
 	{
-		QueryTagBuilder.getInstance().setStart(3, null);
+		assertThrows(NullPointerException.class, () -> QueryTagBuilder.getInstance().setStart(3, null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void test_RelativeStartValueZero_Invalid() throws IOException
+	@Test
+	public void test_RelativeStartValueZero_Invalid()
 	{
-		QueryTagBuilder.getInstance().setStart(0, TimeUnit.DAYS);
+		assertThrows(IllegalArgumentException.class, () -> QueryTagBuilder.getInstance().setStart(0, TimeUnit.DAYS));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void test_RelativeStartValueNegative_Invalid() throws IOException
+	@Test
+	public void test_RelativeStartValueNegative_Invalid()
 	{
-		QueryTagBuilder.getInstance().setStart(-1, TimeUnit.DAYS);
+		assertThrows(IllegalArgumentException.class, () -> QueryTagBuilder.getInstance().setStart(-1, TimeUnit.DAYS));
 	}
 
-	@Test(expected = NullPointerException.class)
-	public void test_RelativeEndUnitNull_Invalid() throws IOException
+	@Test
+	public void test_RelativeEndUnitNull_Invalid()
 	{
-		QueryTagBuilder.getInstance().setEnd(3, null);
+		assertThrows(NullPointerException.class, () -> QueryTagBuilder.getInstance().setEnd(3, null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void test_RelativeEndValueZero_Invalid() throws IOException
+	@Test
+	public void test_RelativeEndValueZero_Invalid()
 	{
-		QueryTagBuilder.getInstance().setEnd(0, TimeUnit.DAYS);
+		assertThrows(IllegalArgumentException.class, () -> QueryTagBuilder.getInstance().setEnd(0, TimeUnit.DAYS));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void test_RelativeEndValueNegative_Invalid() throws IOException
+	@Test
+	public void test_RelativeEndValueNegative_Invalid()
 	{
-		QueryTagBuilder.getInstance().setEnd(-1, TimeUnit.DAYS);
+		assertThrows(IllegalArgumentException.class, () -> QueryTagBuilder.getInstance().setEnd(-1, TimeUnit.DAYS));
 	}
 
-	@Test(expected = IllegalStateException.class)
-	public void test_startTimeNotSpecified_Invalid() throws IOException
+	@Test
+	public void test_startTimeNotSpecified_Invalid()
 	{
-		QueryTagBuilder.getInstance().build();
+		assertThrows(IllegalStateException.class, () -> QueryTagBuilder.getInstance().build());
 	}
 
-	@Test(expected = IllegalStateException.class)
-	public void test_endTimeAbsoluteBeforeStartTimeAbsolute_invalid() throws IOException
+	@Test
+	public void test_endTimeAbsoluteBeforeStartTimeAbsolute_invalid()
 	{
-		QueryTagBuilder.getInstance()
-				.setStart(new Date())
-				.setEnd(new Date(System.currentTimeMillis() - 10000))
-				.build();
+		assertThrows(IllegalStateException.class, () ->
+				QueryTagBuilder.getInstance()
+						.setStart(new Date())
+						.setEnd(new Date(System.currentTimeMillis() - 10000))
+						.build());
 	}
 
-	@Test(expected = IllegalStateException.class)
-	public void test_endTimeRelativeBeforeThanStartTimeRelative_invalid() throws IOException
+	@Test
+	public void test_endTimeRelativeBeforeThanStartTimeRelative_invalid()
 	{
-		QueryTagBuilder.getInstance()
-				.setStart(2, TimeUnit.DAYS)
-				.setEnd(2, TimeUnit.WEEKS)
-				.build();
+		assertThrows(IllegalStateException.class, () ->
+				QueryTagBuilder.getInstance()
+						.setStart(2, TimeUnit.DAYS)
+						.setEnd(2, TimeUnit.WEEKS)
+						.build());
 	}
 
-	@Test(expected = IllegalStateException.class)
-	public void test_endTimeRelativeBeforeStartTimeAbsolute_invalid() throws IOException
+	@Test
+	public void test_endTimeRelativeBeforeStartTimeAbsolute_invalid()
 	{
-		QueryTagBuilder.getInstance()
-				.setStart(new Date())
-				.setEnd(2, TimeUnit.WEEKS)
-				.build();
+		assertThrows(IllegalStateException.class, () ->
+				QueryTagBuilder.getInstance()
+						.setStart(new Date())
+						.setEnd(2, TimeUnit.WEEKS)
+						.build());
 	}
 
-	@Test(expected = IllegalStateException.class)
-	public void test_endTimeAbsoluteBeforeStartTimeRelative_invalid() throws IOException
+	@Test
+	public void test_endTimeAbsoluteBeforeStartTimeRelative_invalid()
 	{
-		QueryTagBuilder.getInstance()
-				.setStart(60, TimeUnit.SECONDS)
-				.setEnd(new Date(1000))
-				.build();
+		assertThrows(IllegalStateException.class, () ->
+				QueryTagBuilder.getInstance()
+						.setStart(60, TimeUnit.SECONDS)
+						.setEnd(new Date(1000))
+						.build());
 	}
 
 	@Test
@@ -152,11 +159,11 @@ public class QueryTagBuilderTest
 		tags1.add("fums");
 
 		builder.addMetric("metricName")
-				.addTag("foo",tags)
-				.addTag("fi",tags1);
-    assertJsonEquals(
-        builder.build(),
-            "{\"metrics\":[{\"name\":\"metricName\",\"tags\":{\"foo\":[\"bar\",\"Bar\",\"bars\"],\"fi\":[\"fum\",\"Fum\",\"fums\"]}}],\"start_relative\":{\"value\":1,\"unit\":\"HOURS\"}}",
+				.addTag("foo", tags)
+				.addTag("fi", tags1);
+		assertJsonEquals(
+				builder.build(),
+				"{\"metrics\":[{\"name\":\"metricName\",\"tags\":{\"foo\":[\"bar\",\"Bar\",\"bars\"],\"fi\":[\"fum\",\"Fum\",\"fums\"]}}],\"start_relative\":{\"value\":1,\"unit\":\"HOURS\"}}",
 				when(IGNORING_ARRAY_ORDER));
 	}
 }

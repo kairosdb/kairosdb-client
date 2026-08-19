@@ -1,20 +1,21 @@
 package org.kairosdb.client.builder;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.kairosdb.client.builder.aggregator.CustomAggregator;
 import org.kairosdb.client.builder.aggregator.PercentileAggregator;
 import org.kairosdb.client.builder.aggregator.RateAggregator;
 import org.kairosdb.client.builder.aggregator.SamplingAggregator;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class AggregatorFactoryTest
 {
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void test_createDivAggregator_zero_divisor_invalid()
 	{
-		AggregatorFactory.createDivAggregator(0);
+		assertThrows(IllegalArgumentException.class, () -> AggregatorFactory.createDivAggregator(0));
 	}
 
 	@Test
@@ -76,14 +77,14 @@ public class AggregatorFactoryTest
 		assertThat(aggregator.getValue(), equalTo(3L));
 		assertThat(aggregator.getUnit(), equalTo(TimeUnit.DAYS));
 	}
-	
+
 	@Test
 	public void test_createPercentileAggregator()
 	{
 		PercentileAggregator aggregator = AggregatorFactory.createPercentileAggregator(0.5, 3, TimeUnit.DAYS);
 
 		assertThat(aggregator.getName(), equalTo("percentile"));
-		assertThat(aggregator.getPercentile(),equalTo(0.5));
+		assertThat(aggregator.getPercentile(), equalTo(0.5));
 		assertThat(aggregator.getValue(), equalTo(3L));
 		assertThat(aggregator.getUnit(), equalTo(TimeUnit.DAYS));
 	}
@@ -160,16 +161,16 @@ public class AggregatorFactoryTest
 		assertThat(aggregator.toJson(), equalTo("{\"name\":\"scale\",\"factor\":0.5}"));
 	}
 
-	@Test (expected = NullPointerException.class)
+	@Test
 	public void test_createSaveAsAggregator_null_metricName_invalid()
 	{
-		AggregatorFactory.createSaveAsAggregator(null);
+		assertThrows(NullPointerException.class, () -> AggregatorFactory.createSaveAsAggregator(null));
 	}
 
-	@Test (expected = IllegalArgumentException.class)
+	@Test
 	public void test_createSaveAsAggregator_empty_metricName_invalid()
 	{
-		AggregatorFactory.createSaveAsAggregator("");
+		assertThrows(IllegalArgumentException.class, () -> AggregatorFactory.createSaveAsAggregator(""));
 	}
 
 	@Test
@@ -182,10 +183,10 @@ public class AggregatorFactoryTest
 
 	}
 
-	@Test (expected = NullPointerException.class)
+	@Test
 	public void test_createTrimAggregator_null_trim_invalid()
 	{
-		AggregatorFactory.createTrimAggregator(null);
+		assertThrows(NullPointerException.class, () -> AggregatorFactory.createTrimAggregator(null));
 	}
 
 	@Test

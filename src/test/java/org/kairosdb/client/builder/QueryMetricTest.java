@@ -15,91 +15,84 @@
  */
 package org.kairosdb.client.builder;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class QueryMetricTest
 {
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void test_constructor_NullName_Invalid()
 	{
-		new QueryMetric(null);
+		assertThrows(NullPointerException.class, () -> new QueryMetric(null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void test_constructor_EmptyName_Invalid()
 	{
-		new QueryMetric("");
+		assertThrows(IllegalArgumentException.class, () -> new QueryMetric(""));
 	}
 
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void test_addTag_nullName_Invalid()
 	{
 		QueryMetric queryMetric = new QueryMetric("metric");
-
-		queryMetric.addTag(null, "value");
+		assertThrows(NullPointerException.class, () -> queryMetric.addTag(null, "value"));
 	}
 
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void testAddTags_nullMap_invalid()
 	{
 		QueryMetric queryMetric = new QueryMetric("metric");
-
-		queryMetric.addTags(null);
+		assertThrows(NullPointerException.class, () -> queryMetric.addTags(null));
 	}
 
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void testAddMultiValuedTags_nullMap_invalid()
 	{
 		QueryMetric queryMetric = new QueryMetric("metric");
-
-		queryMetric.addMultiValuedTags(null);
+		assertThrows(NullPointerException.class, () -> queryMetric.addMultiValuedTags(null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void test_addTag_emptyName_Invalid()
 	{
 		QueryMetric queryMetric = new QueryMetric("metric");
-
-		queryMetric.addTag("", "value");
+		assertThrows(IllegalArgumentException.class, () -> queryMetric.addTag("", "value"));
 	}
 
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void test_addTag_nullValue_Invalid()
 	{
 		QueryMetric queryMetric = new QueryMetric("metric");
-
-		queryMetric.addTag("tag", (String)null);
+		assertThrows(NullPointerException.class, () -> queryMetric.addTag("tag", (String)null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void test_addTag_emptyValue_Invalid()
 	{
 		QueryMetric queryMetric = new QueryMetric("metric");
-
-		queryMetric.addTag("tag", "");
+		assertThrows(IllegalArgumentException.class, () -> queryMetric.addTag("tag", ""));
 	}
 
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void test_nullAggregator_invalid()
 	{
 		QueryMetric queryMetric = new QueryMetric("metric");
-
-		queryMetric.addAggregator(null);
+		assertThrows(NullPointerException.class, () -> queryMetric.addAggregator(null));
 	}
 
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void test_nullGrouper_invalid()
 	{
 		QueryMetric queryMetric = new QueryMetric("metric");
-
-		queryMetric.addGrouper(null);
+		assertThrows(NullPointerException.class, () -> queryMetric.addGrouper(null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void test_setLimit_lessThanZero_invalid()
 	{
 		QueryMetric queryMetric = new QueryMetric("metric");
-
-		queryMetric.setLimit(0);
+		assertThrows(IllegalArgumentException.class, () -> queryMetric.setLimit(0));
 	}
 }

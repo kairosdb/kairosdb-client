@@ -2,39 +2,40 @@
 //  CustomAggregatorTest.java
 //
 // Copyright 2013, Proofpoint Inc. All rights reserved.
-//        
+//
 package org.kairosdb.client.builder;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.kairosdb.client.builder.aggregator.CustomAggregator;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class CustomAggregatorTest
 {
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void test_NullName_invalid()
 	{
-		new CustomAggregator(null, "json");
+		assertThrows(NullPointerException.class, () -> new CustomAggregator(null, "json"));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void test_EmptyName_invalid()
 	{
-		new CustomAggregator("", "json");
+		assertThrows(IllegalArgumentException.class, () -> new CustomAggregator("", "json"));
 	}
 
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void test_NullJSON_invalid()
 	{
-		new CustomAggregator("name", null);
+		assertThrows(NullPointerException.class, () -> new CustomAggregator("name", null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void test_EmptyJSON_invalid()
 	{
-		new CustomAggregator("name", "");
+		assertThrows(IllegalArgumentException.class, () -> new CustomAggregator("name", ""));
 	}
 
 	@Test

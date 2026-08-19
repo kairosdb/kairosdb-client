@@ -1,19 +1,21 @@
 package org.kairosdb.client.response.grouping;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ValueGroupResultTest
 {
 
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void test_constructor_null_GroupingNumber_invalid()
 	{
-		new ValueGroupResult(1, null);
+		assertThrows(NullPointerException.class, () -> new ValueGroupResult(1, null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void test_constructor_rangeSize_Zero_invalid()
 	{
-		new ValueGroupResult(0, new GroupingNumber(1));
+		assertThrows(IllegalArgumentException.class, () -> new ValueGroupResult(0, new GroupingNumber(1)));
 	}
 }

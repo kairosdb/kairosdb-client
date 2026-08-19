@@ -15,51 +15,53 @@
  */
 package org.kairosdb.client.builder;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.kairosdb.client.builder.aggregator.SamplingAggregator;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SamplingAggregatorTest
 {
 
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void test_nullName_invalid()
 	{
-		new SamplingAggregator(null, 1 ,TimeUnit.DAYS);
+		assertThrows(NullPointerException.class, () -> new SamplingAggregator(null, 1, TimeUnit.DAYS));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void test_emptyName_invalid()
 	{
-		new SamplingAggregator("", 1 ,TimeUnit.DAYS);
+		assertThrows(IllegalArgumentException.class, () -> new SamplingAggregator("", 1, TimeUnit.DAYS));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void test_valueNegative_invalid()
 	{
-		new SamplingAggregator("sum", -1 ,TimeUnit.DAYS);
+		assertThrows(IllegalArgumentException.class, () -> new SamplingAggregator("sum", -1, TimeUnit.DAYS));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void test_valueZero_invalid()
 	{
-		new SamplingAggregator("sum", 0 ,TimeUnit.DAYS);
+		assertThrows(IllegalArgumentException.class, () -> new SamplingAggregator("sum", 0, TimeUnit.DAYS));
 	}
 
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void test_unitNull_invalid()
 	{
-		new SamplingAggregator("sum", 1, null);
+		assertThrows(NullPointerException.class, () -> new SamplingAggregator("sum", 1, null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testWithStartTimeAlignmentNegativeStartTimeInvalid()
 	{
-		new SamplingAggregator("sum", 1, TimeUnit.DAYS).withStartTimeAlignment(-1);
+		assertThrows(IllegalArgumentException.class, () ->
+				new SamplingAggregator("sum", 1, TimeUnit.DAYS).withStartTimeAlignment(-1));
 	}
 
 	@Test

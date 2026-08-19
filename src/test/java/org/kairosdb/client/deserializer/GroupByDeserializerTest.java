@@ -2,22 +2,23 @@ package org.kairosdb.client.deserializer;
 
 import com.google.gson.*;
 import org.hamcrest.CoreMatchers;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.kairosdb.client.builder.RelativeTime;
 import org.kairosdb.client.builder.TimeUnit;
 import org.kairosdb.client.response.GroupResult;
 import org.kairosdb.client.response.grouping.*;
 
 import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class GroupByDeserializerTest
 {
 	private Gson gson;
 
-	@Before
+	@BeforeEach
 	public void setup()
 	{
 		GsonBuilder builder = new GsonBuilder();
@@ -25,13 +26,14 @@ public class GroupByDeserializerTest
 		gson = builder.create();
 	}
 
-	@Test(expected = JsonParseException.class)
+	@Test
 	public void test_missingName_invalid()
 	{
-		JsonObject json = new JsonObject();
-		json.add("value", new JsonPrimitive(5));
-
-		new GroupByDeserializer().deserialize(json, null, null);
+		assertThrows(JsonParseException.class, () -> {
+			JsonObject json = new JsonObject();
+			json.add("value", new JsonPrimitive(5));
+			new GroupByDeserializer().deserialize(json, null, null);
+		});
 	}
 
 	@Test

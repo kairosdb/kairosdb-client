@@ -17,7 +17,7 @@ package org.kairosdb.client.builder;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.kairosdb.client.builder.grouper.TagGrouper;
 import org.kairosdb.client.builder.grouper.TimeGrouper;
 import org.kairosdb.client.builder.grouper.ValueGrouper;
@@ -28,136 +28,143 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class QueryBuilderTest
 {
 	private QueryParser parser = new QueryParser();
 
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void test_MetricNameNull_Invalid()
 	{
-		QueryBuilder.getInstance().addMetric((String)null);
+		assertThrows(NullPointerException.class, () -> QueryBuilder.getInstance().addMetric((String)null));
 	}
 
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void test_addMetricNull_invalid()
 	{
-		QueryBuilder.getInstance().addMetric((QueryMetric) null);
+		assertThrows(NullPointerException.class, () -> QueryBuilder.getInstance().addMetric((QueryMetric) null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void test_MetricNameEmpty_Invalid()
 	{
-		QueryBuilder.getInstance().addMetric("");
+		assertThrows(IllegalArgumentException.class, () -> QueryBuilder.getInstance().addMetric(""));
 	}
 
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void test_AbsoluteStartNull_Invalid()
 	{
-		QueryBuilder.getInstance().setStart(null);
+		assertThrows(NullPointerException.class, () -> QueryBuilder.getInstance().setStart(null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void test_AbsoluteStartAndRelativeStartSet_Invalid()
 	{
-		QueryBuilder.getInstance().setStart(new Date()).setStart(3, TimeUnit.DAYS);
+		assertThrows(IllegalArgumentException.class, () ->
+				QueryBuilder.getInstance().setStart(new Date()).setStart(3, TimeUnit.DAYS));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void test_RelativeStartAndAbsoluteStartSet_Invalid()
 	{
-		QueryBuilder.getInstance().setStart(3, TimeUnit.DAYS).setStart(new Date());
+		assertThrows(IllegalArgumentException.class, () ->
+				QueryBuilder.getInstance().setStart(3, TimeUnit.DAYS).setStart(new Date()));
 	}
 
-	@Test(expected = NullPointerException.class)
-	public void test_RelativeStartUnitNull_Invalid() throws IOException
+	@Test
+	public void test_RelativeStartUnitNull_Invalid()
 	{
-		QueryBuilder.getInstance().setStart(3, null);
+		assertThrows(NullPointerException.class, () -> QueryBuilder.getInstance().setStart(3, null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void test_RelativeStartValueZero_Invalid() throws IOException
+	@Test
+	public void test_RelativeStartValueZero_Invalid()
 	{
-		QueryBuilder.getInstance().setStart(0, TimeUnit.DAYS);
+		assertThrows(IllegalArgumentException.class, () -> QueryBuilder.getInstance().setStart(0, TimeUnit.DAYS));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void test_RelativeStartValueNegative_Invalid() throws IOException
+	@Test
+	public void test_RelativeStartValueNegative_Invalid()
 	{
-		QueryBuilder.getInstance().setStart(-1, TimeUnit.DAYS);
+		assertThrows(IllegalArgumentException.class, () -> QueryBuilder.getInstance().setStart(-1, TimeUnit.DAYS));
 	}
 
-	@Test(expected = NullPointerException.class)
-	public void test_RelativeEndUnitNull_Invalid() throws IOException
+	@Test
+	public void test_RelativeEndUnitNull_Invalid()
 	{
-		QueryBuilder.getInstance().setEnd(3, null);
+		assertThrows(NullPointerException.class, () -> QueryBuilder.getInstance().setEnd(3, null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void test_RelativeEndValueZero_Invalid() throws IOException
+	@Test
+	public void test_RelativeEndValueZero_Invalid()
 	{
-		QueryBuilder.getInstance().setEnd(0, TimeUnit.DAYS);
+		assertThrows(IllegalArgumentException.class, () -> QueryBuilder.getInstance().setEnd(0, TimeUnit.DAYS));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void test_RelativeEndValueNegative_Invalid() throws IOException
+	@Test
+	public void test_RelativeEndValueNegative_Invalid()
 	{
-		QueryBuilder.getInstance().setEnd(-1, TimeUnit.DAYS);
+		assertThrows(IllegalArgumentException.class, () -> QueryBuilder.getInstance().setEnd(-1, TimeUnit.DAYS));
 	}
 
-	@Test(expected = IllegalStateException.class)
-	public void test_startTimeNotSpecified_Invalid() throws IOException
+	@Test
+	public void test_startTimeNotSpecified_Invalid()
 	{
-		QueryBuilder.getInstance().build();
+		assertThrows(IllegalStateException.class, () -> QueryBuilder.getInstance().build());
 	}
 
-	@Test(expected = IllegalStateException.class)
-	public void test_endTimeAbsoluteBeforeStartTimeAbsolute_invalid() throws IOException
+	@Test
+	public void test_endTimeAbsoluteBeforeStartTimeAbsolute_invalid()
 	{
-		QueryBuilder.getInstance()
-				.setStart(new Date())
-				.setEnd(new Date(System.currentTimeMillis() - 10000))
-				.build();
+		assertThrows(IllegalStateException.class, () ->
+				QueryBuilder.getInstance()
+						.setStart(new Date())
+						.setEnd(new Date(System.currentTimeMillis() - 10000))
+						.build());
 	}
 
-	@Test(expected = IllegalStateException.class)
-	public void test_endTimeRelativeBeforeThanStartTimeRelative_invalid() throws IOException
+	@Test
+	public void test_endTimeRelativeBeforeThanStartTimeRelative_invalid()
 	{
-		QueryBuilder.getInstance()
-				.setStart(2, TimeUnit.DAYS)
-				.setEnd(2, TimeUnit.WEEKS)
-				.build();
+		assertThrows(IllegalStateException.class, () ->
+				QueryBuilder.getInstance()
+						.setStart(2, TimeUnit.DAYS)
+						.setEnd(2, TimeUnit.WEEKS)
+						.build());
 	}
 
-	@Test(expected = IllegalStateException.class)
-	public void test_endTimeRelativeBeforeStartTimeAbsolute_invalid() throws IOException
+	@Test
+	public void test_endTimeRelativeBeforeStartTimeAbsolute_invalid()
 	{
-		QueryBuilder.getInstance()
-				.setStart(new Date())
-				.setEnd(2, TimeUnit.WEEKS)
-				.build();
+		assertThrows(IllegalStateException.class, () ->
+				QueryBuilder.getInstance()
+						.setStart(new Date())
+						.setEnd(2, TimeUnit.WEEKS)
+						.build());
 	}
 
-	@Test(expected = IllegalStateException.class)
-	public void test_endTimeAbsoluteBeforeStartTimeRelative_invalid() throws IOException
+	@Test
+	public void test_endTimeAbsoluteBeforeStartTimeRelative_invalid()
 	{
-		QueryBuilder.getInstance()
-				.setStart(60, TimeUnit.SECONDS)
-				.setEnd(new Date(1000))
-				.build();
+		assertThrows(IllegalStateException.class, () ->
+				QueryBuilder.getInstance()
+						.setStart(60, TimeUnit.SECONDS)
+						.setEnd(new Date(1000))
+						.build());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void test_cacheTimeZero_Invalid()
 	{
-		QueryBuilder.getInstance().setCacheTime(0);
+		assertThrows(IllegalArgumentException.class, () -> QueryBuilder.getInstance().setCacheTime(0));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void test_cacheTimeNegative_Invalid()
 	{
-		QueryBuilder.getInstance().setCacheTime(-1);
+		assertThrows(IllegalArgumentException.class, () -> QueryBuilder.getInstance().setCacheTime(-1));
 	}
 
 	@Test
@@ -244,10 +251,10 @@ public class QueryBuilderTest
 		assertThat(QueryBuilder.getInstance().getTimeZone(), equalTo(TimeZone.getTimeZone("UTC")));
 	}
 
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void test_setTimeZoneNullInvalid()
 	{
-		QueryBuilder.getInstance().setTimeZone(null);
+		assertThrows(NullPointerException.class, () -> QueryBuilder.getInstance().setTimeZone(null));
 	}
 
 	//@Test

@@ -1,6 +1,6 @@
 package org.kairosdb.client.response.grouping;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,19 +10,20 @@ import java.util.Map;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class BinGroupResultTest
 {
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void test_constructor_null_bins_invalid()
 	{
-		new BinGroupResult(null, new HashMap<String, Integer>());
+		assertThrows(NullPointerException.class, () -> new BinGroupResult(null, new HashMap<String, Integer>()));
 	}
 
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void test_constructor_null_group_invalid()
 	{
-		new BinGroupResult(new ArrayList<Double>(), null);
+		assertThrows(NullPointerException.class, () -> new BinGroupResult(new ArrayList<Double>(), null));
 	}
 
 	@Test

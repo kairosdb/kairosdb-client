@@ -27,10 +27,8 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicHeader;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.kairosdb.client.HttpClient.RollupTaskResponse;
 import org.kairosdb.client.builder.*;
 import org.kairosdb.client.response.QueryResponse;
@@ -46,24 +44,23 @@ import java.util.List;
 
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.apache.http.entity.ContentType.APPLICATION_JSON;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class HttpClientTest
 {
-	@Rule
-	public ExpectedException thrown= ExpectedException.none();
-
 	private CloseableHttpClient mockClient;
 	private HttpClient client;
 	private JsonMapper mapper;
 
 
-	@Before
+	@BeforeEach
 	public void setup() throws MalformedURLException
 	{
 		mapper = new JsonMapper(new DataPointTypeRegistry());
@@ -74,22 +71,22 @@ public class HttpClientTest
 		client = new HttpClient(mockClientBuilder, "http://localhost");
 	}
 
-	@Test(expected = NullPointerException.class)
-	public void test_constructor_null_url_invalid() throws MalformedURLException
+	@Test
+	public void test_constructor_null_url_invalid()
 	{
-		new HttpClient(null);
+		assertThrows(NullPointerException.class, () -> new HttpClient(null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void test_constructor_empty_url_invalid() throws MalformedURLException
+	@Test
+	public void test_constructor_empty_url_invalid()
 	{
-		new HttpClient("");
+		assertThrows(IllegalArgumentException.class, () -> new HttpClient(""));
 	}
 
-	@Test(expected = MalformedURLException.class)
-	public void test_constructor_invalid_url() throws MalformedURLException
+	@Test
+	public void test_constructor_invalid_url()
 	{
-		new HttpClient("foo");
+		assertThrows(MalformedURLException.class, () -> new HttpClient("foo"));
 	}
 
 	@Test
@@ -109,29 +106,25 @@ public class HttpClientTest
 	@Test
 	public void test_getMetricNames_withIOException() throws IOException
 	{
-		thrown.expectMessage("Error reading JSON response from server");
-		thrown.expect(RuntimeException.class);
-
 		HttpEntity mockEntity = mock(HttpEntity.class);
 		when(mockEntity.getContent()).thenThrow(new IOException("Expected Exception"));
 		CloseableHttpResponse mockResponse = mockResponse(400, mockEntity);
 		when(mockClient.execute(any())).thenReturn(mockResponse);
 
-		client.getMetricNames();
+		RuntimeException e = assertThrows(RuntimeException.class, () -> client.getMetricNames());
+		assertThat(e.getMessage(), containsString("Error reading JSON response from server"));
 	}
 
 	@Test
 	public void test_getMetricNames_returns_400() throws IOException
 	{
-		thrown.expectMessage("Errors: This is an expected error");
-		thrown.expect(UnexpectedResponseException.class);
-
 		HttpEntity mockEntity = mock(HttpEntity.class);
 		when(mockEntity.getContent()).thenReturn(toErrorStream("This is an expected error"));
 		CloseableHttpResponse mockResponse = mockResponse(400, mockEntity);
 		when(mockClient.execute(any())).thenReturn(mockResponse);
 
-		client.getMetricNames();
+		UnexpectedResponseException e = assertThrows(UnexpectedResponseException.class, () -> client.getMetricNames());
+		assertThat(e.getMessage(), containsString("Errors: This is an expected error"));
 	}
 
 	@Test

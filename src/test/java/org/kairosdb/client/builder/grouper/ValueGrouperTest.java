@@ -5,13 +5,16 @@
 //        
 package org.kairosdb.client.builder.grouper;
 
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ValueGrouperTest
 {
-	@Test(expected = IllegalArgumentException.class)
+	@Test()
 	public void test_constructor_rangeSize_lessThan1()
 	{
-		new ValueGrouper(0);
+		assertThrows(IllegalArgumentException.class, () -> new ValueGrouper(0));
 	}
 }
